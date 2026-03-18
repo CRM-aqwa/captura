@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captura 2026</title>
+    <title>Captura Live</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #333; }
-        .container { text-align: center; padding: 20px; width: 90%; max-width: 400px; }
-        #mic-btn { background: white; border: none; border-radius: 50%; width: 80px; height: 80px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); cursor: pointer; font-size: 30px; margin-bottom: 20px; }
-        #mic-btn.listening { background: #ff4b2b; color: white; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(255, 75, 43, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); } }
-        #output { font-style: italic; color: #666; min-height: 100px; text-align: left; background: white; padding: 15px; border-radius: 10px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); width: 100%; font-size: 14px; }
-        .config { margin-bottom: 20px; font-size: 12px; }
-        input { padding: 8px; border-radius: 5px; border: 1px solid #ccc; width: 80%; }
-        pre { white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 11px; color: #007aff; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #1c1e21; }
+        .container { text-align: center; padding: 30px; width: 90%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        h1 { font-size: 28px; margin-bottom: 25px; color: #1a73e8; }
+        #mic-btn { background: #f8f9fa; border: 1px solid #dadce0; border-radius: 50%; width: 100px; height: 100px; cursor: pointer; font-size: 40px; margin-bottom: 25px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        #mic-btn.listening { background: #ea4335; color: white; border-color: #ea4335; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.4); } 70% { box-shadow: 0 0 0 25px rgba(234, 67, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0); } }
+        #output { font-size: 15px; line-height: 1.6; color: #444; background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #e8eaed; min-height: 80px; text-align: left; width: 100%; box-sizing: border-box; }
+        .config { margin-bottom: 20px; }
+        input { padding: 12px; border-radius: 8px; border: 1px solid #ced4da; width: 100%; box-sizing: border-box; font-size: 14px; text-align: center; }
+        .hint { font-size: 11px; color: #70757a; margin-top: 8px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: 14px; color: #007aff; font-weight: 600; margin: 0; }
     </style>
 </head>
 <body>
@@ -23,11 +25,11 @@
     
     <div class="config">
         <input type="password" id="api-key-input" placeholder="Collez votre clé API ici">
-        <p style="font-size: 10px; color: #999;">La clé reste sur votre iPhone uniquement.</p>
+        <div class="hint">La clé est stockée uniquement sur votre iPhone.</div>
     </div>
 
     <button id="mic-btn">🎙️</button>
-    <div id="output">Entrez votre clé ci-dessus, puis parlez.</div>
+    <div id="output">Appuyez sur le micro et parlez...</div>
 </div>
 
 <script>
@@ -35,7 +37,7 @@
     const output = document.getElementById('output');
     const keyInput = document.getElementById('api-key-input');
 
-    // Récupérer la clé si elle a déjà été saisie
+    // Récupération de la clé enregistrée
     if(localStorage.getItem('gemini_key')) {
         keyInput.value = localStorage.getItem('gemini_key');
     }
@@ -45,49 +47,61 @@
     if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         recognition.lang = 'fr-CH';
+        recognition.interimResults = false;
 
         btn.addEventListener('click', () => {
             const key = keyInput.value.trim();
-            if(!key) { alert("Veuillez coller votre clé d'abord !"); return; }
-            
-            // Sauvegarder la clé localement sur le téléphone
+            if(!key) { alert("Veuillez d'abord coller votre clé API !"); return; }
             localStorage.setItem('gemini_key', key);
 
             if (btn.classList.contains('listening')) {
                 recognition.stop();
-                btn.classList.remove('listening');
             } else {
                 recognition.start();
                 btn.classList.add('listening');
-                output.innerText = "Je vous écoute...";
+                output.innerHTML = "<em>Je vous écoute...</em>";
             }
         });
 
         recognition.onresult = async (event) => {
+            btn.classList.remove('listening');
             const transcript = event.results[0][0].transcript;
             const key = keyInput.value.trim();
-            output.innerHTML = `<em>"${transcript}"</em><br><br><strong>Analyse IA en cours... 🧠</strong>`;
-            btn.classList.remove('listening');
+            output.innerHTML = `<strong>Dictée :</strong> ${transcript}<br><br><strong>Analyse en cours... 🧠</strong>`;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${key}`, {
+                // Version d'URL la plus stable pour Gemini 1.5 Flash
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Classe cette dictée (Action, Domaine, Type: IDEE ou TACHE). Dictée: "${transcript}"` }] }]
+                        contents: [{ parts: [{ text: `Analyse cette dictée et classe-la (Action, Domaine, Type: IDEE ou TACHE). Dictée: "${transcript}"` }] }]
                     })
                 });
+
                 const data = await response.json();
-                if(data.error) throw new Error(data.error.message);
                 
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
                 const aiResult = data.candidates[0].content.parts[0].text;
-                output.innerHTML = `<strong>Dictée :</strong> ${transcript}<br><br><strong>Analyse :</strong><br><pre>${aiResult}</pre>`;
+                output.innerHTML = `<strong>Dictée :</strong> ${transcript}<br><br><pre>${aiResult}</pre>`;
+                
             } catch (error) {
-                output.innerHTML = `<span style="color:red">Erreur : ${error.message}</span>`;
+                output.innerHTML = `<span style="color:red">Erreur : ${error.message}</span><br><br>Assurez-vous que votre clé est valide.`;
             }
         };
+
+        recognition.onerror = () => {
+            btn.classList.remove('listening');
+            output.innerHTML = "<span style='color:orange'>Micro interrompu ou non autorisé.</span>";
+        };
+    } else {
+        output.innerHTML = "Votre navigateur ne supporte pas la dictée vocale.";
     }
 </script>
 </body>
 </html>
-
