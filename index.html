@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captura 2026</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f4f4f9; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; color: #333; }
+        .container { text-align: center; padding: 20px; width: 90%; max-width: 400px; }
+        h1 { font-weight: 300; letter-spacing: -1px; margin-bottom: 50px; }
+        #mic-btn { background: white; border: none; border-radius: 50%; width: 80px; height: 80px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; font-size: 30px; }
+        #mic-btn:active { transform: scale(0.9); }
+        #mic-btn.listening { background: #ff4b2b; color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(255, 75, 43, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); } }
+        #output { margin-top: 30px; font-style: italic; color: #666; min-height: 100px; line-height: 1.5; }
+        .status { font-size: 12px; color: #aaa; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Captura 2026</h1>
+    <button id="mic-btn">🎙️</button>
+    <div id="output">Appuyez pour dicter...</div>
+    <div class="status">Mode PWA Ready • Clef API en attente</div>
+</div>
+
+<script>
+    const btn = document.getElementById('mic-btn');
+    const output = document.getElementById('output');
+    
+    // Vérification de la compatibilité du navigateur
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'fr-FR';
+        recognition.interimResults = true;
+        recognition.continuous = true;
+
+        btn.addEventListener('click', () => {
+            if (btn.classList.contains('listening')) {
+                recognition.stop();
+                btn.classList.remove('listening');
+            } else {
+                recognition.start();
+                btn.classList.add('listening');
+                output.innerText = "Je vous écoute...";
+            }
+        });
+
+        recognition.onresult = (event) => {
+            let transcript = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                transcript += event.results[i][0].transcript;
+            }
+            output.innerText = transcript;
+        };
+
+        recognition.onerror = (event) => {
+            output.innerText = "Erreur micro : " + event.error;
+            btn.classList.remove('listening');
+        };
+
+    } else {
+        output.innerText = "Désolé, votre navigateur ne supporte pas la dictée vocale.";
+    }
+</script>
+
+</body>
+</html>
