@@ -2,123 +2,121 @@
 <html lang="fr-CH">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Captura Live</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; color: #1c1e21; padding-top: 5vh; }
-        .container { text-align: center; padding: 25px; width: 90%; max-width: 400px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 20px; }
-        h1 { font-size: 24px; margin-bottom: 20px; color: #1a73e8; }
-        #mic-btn { background: #f8f9fa; border: 1px solid #dadce0; border-radius: 50%; width: 90px; height: 90px; cursor: pointer; font-size: 35px; margin: 0 auto 20px auto; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
-        #mic-btn.listening { background: #ea4335; color: white; border-color: #ea4335; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.4); } 70% { box-shadow: 0 0 0 20px rgba(234, 67, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0); } }
-        #output { font-size: 15px; line-height: 1.6; color: #444; background: #f8f9fa; padding: 15px; border-radius: 12px; border: 1px solid #e8eaed; min-height: 60px; text-align: left; width: 100%; box-sizing: border-box; }
-        .config { margin-bottom: 20px; }
-        input { padding: 12px; border-radius: 8px; border: 1px solid #ced4da; width: 100%; box-sizing: border-box; font-size: 14px; text-align: center; margin-bottom: 5px; }
-        .hint { font-size: 11px; color: #70757a; }
-        pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: 14px; color: #007aff; font-weight: 600; margin: 0; }
-        #log-panel { width: 90%; max-width: 400px; background: #222; color: #0f0; font-family: monospace; font-size: 11px; padding: 10px; border-radius: 10px; height: 120px; overflow-y: auto; }
+        :root { --blue: #007aff; --bg: #f2f2f7; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; color: #000; }
+        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; box-sizing: border-box; }
+        h1 { font-size: 22px; margin-bottom: 20px; color: var(--blue); }
+        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 16px; -webkit-appearance: none; }
+        #mic-btn { width: 80px; height: 80px; border-radius: 40px; border: none; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 32px; cursor: pointer; transition: transform 0.2s; margin-bottom: 20px; -webkit-tap-highlight-color: transparent; display: inline-flex; align-items: center; justify-content: center; }
+        #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.1); }
+        #output { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; min-height: 100px; font-size: 15px; border: 1px solid #e5e5ea; width: 100%; box-sizing: border-box; }
+        pre { color: var(--blue); font-weight: 600; margin: 0; white-space: pre-wrap; word-break: break-word; }
+        .status { font-size: 12px; color: #8e8e93; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="card">
     <h1>Captura Live</h1>
-    <div class="config">
-        <input type="password" id="api-key-input" placeholder="Clé API Gemini">
-        <div class="hint">Stockée sur votre iPhone (localStorage).</div>
-    </div>
+    <input type="password" id="apiKey" placeholder="Clé API Gemini" autocomplete="off">
     <button id="mic-btn">🎙️</button>
-    <div id="output">Appuyez pour parler...</div>
-</div>
-
-<div id="log-panel">
-    <div style="color:#fabb05; margin-bottom:5px;">-- LOGS DE DIAGNOSTIC --</div>
-    <div id="log-content">Prêt.</div>
+    <div id="output">Appuyez sur le micro pour parler...</div>
+    <div class="status" id="statusText">Prêt</div>
 </div>
 
 <script>
     const btn = document.getElementById('mic-btn');
     const output = document.getElementById('output');
-    const keyInput = document.getElementById('api-key-input');
-    const logContent = document.getElementById('log-content');
+    const statusText = document.getElementById('statusText');
+    const apiKeyInput = document.getElementById('apiKey');
 
-    function log(msg, color = "#fff") {
-        const time = new Date().toLocaleTimeString('fr-CH');
-        logContent.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
-        logContent.parentElement.scrollTop = logContent.parentElement.scrollHeight;
-    }
-
+    // Récupération de la clé sauvegardée
     const savedKey = localStorage.getItem('gemini_key');
-    if (savedKey) { keyInput.value = savedKey; log("Clé chargée.", "#34a853"); }
+    if (savedKey) apiKeyInput.value = savedKey;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-        output.innerHTML = "Safari requis.";
+    if (!Recognition) {
+        output.innerHTML = "<b style='color:red'>Erreur : Safari sur iOS est requis pour la dictée vocale.</b>";
     } else {
-        const rec = new SpeechRecognition();
+        const rec = new Recognition();
         rec.lang = 'fr-CH';
         rec.interimResults = true;
+        rec.continuous = false;
 
-        btn.addEventListener('click', function() {
-            if (btn.classList.contains('listening')) {
+        btn.onclick = () => {
+            if (btn.classList.contains('active')) {
                 rec.stop();
-                btn.classList.remove('listening');
             } else {
-                const key = keyInput.value.trim();
-                if (!key) { alert("Entrez la clé !"); return; }
-                localStorage.setItem('gemini_key', key);
+                if (!apiKeyInput.value) { alert("Veuillez entrer votre clé API."); return; }
+                localStorage.setItem('gemini_key', apiKeyInput.value);
                 try {
                     rec.start();
-                    btn.classList.add('listening');
-                    output.innerHTML = "Écoute...";
-                    log("Micro ON", "#fabb05");
-                } catch(e) { log("Erreur: " + e.message, "#ea4335"); }
-            }
-        });
-
-        rec.onresult = function(event) {
-            let text = "";
-            for (let i = 0; i < event.results.length; i++) {
-                text += event.results[i][0].transcript;
-            }
-            output.innerHTML = `<strong>Dictée:</strong> ${text}`;
-            
-            if (event.results[event.results.length - 1].isFinal) {
-                log("Finalisé.", "#34a853");
-                btn.classList.remove('listening');
-                sendToGemini(text);
+                    btn.classList.add('active');
+                    statusText.innerText = "Écoute...";
+                } catch (e) { console.error(e); }
             }
         };
 
-        async function sendToGemini(text) {
-            const key = keyInput.value.trim();
-            output.innerHTML = "<strong>Analyse...</strong>";
+        rec.onresult = (event) => {
+            const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
+            output.innerHTML = `<strong>Dictée :</strong> ${transcript}`;
+            
+            if (event.results[event.results.length - 1].isFinal) {
+                btn.classList.remove('active');
+                analyzeWithGemini(transcript);
+            }
+        };
+
+        rec.onend = () => btn.classList.remove('active');
+
+        async function analyzeWithGemini(text) {
+            statusText.innerText = "Analyse Gemini en cours...";
+            const key = apiKeyInput.value.trim();
+            
+            // CONFIGURATION OFFICIELLE GOOGLE AI
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+
             try {
-                // URL CORRIGÉE avec le modèle exact
-                const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + key;
-                
-                const res = await fetch(url, {
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Agis comme un assistant d'organisation. Analyse cette dictée et donne l'ACTION, le DOMAINE et le TYPE (IDEE ou TACHE). Dictée: " + text }] }]
+                        contents: [{
+                            parts: [{
+                                text: `Analyse cette dictée courte et retourne uniquement les infos suivantes :
+                                TYPE: (Tâche ou Idée)
+                                RÉSUMÉ: (La phrase propre)
+                                ACTION: (Le verbe)
+                                
+                                Dictée : "${text}"`
+                            }]
+                        }]
                     })
                 });
-                const data = await res.json();
-                if (data.error) throw new Error(data.error.message);
-                
-                const result = data.candidates[0].content.parts[0].text;
-                output.innerHTML = `<strong>Dictée:</strong> ${text}<br><hr><pre>${result}</pre>`;
-                log("Réponse reçue !", "#34a853");
-            } catch(e) {
-                log("Erreur: " + e.message, "#ea4335");
-                output.innerHTML = "Erreur: " + e.message;
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(`${data.error.message}`);
+                }
+
+                if (data.candidates && data.candidates[0].content) {
+                    const result = data.candidates[0].content.parts[0].text;
+                    output.innerHTML = `<strong>Dictée :</strong> ${text}<hr><pre>${result}</pre>`;
+                    statusText.innerText = "Analyse terminée.";
+                } else {
+                    throw new Error("Réponse inattendue de l'API.");
+                }
+
+            } catch (err) {
+                statusText.innerText = "Erreur API.";
+                output.innerHTML = `<span style="color:red">Erreur : ${err.message}</span>`;
             }
         }
-
-        rec.onerror = (e) => { btn.classList.remove('listening'); log("Erreur: " + e.error, "#ea4335"); };
-        rec.onend = () => { btn.classList.remove('listening'); log("Micro OFF", "#fabb05"); };
     }
 </script>
 </body>
