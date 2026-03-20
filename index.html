@@ -33,11 +33,10 @@
 
 <div id="log-panel">
     <div style="color:#fabb05; margin-bottom:5px;">-- LOGS DE DIAGNOSTIC --</div>
-    <div id="log-content">Initialisation...</div>
+    <div id="log-content">Prêt.</div>
 </div>
 
 <script>
-    // Éléments DOM
     const btn = document.getElementById('mic-btn');
     const output = document.getElementById('output');
     const keyInput = document.getElementById('api-key-input');
@@ -49,21 +48,14 @@
         logContent.parentElement.scrollTop = logContent.parentElement.scrollHeight;
     }
 
-    // Chargement clé
     const savedKey = localStorage.getItem('gemini_key');
-    if (savedKey) {
-        keyInput.value = savedKey;
-        log("Clé API chargée.", "#34a853");
-    }
+    if (savedKey) { keyInput.value = savedKey; log("Clé chargée.", "#34a853"); }
 
-    // Init Recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-        log("ERREUR: Safari iOS requis.", "#ea4335");
-        output.innerHTML = "Navigateur non compatible.";
+        output.innerHTML = "Safari requis.";
     } else {
-        log("API Speech détectée.", "#34a853");
         const rec = new SpeechRecognition();
         rec.lang = 'fr-CH';
         rec.interimResults = true;
@@ -72,17 +64,16 @@
             if (btn.classList.contains('listening')) {
                 rec.stop();
                 btn.classList.remove('listening');
-                log("Arrêt demandé.");
             } else {
                 const key = keyInput.value.trim();
-                if (!key) { alert("Entrez votre clé !"); return; }
+                if (!key) { alert("Entrez la clé !"); return; }
                 localStorage.setItem('gemini_key', key);
                 try {
                     rec.start();
                     btn.classList.add('listening');
                     output.innerHTML = "Écoute...";
-                    log("Micro démarré.", "#fabb05");
-                } catch(e) { log("Erreur start: " + e.message, "#ea4335"); }
+                    log("Micro ON", "#fabb05");
+                } catch(e) { log("Erreur: " + e.message, "#ea4335"); }
             }
         });
 
@@ -94,7 +85,7 @@
             output.innerHTML = `<strong>Dictée:</strong> ${text}`;
             
             if (event.results[event.results.length - 1].isFinal) {
-                log("Dictée terminée.", "#34a853");
+                log("Finalisé.", "#34a853");
                 btn.classList.remove('listening');
                 sendToGemini(text);
             }
@@ -102,14 +93,16 @@
 
         async function sendToGemini(text) {
             const key = keyInput.value.trim();
-            output.innerHTML = "<strong>Analyse Gemini...</strong>";
+            output.innerHTML = "<strong>Analyse...</strong>";
             try {
-                const url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + key;
+                // URL CORRIGÉE avec le modèle exact
+                const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=" + key;
+                
                 const res = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Analyse et classe: " + text }] }]
+                        contents: [{ parts: [{ text: "Agis comme un assistant d'organisation. Analyse cette dictée et donne l'ACTION, le DOMAINE et le TYPE (IDEE ou TACHE). Dictée: " + text }] }]
                     })
                 });
                 const data = await res.json();
@@ -117,22 +110,15 @@
                 
                 const result = data.candidates[0].content.parts[0].text;
                 output.innerHTML = `<strong>Dictée:</strong> ${text}<br><hr><pre>${result}</pre>`;
-                log("Gemini OK.", "#34a853");
+                log("Réponse reçue !", "#34a853");
             } catch(e) {
-                log("Erreur API: " + e.message, "#ea4335");
+                log("Erreur: " + e.message, "#ea4335");
                 output.innerHTML = "Erreur: " + e.message;
             }
         }
 
-        rec.onerror = (e) => {
-            btn.classList.remove('listening');
-            log("Erreur Rec: " + e.error, "#ea4335");
-        };
-
-        rec.onend = () => {
-            btn.classList.remove('listening');
-            log("Micro fermé.", "#fabb05");
-        };
+        rec.onerror = (e) => { btn.classList.remove('listening'); log("Erreur: " + e.error, "#ea4335"); };
+        rec.onend = () => { btn.classList.remove('listening'); log("Micro OFF", "#fabb05"); };
     }
 </script>
 </body>
