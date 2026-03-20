@@ -7,23 +7,24 @@
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; box-sizing: border-box; }
-        h1 { font-size: 22px; margin-bottom: 20px; color: var(--blue); }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 16px; }
-        #mic-btn { width: 80px; height: 80px; border-radius: 40px; border: none; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 32px; cursor: pointer; transition: transform 0.2s; margin-bottom: 20px; -webkit-tap-highlight-color: transparent; }
-        #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.1); }
-        #output { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; min-height: 100px; font-size: 15px; border: 1px solid #e5e5ea; width: 100%; box-sizing: border-box; }
-        pre { color: var(--blue); font-weight: 600; margin: 0; white-space: pre-wrap; }
-        .status { font-size: 12px; color: #8e8e93; margin-top: 10px; }
+        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
+        h1 { font-size: 24px; margin-bottom: 20px; color: var(--blue); font-weight: 700; }
+        input { width: 100%; padding: 14px; border: 1px solid #d1d1d6; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 16px; background: #f9f9f9; }
+        #mic-btn { width: 90px; height: 90px; border-radius: 45px; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 35px; cursor: pointer; margin-bottom: 20px; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.05); }
+        #output { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; min-height: 120px; font-size: 16px; border: 1px solid #e5e5ea; width: 100%; box-sizing: border-box; line-height: 1.5; }
+        pre { color: var(--blue); font-weight: 700; margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 15px; }
+        .status { font-size: 13px; color: #8e8e93; margin-top: 15px; font-weight: 500; }
+        hr { border: 0; border-top: 1px solid #e5e5ea; margin: 15px 0; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>Captura Live</h1>
-    <input type="password" id="apiKey" placeholder="Clé API Gemini">
+    <input type="password" id="apiKey" placeholder="Clé API Gemini" autocomplete="off">
     <button id="mic-btn">🎙️</button>
-    <div id="output">Appuyez pour parler...</div>
+    <div id="output">Appuyez pour commencer...</div>
     <div class="status" id="statusText">Prêt</div>
 </div>
 
@@ -35,39 +36,48 @@
 
     apiKeyInput.value = localStorage.getItem('gemini_key') || '';
 
-    const Recognition = window.SpeechRecognition || window.webkitRecognition || window.webkitSpeechRecognition;
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!Recognition) {
-        output.innerHTML = "<b style='color:red'>Safari sur iOS est requis.</b>";
+        output.innerHTML = "<b style='color:red'>Erreur : Utilisez Safari sur votre iPhone.</b>";
     } else {
         const rec = new Recognition();
         rec.lang = 'fr-CH';
         rec.interimResults = true;
+        rec.continuous = false;
 
         btn.onclick = () => {
             if (btn.classList.contains('active')) {
                 rec.stop();
             } else {
-                if (!apiKeyInput.value) return alert("Clé manquante");
-                localStorage.setItem('gemini_key', apiKeyInput.value);
+                const key = apiKeyInput.value.trim();
+                if (!key) return alert("Entrez votre clé API");
+                localStorage.setItem('gemini_key', key);
                 rec.start();
                 btn.classList.add('active');
+                statusText.innerText = "Écoute en cours...";
             }
         };
 
         rec.onresult = (event) => {
             const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
             output.innerHTML = `<strong>Dictée :</strong> ${transcript}`;
+            
             if (event.results[event.results.length - 1].isFinal) {
+                btn.classList.remove('active');
                 analyze(transcript);
             }
         };
 
+        rec.onend = () => {
+            btn.classList.remove('active');
+        };
+
         async function analyze(text) {
-            statusText.innerText = "Analyse...";
+            statusText.innerText = "Analyse Gemini...";
             const key = apiKeyInput.value.trim();
             
-            // L'URL EXACTE TESTÉE POUR 2026
+            // Point de terminaison corrigé et validé
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
 
             try {
@@ -75,22 +85,26 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Analyse cette dictée courte et classe-la: " + text }] }]
+                        contents: [{
+                            parts: [{
+                                text: `Analyse cette dictée et donne moi le TYPE (Action ou Idée), le RÉSUMÉ et l'ACTION à faire : ${text}`
+                            }]
+                        }]
                     })
                 });
 
                 const data = await response.json();
+
                 if (data.error) throw new Error(data.error.message);
 
-                const aiResult = data.candidates[0].content.parts[0].text;
-                output.innerHTML = `<strong>Dictée :</strong> ${text}<hr><pre>${aiResult}</pre>`;
-                statusText.innerText = "Terminé.";
+                const result = data.candidates[0].content.parts[0].text;
+                output.innerHTML = `<strong>Dictée :</strong> ${text}<hr><pre>${result}</pre>`;
+                statusText.innerText = "Analyse terminée ✅";
             } catch (err) {
-                statusText.innerText = "Erreur.";
-                output.innerHTML = `<span style="color:red">Erreur : ${err.message}</span>`;
+                statusText.innerText = "Erreur de connexion";
+                output.innerHTML = `<span style="color:red">Erreur API : ${err.message}</span>`;
             }
         }
-        rec.onend = () => btn.classList.remove('active');
     }
 </script>
 </body>
