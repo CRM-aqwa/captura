@@ -3,37 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura Debug v12</title>
+    <title>Captura v13 - Safari Fix</title>
     <style>
-        :root { --blue: #007aff; --bg: #f2f2f7; --red: #ff3b30; }
+        :root { --blue: #007aff; --bg: #f2f2f7; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 14px; }
+        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 10px; margin-bottom: 20px; text-align: center; }
         #mic-btn { width: 80px; height: 80px; border-radius: 40px; border: none; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 30px; cursor: pointer; margin-bottom: 20px; -webkit-tap-highlight-color: transparent; }
-        #mic-btn.active { background: var(--red); color: #fff; transform: scale(1.1); }
-        
-        /* Zones de texte */
-        #display-zone { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #e5e5ea; min-height: 100px; font-size: 15px; }
+        #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.1); }
+        #display-zone { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #e5e5ea; min-height: 100px; font-size: 16px; line-height: 1.4; }
         #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); color: var(--blue); font-weight: bold; white-space: pre-wrap; display: none; }
-        
-        /* Console de Diagnostic (Le plus important) */
-        #debug-console { margin-top: 20px; padding: 10px; background: #2c2c2e; color: #00ff00; border-radius: 8px; font-family: monospace; font-size: 11px; text-align: left; max-height: 150px; overflow-y: auto; width: 100%; box-sizing: border-box; }
-        .err { color: #ff453a; }
+        #debug-console { margin-top: 20px; padding: 10px; background: #1c1c1e; color: #32d74b; border-radius: 10px; font-family: monospace; font-size: 11px; text-align: left; max-height: 120px; overflow-y: auto; width: 100%; box-sizing: border-box; border: 1px solid #3a3a3c; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3>Captura Live</h3>
+    <h3>Captura Live v13</h3>
     <input type="password" id="apiKey" placeholder="Clé API Gemini">
     <button id="mic-btn">🎙️</button>
     
     <div id="display-zone">
-        <div id="live-text">Prêt...</div>
+        <div id="live-text">Prêt pour la dictée...</div>
         <div id="ai-output"></div>
     </div>
 
-    <div id="debug-console">> Système prêt. Attente utilisateur...</div>
+    <div id="debug-console">> Console de diagnostic prête.</div>
 </div>
 
 <script>
@@ -45,59 +40,65 @@
 
     apiInput.value = localStorage.getItem('gemini_key') || '';
 
-    function log(msg, isError = false) {
+    function log(msg, color = "#32d74b") {
         const time = new Date().toLocaleTimeString();
-        const line = `<div class="${isError ? 'err' : ''}">[${time}] ${msg}</div>`;
-        debug.innerHTML += line;
+        debug.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
         debug.scrollTop = debug.scrollHeight;
     }
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let rec = null;
-    let capturedText = "";
+    let finalResult = "";
 
     if (!Recognition) {
-        log("ERREUR : Navigateur non compatible (Safari requis)", true);
+        log("ERREUR : Navigateur non supporté", "#ff453a");
     } else {
         rec = new Recognition();
         rec.lang = 'fr-CH';
         rec.interimResults = true;
-        rec.continuous = true;
+        rec.continuous = false; // Plus stable sur iOS
 
         btn.onclick = () => {
             if (btn.classList.contains('active')) {
-                log("Action : Arrêt demandé.");
+                log("Action : Arrêt manuel.");
                 rec.stop();
             } else {
                 const key = apiInput.value.trim();
-                if (!key) { log("ERREUR : Clé API manquante", true); return; }
+                if (!key) return alert("Clé manquante");
                 localStorage.setItem('gemini_key', key);
                 
-                capturedText = "";
+                finalResult = "";
                 aiOutput.style.display = "none";
+                liveText.innerText = "Parlez maintenant...";
                 btn.classList.add('active');
-                log("Action : Démarrage micro.");
+                log("Micro : DÉMARRAGE");
                 rec.start();
             }
         };
 
         rec.onresult = (event) => {
             let current = "";
-            for (let i = event.resultIndex; i < event.results.length; i++) {
+            for (let i = 0; i < event.results.length; i++) {
                 current += event.results[i][0].transcript;
             }
-            capturedText = current;
-            liveText.innerHTML = `<strong>Dictée :</strong> ${capturedText}`;
+            finalResult = current;
+            liveText.innerHTML = `<strong>Dictée :</strong> ${finalResult}`;
+            log("Capture : Texte reçu...");
+        };
+
+        rec.onerror = (event) => {
+            log("ERREUR Micro : " + event.error, "#ff453a");
         };
 
         rec.onend = () => {
             btn.classList.remove('active');
-            log("Système : Micro éteint.");
-            if (capturedText.trim().length > 2) {
-                log(`Envoi à l'IA (${capturedText.length} car.)...`);
-                processIA(capturedText);
+            log("Micro : FERMÉ");
+            
+            if (finalResult.trim().length > 2) {
+                log("Envoi à Gemini...");
+                processIA(finalResult);
             } else {
-                log("Avertissement : Texte trop court.", true);
+                log("Échec : Aucun texte capté.", "#ff453a");
             }
         };
 
@@ -106,36 +107,24 @@
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
 
             try {
-                log("Appel API en cours...");
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Analyse et structure : " + content }] }]
+                        contents: [{ parts: [{ text: "Analyse cette dictée courte et donne : TYPE (Action/Idée), RÉSUMÉ (1 phrase), ACTION : " + content }] }]
                     })
                 });
 
-                log(`Réponse HTTP : ${response.status}`);
-
                 const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
 
-                if (data.error) {
-                    log(`ERREUR API : ${data.error.message}`, true);
-                    return;
-                }
-
-                if (data.candidates && data.candidates[0].content) {
-                    const result = data.candidates[0].content.parts[0].text;
-                    aiOutput.innerText = result;
-                    aiOutput.style.display = "block";
-                    log("Analyse réussie !");
-                } else {
-                    log("ERREUR : Format de réponse inconnu", true);
-                    log(JSON.stringify(data));
-                }
+                const result = data.candidates[0].content.parts[0].text;
+                aiOutput.innerText = result;
+                aiOutput.style.display = "block";
+                log("IA : Analyse terminée !");
 
             } catch (e) {
-                log(`CRASH : ${e.message}`, true);
+                log("ERREUR IA : " + e.message, "#ff453a");
             }
         }
     }
