@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura Live v7</title>
+    <title>Captura Live v8</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
@@ -13,7 +13,7 @@
         #mic-btn { width: 90px; height: 90px; border-radius: 45px; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 35px; cursor: pointer; margin-bottom: 20px; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
         #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.05); }
         #output { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; min-height: 120px; font-size: 16px; border: 1px solid #e5e5ea; width: 100%; box-sizing: border-box; line-height: 1.5; }
-        pre { color: var(--blue); font-weight: 700; margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 15px; }
+        pre { color: var(--blue); font-weight: 700; margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 15px; background: #eef7ff; padding: 10px; border-radius: 8px; margin-top: 10px; }
         .status { font-size: 13px; color: #8e8e93; margin-top: 15px; font-weight: 500; }
         hr { border: 0; border-top: 1px solid #e5e5ea; margin: 15px 0; }
     </style>
@@ -34,25 +34,31 @@
     const statusText = document.getElementById('statusText');
     const apiKeyInput = document.getElementById('apiKey');
 
+    let currentTranscript = "";
     apiKeyInput.value = localStorage.getItem('gemini_key') || '';
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!Recognition) {
-        output.innerHTML = "<b style='color:red'>Erreur : Utilisez Safari sur votre iPhone.</b>";
+        output.innerHTML = "<b style='color:red'>Erreur : Utilisez Safari sur iPhone.</b>";
     } else {
         const rec = new Recognition();
         rec.lang = 'fr-CH';
         rec.interimResults = true;
-        rec.continuous = false;
+        rec.continuous = true; // On garde le micro ouvert jusqu'au clic
 
         btn.onclick = () => {
             if (btn.classList.contains('active')) {
-                rec.stop();
+                rec.stop(); // Arrête le micro
+                statusText.innerText = "Envoi forcé...";
+                if (currentTranscript.trim().length > 0) {
+                    analyze(currentTranscript);
+                }
             } else {
                 const key = apiKeyInput.value.trim();
                 if (!key) return alert("Entrez votre clé API");
                 localStorage.setItem('gemini_key', key);
+                currentTranscript = "";
                 rec.start();
                 btn.classList.add('active');
                 statusText.innerText = "Écoute en cours...";
@@ -60,13 +66,15 @@
         };
 
         rec.onresult = (event) => {
-            const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
-            output.innerHTML = `<strong>Dictée :</strong> ${transcript}`;
-            
-            if (event.results[event.results.length - 1].isFinal) {
-                btn.classList.remove('active');
-                analyze(transcript);
+            let interim = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    currentTranscript += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
             }
+            output.innerHTML = `<strong>Dictée :</strong> ${currentTranscript + interim}`;
         };
 
         rec.onend = () => {
@@ -74,10 +82,8 @@
         };
 
         async function analyze(text) {
-            statusText.innerText = "Analyse Gemini...";
+            statusText.innerText = "Analyse Gemini en cours...";
             const key = apiKeyInput.value.trim();
-            
-            // Point de terminaison corrigé et validé
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
 
             try {
@@ -87,22 +93,23 @@
                     body: JSON.stringify({
                         contents: [{
                             parts: [{
-                                text: `Analyse cette dictée et donne moi le TYPE (Action ou Idée), le RÉSUMÉ et l'ACTION à faire : ${text}`
+                                text: "Analyse cette dictée et donne moi le TYPE (Action ou Idée), le RÉSUMÉ et l'ACTION à faire en français : " + text
                             }]
                         }]
                     })
                 });
 
                 const data = await response.json();
-
                 if (data.error) throw new Error(data.error.message);
 
-                const result = data.candidates[0].content.parts[0].text;
-                output.innerHTML = `<strong>Dictée :</strong> ${text}<hr><pre>${result}</pre>`;
-                statusText.innerText = "Analyse terminée ✅";
+                if (data.candidates && data.candidates[0].content) {
+                    const aiText = data.candidates[0].content.parts[0].text;
+                    output.innerHTML = `<strong>Dictée :</strong> ${text}<hr><pre>${aiText}</pre>`;
+                    statusText.innerText = "Traitement terminé ✅";
+                }
             } catch (err) {
-                statusText.innerText = "Erreur de connexion";
-                output.innerHTML = `<span style="color:red">Erreur API : ${err.message}</span>`;
+                statusText.innerText = "Erreur de traitement";
+                output.innerHTML += `<br><span style="color:red">Détail : ${err.message}</span>`;
             }
         }
     }
