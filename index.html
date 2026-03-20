@@ -3,18 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura Live v9</title>
+    <title>Captura Live 2026</title>
     <style>
-        :root { --blue: #007aff; --bg: #f2f2f7; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
-        h1 { font-size: 24px; margin-bottom: 20px; color: var(--blue); font-weight: 700; }
-        input { width: 100%; padding: 14px; border: 1px solid #d1d1d6; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 16px; background: #f9f9f9; }
-        #mic-btn { width: 90px; height: 90px; border-radius: 45px; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 35px; cursor: pointer; margin-bottom: 20px; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
-        #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.05); }
-        #output-container { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; min-height: 120px; font-size: 16px; border: 1px solid #e5e5ea; width: 100%; box-sizing: border-box; line-height: 1.5; }
-        #ai-result { color: var(--blue); font-weight: 700; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e5ea; white-space: pre-wrap; display: none; }
-        .status { font-size: 13px; color: #8e8e93; margin-top: 15px; font-weight: 500; }
+        :root { --accent: #007aff; --bg: #f2f2f7; --card: #ffffff; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; -webkit-font-smoothing: antialiased; }
+        .card { background: var(--card); width: 100%; max-width: 400px; padding: 30px; border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.06); text-align: center; box-sizing: border-box; }
+        h1 { font-size: 26px; margin-bottom: 25px; color: var(--accent); font-weight: 800; letter-spacing: -0.5px; }
+        input { width: 100%; padding: 15px; border: 1px solid #d1d1d6; border-radius: 14px; margin-bottom: 20px; text-align: center; font-size: 16px; background: #f9f9f9; border: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        #mic-btn { width: 100px; height: 100px; border-radius: 50px; border: none; background: #fff; box-shadow: 0 6px 20px rgba(0,0,0,0.1); font-size: 40px; cursor: pointer; margin-bottom: 25px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); -webkit-tap-highlight-color: transparent; }
+        #mic-btn.active { background: #ff3b30; color: #fff; transform: scale(1.15); box-shadow: 0 0 30px rgba(255, 59, 48, 0.4); }
+        #display-zone { text-align: left; background: #f9f9f9; padding: 20px; border-radius: 18px; min-height: 150px; font-size: 17px; border: 1px solid #e5e5ea; width: 100%; box-sizing: border-box; line-height: 1.6; }
+        .ai-output { color: var(--accent); font-weight: 600; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e5e5ea; white-space: pre-wrap; animation: fadeIn 0.5s ease; }
+        .status { font-size: 13px; color: #8e8e93; margin-top: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -23,17 +24,17 @@
     <h1>Captura Live</h1>
     <input type="password" id="apiKey" placeholder="Clé API Gemini" autocomplete="off">
     <button id="mic-btn">🎙️</button>
-    <div id="output-container">
-        <span id="transcript-text">Appuyez pour commencer...</span>
-        <div id="ai-result"></div>
+    <div id="display-zone">
+        <div id="transcript-live">En attente de dictée...</div>
+        <div id="ai-result" class="ai-output" style="display:none"></div>
     </div>
-    <div class="status" id="statusText">Prêt</div>
+    <div class="status" id="statusText">PRÊT</div>
 </div>
 
 <script>
     const btn = document.getElementById('mic-btn');
-    const transcriptDisplay = document.getElementById('transcript-text');
-    const aiResultDisplay = document.getElementById('ai-result');
+    const transcriptLive = document.getElementById('transcript-live');
+    const aiResult = document.getElementById('ai-result');
     const statusText = document.getElementById('statusText');
     const apiKeyInput = document.getElementById('apiKey');
 
@@ -41,76 +42,87 @@
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let rec = null;
-    let fullText = "";
+    let finalTranscript = "";
 
     if (!Recognition) {
-        transcriptDisplay.innerHTML = "<b style='color:red'>Safari requis.</b>";
+        transcriptLive.innerHTML = "<b style='color:red'>Navigateur non supporté. Utilisez Safari sur iOS.</b>";
     } else {
         rec = new Recognition();
-        rec.lang = 'fr-CH';
+        rec.lang = 'fr-CH'; // Localisation Suisse
         rec.interimResults = true;
         rec.continuous = true;
 
         btn.onclick = () => {
             if (btn.classList.contains('active')) {
+                statusText.innerText = "ARRÊT ET ANALYSE...";
                 rec.stop();
             } else {
                 const key = apiKeyInput.value.trim();
-                if (!key) return alert("Entrez votre clé API");
+                if (!key) return alert("Veuillez entrer votre clé API.");
                 localStorage.setItem('gemini_key', key);
                 
-                fullText = "";
-                aiResultDisplay.style.display = "none";
-                transcriptDisplay.innerText = "Écoute...";
+                finalTranscript = "";
+                aiResult.style.display = "none";
+                transcriptLive.innerText = "Écoute active...";
                 btn.classList.add('active');
-                statusText.innerText = "Écoute en cours...";
+                statusText.innerText = "MICRO ALLUMÉ";
                 rec.start();
             }
         };
 
         rec.onresult = (event) => {
-            let current = "";
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                current += event.results[i][0].transcript;
+            let interim = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interim += event.results[i][0].transcript;
+                }
             }
-            fullText = current;
-            transcriptDisplay.innerHTML = `<strong>Dictée :</strong> ${fullText}`;
+            transcriptLive.innerHTML = `<strong>Dictée :</strong> ${finalTranscript + interim}`;
         };
 
         rec.onend = () => {
             btn.classList.remove('active');
-            if (fullText.length > 5) {
-                analyze(fullText);
+            // Le bug était ici : on s'assure d'avoir du texte avant d'envoyer
+            const textToSend = finalTranscript || transcriptLive.innerText.replace('Dictée : ', '');
+            if (textToSend.length > 5 && !textToSend.includes("Écoute active")) {
+                callGemini(textToSend);
             } else {
-                statusText.innerText = "Texte trop court.";
+                statusText.innerText = "PRÊT (AUCUN TEXTE DÉTECTÉ)";
             }
         };
 
-        async function analyze(text) {
-            statusText.innerText = "Analyse Gemini...";
+        async function callGemini(content) {
+            statusText.innerText = "CONNEXION IA...";
             const key = apiKeyInput.value.trim();
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
+            // Utilisation de l'endpoint v1beta avec le modèle stable
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Analyse cette dictée courte et retourne uniquement : TYPE (Action/Idée), RÉSUMÉ (phrase propre), ACTION (verbe). Texte : " + text }] }]
+                        contents: [{ parts: [{ text: "Analyse cette dictée en français et structure-la ainsi: TYPE (Action/Idée), RÉSUMÉ, ACTION. Texte: " + content }] }]
                     })
                 });
 
                 const data = await response.json();
+                
                 if (data.error) throw new Error(data.error.message);
 
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                aiResultDisplay.innerText = aiResponse;
-                aiResultDisplay.style.display = "block";
-                statusText.innerText = "Terminé ✅";
+                if (data.candidates && data.candidates[0].content) {
+                    const responseText = data.candidates[0].content.parts[0].text;
+                    aiResult.innerText = responseText;
+                    aiResult.style.display = "block";
+                    statusText.innerText = "ANALYSE TERMINÉE";
+                }
             } catch (err) {
-                statusText.innerText = "Erreur API";
-                aiResultDisplay.innerText = "Erreur : " + err.message;
-                aiResultDisplay.style.display = "block";
+                statusText.innerText = "ERREUR DE CONNEXION";
+                aiResult.innerText = "Détail de l'erreur : " + err.message;
+                aiResult.style.display = "block";
+                console.error(err);
             }
         }
     }
