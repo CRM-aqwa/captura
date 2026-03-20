@@ -1,50 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Captura Live</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; margin: 0; color: #1c1e21; padding-top: 5vh;}
-        .container { text-align: center; padding: 30px; width: 90%; max-width: 450px; background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 20px;}
-        h1 { font-size: 28px; margin-bottom: 25px; color: #1a73e8; }
-        #mic-btn { background: #f8f9fa; border: 1px solid #dadce0; border-radius: 50%; width: 100px; height: 100px; cursor: pointer; font-size: 40px; margin-bottom: 25px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center;}
-        #mic-btn.listening { background: #ea4335; color: white; border-color: #ea4335; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0.4); } 70% { box-shadow: 0 0 0 25px rgba(234, 67, 53, 0); } 100% { box-shadow: 0 0 0 0 rgba(234, 67, 53, 0); } }
-        #output { font-size: 15px; line-height: 1.6; color: #444; background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #e8eaed; min-height: 80px; text-align: left; width: 100%; box-sizing: border-box; }
-        .config { margin-bottom: 20px; }
-        input { padding: 12px; border-radius: 8px; border: 1px solid #ced4da; width: 100%; box-sizing: border-box; font-size: 14px; text-align: center; }
-        .hint { font-size: 11px; color: #70757a; margin-top: 8px; }
-        pre { white-space: pre-wrap; word-wrap: break-word; font-family: inherit; font-size: 14px; color: #007aff; font-weight: 600; margin: 0; }
-        /* Style pour les logs */
-        #log-panel { width: 90%; max-width: 450px; background: #333; color: #eee; font-family: monospace; font-size: 12px; padding: 15px; border-radius: 12px; box-sizing: border-box; text-align: left; opacity: 0.9; }
-        #log-panel h2 { color: #fabb05; font-size: 14px; margin-top: 0; }
-        #log-entry { list-style-type: none; padding: 0; margin: 0; }
-        #log-entry li { border-bottom: 1px solid #555; padding: 3px 0; }
-        #log-entry li.error { color: #ea4335; font-weight: bold; }
-        #log-entry li.success { color: #34a853; }
-        #log-entry li.event { color: #fabb05; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>Captura Live</h1>
-    
-    <div class="config">
-        <input type="password" id="api-key-input" placeholder="Collez votre clé API Gemini">
-        <div class="hint">La clé est stockée uniquement sur votre iPhone.</div>
-    }
-
-    <button id="mic-btn">🎙️</button>
-    <div id="output">Appuyez sur le micro et parlez...</div>
-</div>
-
-<div id="log-panel">
-    <h2>Logs de Diagnostic (iPhone)</h2>
-    <ul id="log-entry"><li>Init...</li></ul>
-</div>
-
 <script>
     const btn = document.getElementById('mic-btn');
     const output = document.getElementById('output');
@@ -57,144 +10,89 @@
         li.textContent = `[${now}] ${message}`;
         if (type) li.className = type;
         logList.appendChild(li);
-        logList.scrollTop = logList.scrollHeight; // Auto-scroll
+        logList.scrollTop = logList.scrollHeight;
     }
 
-    // Récupération de la clé Gemini
     if(localStorage.getItem('gemini_key')) {
         keyInput.value = localStorage.getItem('gemini_key');
-        logToPanel("Clé API Gemini chargée.", "success");
-    } else {
-        logToPanel("Clé API manquante.", "error");
     }
 
-    // Test de compatibilité Web Speech
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     
-    if (!SpeechRecognition) {
-        logToPanel("SpeechRecognition API non supportée. Utilisez Safari/iOS.", "error");
-        output.innerHTML = "Votre navigateur n'est pas compatible (Safari/iOS requis).";
-    } else {
-        logToPanel("SpeechRecognition API détectée.", "success");
-
+    if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
-        recognition.lang = 'fr-CH'; // Spécifique pour la Suisse
-        recognition.interimResults = false; // Capture finale uniquement
-        recognition.continuous = false; // Arrête après une phrase
+        recognition.lang = 'fr-CH'; 
+        recognition.interimResults = true; // On veut voir le texte en direct
+        recognition.continuous = false;
 
         btn.addEventListener('click', () => {
-            logToPanel("Bouton micro cliqué.");
             const key = keyInput.value.trim();
-            if(!key) { 
-                alert("Veuillez d'abord coller votre clé API Gemini !"); 
-                logToPanel("Tentative de lancement sans clé.", "error");
-                return; 
-            }
+            if(!key) { alert("Clé manquante !"); return; }
             localStorage.setItem('gemini_key', key);
 
             if (btn.classList.contains('listening')) {
-                logToPanel("Arrêt manuel de l'écoute.");
-                recognition.stop();
+                logToPanel("Arrêt demandé...");
+                btn.classList.remove('listening'); // On arrête le pulse immédiatement
+                recognition.stop(); 
             } else {
                 try {
-                    logToPanel("Demande d'autorisation micro...");
                     recognition.start();
                     btn.classList.add('listening');
-                    output.innerHTML = "<em>Je vous écoute... (iPhone)</em>";
-                } catch (e) { 
-                    logToPanel(`Erreur au lancement: ${e.message}`, "error");
-                    console.error(e); 
-                }
+                    output.innerHTML = "<em>Je vous écoute...</em>";
+                } catch (e) { logToPanel("Erreur start: " + e.message, "error"); }
             }
         });
 
-        recognition.onstart = () => {
-            logToPanel("Écoute active (micro ouvert).", "event");
-        };
+        recognition.onstart = () => logToPanel("Micro ouvert (Parlez maintenant)", "event");
 
         recognition.onresult = async (event) => {
-            logToPanel("Résultat de dictée reçu.", "event");
-            btn.classList.remove('listening');
-            const transcript = event.results[0][0].transcript;
-            const key = keyInput.value.trim();
-            output.innerHTML = `<strong>Dictée (suisse) :</strong> ${transcript}<br><br><strong>Analyse Gemini... 🚀</strong>`;
-            logToPanel(`Transcription : "${transcript}"`, "success");
+            // On récupère le texte, même intermédiaire
+            const transcript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('');
+            
+            output.innerHTML = `<strong>En cours :</strong> ${transcript}`;
 
+            // Si c'est le résultat final
+            if (event.results[0].isFinal) {
+                logToPanel("Texte final reçu.", "success");
+                btn.classList.remove('listening');
+                processWithGemini(transcript);
+            }
+        };
+
+        async function processWithGemini(transcript) {
+            const key = keyInput.value.trim();
+            output.innerHTML = `<strong>Dictée :</strong> ${transcript}<br><em>Analyse Gemini...</em>`;
+            
             try {
-                // Endpoint pour Gemini 1.5 Flash
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-                
-                logToPanel("Envoi à Gemini...");
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `Tu es Captura. Analyse cette dictée et réponds UNIQUEMENT en format texte court : 
-                        ACTION: (le verbe)
-                        DOMAINE: (travail, perso, maison, etc.)
-                        TYPE: (IDEE ou TACHE)
-                        MESSAGE: (résumé propre)
-                        
-                        Dictée: "${transcript}"` }] }]
+                        contents: [{ parts: [{ text: `Tu es Captura. Analyse et classe : "${transcript}"` }] }]
                     })
                 });
-
                 const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
-
-                logToPanel("Réponse Gemini reçue.", "success");
-                let aiResult = data.candidates[0].content.parts[0].text;
-                
-                // Nettoyage Markdown
-                aiResult = aiResult.replace(/```[a-z]*\n/g, '').replace(/```/g, '');
-
+                const aiResult = data.candidates[0].content.parts[0].text;
                 output.innerHTML = `<strong>Dictée :</strong> ${transcript}<br><hr><pre>${aiResult}</pre>`;
-                
             } catch (error) {
-                logToPanel(`Erreur API: ${error.message}`, "error");
-                output.innerHTML = `<span style="color:red">Erreur API : ${error.message}</span>`;
+                logToPanel("Erreur Gemini: " + error.message, "error");
             }
-        };
-
-        recognition.onspeechend = () => {
-            logToPanel("Fin de parole détectée.", "event");
-            recognition.stop();
-            btn.classList.remove('listening');
-        };
+        }
 
         recognition.onerror = (event) => {
             btn.classList.remove('listening');
-            console.error("Speech Recognition Error:", event);
-            let errorMessage = "Erreur micro inconnue";
-            
-            // Classification des erreurs iOS courantes
-            switch(event.error) {
-                case 'not-allowed':
-                    errorMessage = "Micro refusé par l'iPhone (Vérifiez Réglages > Safari > Micro)";
-                    break;
-                case 'service-not-allowed':
-                    errorMessage = "Service vocal refusé par l'iPhone (Réseaudisponible ?)";
-                    break;
-                case 'no-speech':
-                    errorMessage = "Aucune parole détectée.";
-                    break;
-                case 'network':
-                    errorMessage = "Problème réseau lors de la reconnaissance.";
-                    break;
-                case 'aborted':
-                    errorMessage = "Écoute interrompue.";
-                    break;
-                default:
-                    errorMessage = `Erreur de dictée: ${event.error}`;
-            }
-            
-            logToPanel(errorMessage, "error");
-            output.innerHTML = `<span style='color:orange'>${errorMessage}</span>`;
+            logToPanel("Erreur Safari: " + event.error, "error");
         };
+
+        recognition.onend = () => {
+            logToPanel("Reconnaissance terminée.", "event");
+            btn.classList.remove('listening');
+        };
+
+    } else {
+        output.innerHTML = "Safari/iOS requis.";
     }
 </script>
-</body>
-</html>
