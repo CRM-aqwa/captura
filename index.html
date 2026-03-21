@@ -9,501 +9,177 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
-  --bg: #F5F5F7;
-  --surface: #FFFFFF;
-  --surface2: #F0F0F2;
-  --text: #1D1D1F;
-  --text2: #6E6E73;
-  --text3: #AEAEB2;
-  --blue: #007AFF;
-  --blue-bg: #EBF4FF;
-  --green: #34C759;
-  --green-bg: #EDFBF1;
-  --red: #FF3B30;
-  --red-bg: #FFF1F0;
-  --orange: #FF9500;
-  --orange-bg: #FFF8ED;
-  --border: rgba(0,0,0,0.08);
-  --border-strong: rgba(0,0,0,0.15);
-  --radius: 16px;
-  --radius-sm: 10px;
-  --radius-xs: 8px;
-  --shadow: 0 2px 16px rgba(0,0,0,0.06);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.12);
+  --bg:#F5F5F7;--surface:#FFF;--surface2:#F0F0F2;
+  --text:#1D1D1F;--text2:#6E6E73;--text3:#AEAEB2;
+  --blue:#007AFF;--blue-bg:#EBF4FF;
+  --green:#34C759;--green-bg:#EDFBF1;
+  --red:#FF3B30;--red-bg:#FFF1F0;
+  --orange:#FF9500;--orange-bg:#FFF8ED;
+  --border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.15);
+  --radius:16px;--radius-sm:10px;--radius-xs:8px;
+  --shadow:0 2px 16px rgba(0,0,0,0.06);--shadow-lg:0 8px 40px rgba(0,0,0,0.12);
 }
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: -apple-system, 'DM Sans', 'Segoe UI', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  font-size: 15px;
-  line-height: 1.5;
-}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;}
 
-/* HEADER */
-.header {
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 0.5px solid var(--border);
-  padding: 0 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 52px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo {
-  font-family: 'DM Serif Display', serif;
-  font-size: 20px;
-  color: var(--text);
-  letter-spacing: -0.3px;
-}
-.logo span { color: var(--blue); }
-.header-right { display: flex; align-items: center; gap: 8px; }
-.btn-icon-sm {
-  background: none;
-  border: none;
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  color: var(--text2);
-  font-size: 18px;
-  transition: background 0.15s;
-}
-.btn-icon-sm:hover { background: var(--surface2); }
+.header{background:rgba(255,255,255,0.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid var(--border);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
+.logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);letter-spacing:-0.3px;}
+.logo span{color:var(--blue);}
+.header-right{display:flex;align-items:center;gap:8px;}
+.btn-icon-sm{background:none;border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px;transition:background 0.15s;}
+.btn-icon-sm:hover{background:var(--surface2);}
+.drive-status{font-size:11px;font-weight:600;padding:5px 11px;border-radius:99px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+.drive-status.disconnected{background:var(--surface2);color:var(--text2);}
+.drive-status.connected{background:var(--green-bg);color:#1a7a32;}
+.drive-status.syncing{background:var(--blue-bg);color:var(--blue);}
+.drive-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
-/* DRIVE STATUS */
-.drive-status {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: 99px;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  transition: all 0.15s;
-}
-.drive-status.disconnected { background: var(--surface2); color: var(--text2); }
-.drive-status.connected { background: var(--green-bg); color: #1a7a32; }
-.drive-status.syncing { background: var(--blue-bg); color: var(--blue); }
-.drive-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.main{max-width:600px;margin:0 auto;padding:1.25rem 1rem 5rem;}
 
-/* MAIN */
-.main { max-width: 600px; margin: 0 auto; padding: 1.25rem 1rem 5rem; }
+.mic-section{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem 1.25rem 1.25rem;margin-bottom:1rem;}
+.mic-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:1rem;text-align:center;}
+.mic-btn{width:76px;height:76px;border-radius:50%;border:none;background:var(--surface2);cursor:pointer;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;transition:all 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.mic-btn:hover{transform:scale(1.05);}
+.mic-btn.listening{background:var(--red);color:#fff;animation:micPulse 1.5s infinite;}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(255,59,48,0.4);}70%{box-shadow:0 0 0 20px rgba(255,59,48,0);}100%{box-shadow:0 0 0 0 rgba(255,59,48,0);}}
 
-/* MIC SECTION */
-.mic-section {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 1.5rem 1.25rem 1.25rem;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-.mic-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text3);
-  margin-bottom: 1rem;
-}
-.mic-btn {
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  border: none;
-  background: var(--surface2);
-  cursor: pointer;
-  font-size: 32px;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-  position: relative;
-}
-.mic-btn:hover { transform: scale(1.05); }
-.mic-btn.listening {
-  background: var(--red);
-  color: white;
-  box-shadow: 0 0 0 0 rgba(255,59,48,0.4);
-  animation: micPulse 1.5s infinite;
-}
-.mic-btn.processing { background: var(--blue-bg); animation: none; }
-@keyframes micPulse {
-  0% { box-shadow: 0 0 0 0 rgba(255,59,48,0.4); }
-  70% { box-shadow: 0 0 0 20px rgba(255,59,48,0); }
-  100% { box-shadow: 0 0 0 0 rgba(255,59,48,0); }
-}
+.live-zone{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;min-height:72px;font-size:15px;color:var(--text);line-height:1.6;border:1.5px solid transparent;transition:border-color 0.2s;cursor:text;}
+.live-zone.empty{color:var(--text3);font-style:italic;}
+.live-zone.editable{border-color:var(--blue);background:var(--surface);}
+.edit-hint{font-size:11px;color:var(--blue);text-align:center;margin-top:5px;display:none;}
+.edit-hint.show{display:block;}
 
-/* LIVE TEXT */
-.live-zone {
-  background: var(--surface2);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  min-height: 60px;
-  text-align: left;
-  font-size: 15px;
-  color: var(--text);
-  line-height: 1.6;
-  position: relative;
-  transition: all 0.2s;
-}
-.live-zone.empty { color: var(--text3); font-style: italic; }
-.live-interim { color: var(--text3); }
-.live-final { color: var(--text); }
+.correction-bar{display:none;align-items:center;gap:8px;margin-top:8px;background:var(--orange-bg);border-radius:var(--radius-xs);padding:8px 12px;font-size:13px;color:#a05c00;flex-wrap:wrap;}
+.correction-bar.show{display:flex;}
+.btn-memorize{background:var(--orange);color:#fff;border:none;border-radius:var(--radius-xs);padding:5px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.corr-input{flex:1;min-width:80px;font-family:inherit;font-size:13px;padding:4px 8px;border-radius:6px;border:0.5px solid var(--border-strong);background:var(--surface);outline:none;}
 
-.meta-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-select, input[type=date] {
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--text);
-  background: var(--surface2);
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius-xs);
-  padding: 7px 10px;
-  outline: none;
-  -webkit-appearance: none;
-}
-select:focus, input[type=date]:focus { border-color: var(--blue); }
+.meta-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
+select,input[type=date]{font-family:inherit;font-size:13px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-xs);padding:7px 10px;outline:none;-webkit-appearance:none;}
+select:focus,input[type=date]:focus{border-color:var(--blue);}
+.reminder-row{display:flex;gap:8px;align-items:center;margin-top:8px;justify-content:center;flex-wrap:wrap;}
+.reminder-label{font-size:12px;color:var(--text3);}
 
-.reminder-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-.reminder-label { font-size: 12px; color: var(--text3); }
+.btn-analyse{margin-top:12px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,transform 0.1s;}
+.btn-analyse:hover{opacity:0.88;}
+.btn-analyse:active{transform:scale(0.98);}
+.btn-analyse:disabled{opacity:0.4;cursor:not-allowed;}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-.btn-analyse {
-  margin-top: 12px;
-  width: 100%;
-  background: var(--blue);
-  color: #FFF;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 13px 20px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: -0.2px;
-}
-.btn-analyse:hover { opacity: 0.88; }
-.btn-analyse:active { transform: scale(0.98); }
-.btn-analyse:disabled { opacity: 0.4; cursor: not-allowed; }
-.spinner {
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #FFF;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  display: none;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+.stat-card{background:var(--surface);border-radius:var(--radius-sm);padding:10px;text-align:center;box-shadow:var(--shadow);}
+.stat-num{font-size:22px;font-weight:300;font-family:'DM Serif Display',serif;}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px;}
 
-/* STATS */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 1rem;
-}
-.stat-card {
-  background: var(--surface);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
-.stat-num { font-size: 22px; font-weight: 300; font-family: 'DM Serif Display', serif; }
-.stat-lbl { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+.filters-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:1rem;}
+.filters-scroll::-webkit-scrollbar{display:none;}
+.filters-row{display:flex;gap:6px;padding-bottom:4px;width:max-content;min-width:100%;}
+.filter-pill{font-size:13px;font-weight:500;padding:6px 14px;border-radius:99px;border:0.5px solid var(--border-strong);cursor:pointer;color:var(--text2);background:var(--surface);white-space:nowrap;transition:all 0.12s;}
+.filter-pill.active-all{background:var(--text);color:#fff;border-color:var(--text);}
+.filter-pill.active-idea{background:var(--green);color:#fff;border-color:var(--green);}
+.filter-pill.active-todo{background:var(--blue);color:#fff;border-color:var(--blue);}
+.filter-pill.active-urgent{background:var(--red);color:#fff;border-color:var(--red);}
+.filter-pill.active-domain{background:var(--surface2);color:var(--text);border-color:var(--border-strong);font-weight:600;}
 
-/* FILTERS */
-.filters-row {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 1rem;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.filters-row::-webkit-scrollbar { display: none; }
-.filter-pill {
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 99px;
-  border: 0.5px solid var(--border-strong);
-  cursor: pointer;
-  color: var(--text2);
-  background: var(--surface);
-  white-space: nowrap;
-  transition: all 0.12s;
-  flex-shrink: 0;
-}
-.filter-pill.active-all { background: var(--text); color: #FFF; border-color: var(--text); }
-.filter-pill.active-idea { background: var(--green); color: #FFF; border-color: var(--green); }
-.filter-pill.active-todo { background: var(--blue); color: #FFF; border-color: var(--blue); }
-.filter-pill.active-urgent { background: var(--red); color: #FFF; border-color: var(--red); }
-.filter-pill.active-domain { background: var(--surface2); color: var(--text); border-color: var(--border-strong); font-weight: 600; }
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px;margin-top:1.25rem;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:0.5px;background:var(--border);}
+.section-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-idea{background:var(--green);}
+.dot-todo{background:var(--blue);}
 
-/* SECTION TITLE */
-.section-title {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text3);
-  margin-bottom: 8px;
-  margin-top: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.section-title::after { content: ''; flex: 1; height: 0.5px; background: var(--border); }
-.section-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.dot-idea { background: var(--green); }
-.dot-todo { background: var(--blue); }
+.item-card{background:var(--surface);border-radius:var(--radius);padding:1rem 1.1rem;margin-bottom:8px;box-shadow:var(--shadow);animation:fadeUp 0.2s ease;overflow:hidden;position:relative;}
+.item-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.item-card.idea-type::before{background:var(--green);}
+.item-card.todo-type::before{background:var(--blue);}
+.item-card.urgent::before{background:var(--red);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.item-content{flex:1;}
+.item-title{font-size:15px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.item-summary{font-size:13px;color:var(--text2);line-height:1.5;}
+.item-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;}
+.badge-idea{background:var(--green-bg);color:#1a7a32;}
+.badge-todo{background:var(--blue-bg);color:#0055b3;}
+.badge-urgent{background:var(--red-bg);color:var(--red);}
+.badge-domain{background:var(--surface2);color:var(--text2);}
+.badge-project{background:#F0EEFF;color:#5856D6;}
+.badge-date{background:var(--orange-bg);color:#a05c00;}
+.badge-drive{background:var(--green-bg);color:#1a7a32;font-size:10px;}
+.item-actions{display:flex;gap:4px;flex-shrink:0;}
+.btn-act{width:30px;height:30px;border:none;background:none;border-radius:var(--radius-xs);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:15px;transition:all 0.12s;}
+.btn-act:hover{background:var(--surface2);color:var(--text);}
+.item-original{font-size:12px;color:var(--text3);font-style:italic;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);display:none;}
+.item-card:hover .item-original{display:block;}
 
-/* CARDS */
-.item-card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 1rem 1.1rem;
-  margin-bottom: 8px;
-  position: relative;
-  box-shadow: var(--shadow);
-  transition: transform 0.15s;
-  animation: fadeUp 0.2s ease;
-  overflow: hidden;
-}
-.item-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-}
-.item-card.idea-type::before { background: var(--green); }
-.item-card.todo-type::before { background: var(--blue); }
-.item-card.urgent::before { background: var(--red); }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-.item-card:active { transform: scale(0.99); }
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3);}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:0.3;}
 
-.item-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
-.item-content { flex: 1; }
-.item-title { font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.4; margin-bottom: 3px; }
-.item-summary { font-size: 13px; color: var(--text2); line-height: 1.5; }
-.item-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; align-items: center; }
-.badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 99px;
-}
-.badge-idea { background: var(--green-bg); color: #1a7a32; }
-.badge-todo { background: var(--blue-bg); color: #0055b3; }
-.badge-urgent { background: var(--red-bg); color: var(--red); }
-.badge-domain { background: var(--surface2); color: var(--text2); }
-.badge-project { background: #F0EEFF; color: #5856D6; }
-.badge-date { background: var(--orange-bg); color: #a05c00; }
-.badge-drive { background: var(--green-bg); color: #1a7a32; font-size: 10px; }
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:1rem 1.25rem 2.5rem;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:none;}}
+.modal-handle{width:36px;height:4px;background:var(--border-strong);border-radius:99px;margin:0 auto 1.25rem;}
+.modal h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px;}
+.modal-section{margin-top:20px;}
+.modal-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:6px;}
+.hint-text{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:8px;}
+.modal input[type=text],.modal input[type=email],.modal input[type=password]{width:100%;font-family:inherit;font-size:15px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:11px 14px;outline:none;margin-bottom:4px;}
+.modal input:focus{border-color:var(--blue);}
+.modal-footer{display:flex;gap:8px;margin-top:1.5rem;}
+.btn-cancel{flex:1;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;color:var(--text2);}
+.btn-save{flex:2;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;}
 
-.item-actions { display: flex; gap: 4px; flex-shrink: 0; }
-.btn-act {
-  width: 30px; height: 30px;
-  border: none;
-  background: none;
-  border-radius: var(--radius-xs);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text3);
-  font-size: 15px;
-  transition: all 0.12s;
-}
-.btn-act:hover { background: var(--surface2); color: var(--text); }
+.edit-list{display:flex;flex-direction:column;gap:6px;}
+.edit-row{display:flex;gap:6px;align-items:center;}
+.edit-row input{flex:1;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-xs);padding:8px 10px;outline:none;}
+.edit-row input:focus{border-color:var(--blue);}
+.edit-arrow{font-size:11px;color:var(--text3);flex-shrink:0;}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0 2px;line-height:1;}
+.btn-del:hover{color:var(--red);}
+.btn-add-row{background:none;border:0.5px dashed var(--border-strong);border-radius:var(--radius-xs);padding:8px;font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer;margin-top:6px;width:100%;text-align:center;}
+.btn-add-row:hover{background:var(--surface2);}
 
-.item-original {
-  font-size: 12px;
-  color: var(--text3);
-  font-style: italic;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 0.5px solid var(--border);
-  display: none;
-}
-.item-card:hover .item-original { display: block; }
+.sync-info{font-size:11px;color:var(--text3);text-align:center;padding:6px;}
 
-/* EMPTY STATE */
-.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text3); }
-.empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
-.empty-state p { font-size: 14px; line-height: 1.7; }
+.project-picker{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);z-index:300;align-items:flex-end;justify-content:center;}
+.project-picker.open{display:flex;}
+.project-picker-box{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:var(--shadow-lg);animation:slideUp 0.22s ease;}
+.project-picker-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;text-align:center;}
+.project-picker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;cursor:pointer;color:var(--text);text-align:left;transition:background 0.12s;}
+.project-picker-item:hover,.project-picker-item:active{background:var(--blue-bg);color:var(--blue);}
+.project-picker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:10px;cursor:pointer;color:var(--text3);margin-top:4px;}
 
-/* MODAL */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  align-items: flex-end;
-  justify-content: center;
-  padding: 0;
-}
-.modal-overlay.open { display: flex; }
-.modal {
-  background: var(--surface);
-  border-radius: var(--radius) var(--radius) 0 0;
-  padding: 1.25rem 1.25rem 2rem;
-  width: 100%;
-  max-width: 600px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  animation: slideUp 0.25s ease;
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
-.modal-handle { width: 36px; height: 4px; background: var(--border-strong); border-radius: 99px; margin: 0 auto 1.25rem; }
-.modal h2 { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 1rem; }
-.modal label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); display: block; margin-bottom: 6px; margin-top: 18px; }
-.modal input[type=text], .modal input[type=email], .modal input[type=password] {
-  width: 100%;
-  font-family: inherit;
-  font-size: 15px;
-  color: var(--text);
-  background: var(--surface2);
-  border: 0.5px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  padding: 11px 14px;
-  outline: none;
-}
-.modal input:focus { border-color: var(--blue); }
-.modal-footer { display: flex; gap: 8px; margin-top: 1.5rem; }
-.btn-cancel {
-  flex: 1;
-  background: var(--surface2);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 13px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  color: var(--text2);
-}
-.btn-save {
-  flex: 2;
-  background: var(--blue);
-  color: #FFF;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 13px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(29,29,31,0.92);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:300;transition:transform 0.25s ease;white-space:nowrap;backdrop-filter:blur(10px);}
+.toast.show{transform:translateX(-50%) translateY(0);}
 
-/* Dict/Gloss rows */
-.dict-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.dict-row { display: flex; gap: 6px; align-items: center; }
-.dict-row input { flex: 1; font-family: inherit; font-size: 13px; color: var(--text); background: var(--surface2); border: 0.5px solid var(--border-strong); border-radius: var(--radius-xs); padding: 8px 10px; outline: none; }
-.dict-row input:focus { border-color: var(--blue); }
-.dict-arrow { font-size: 14px; color: var(--text3); flex-shrink: 0; }
-.btn-dict-del { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; padding: 0 2px; line-height: 1; }
-.btn-dict-del:hover { color: var(--red); }
-.btn-dict-add { background: none; border: 0.5px dashed var(--border-strong); border-radius: var(--radius-xs); padding: 8px; font-family: inherit; font-size: 13px; color: var(--text2); cursor: pointer; margin-top: 6px; width: 100%; text-align: center; }
-.btn-dict-add:hover { background: var(--surface2); }
-.hint-text { font-size: 12px; color: var(--text3); margin-bottom: 6px; line-height: 1.5; }
-
-/* Drive banner */
-.drive-banner {
-  background: var(--green-bg);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  font-size: 13px;
-  color: #1a7a32;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 1rem;
-}
-.drive-banner.warn { background: var(--orange-bg); color: #a05c00; }
-.drive-banner.error { background: var(--red-bg); color: var(--red); }
-
-/* TOAST */
-.toast {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: rgba(29,29,31,0.92);
-  color: #FFF;
-  padding: 10px 20px;
-  border-radius: 99px;
-  font-size: 13px;
-  font-weight: 500;
-  z-index: 300;
-  transition: transform 0.25s ease;
-  white-space: nowrap;
-  backdrop-filter: blur(10px);
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-/* RESPONSIVE */
-@media (max-width: 480px) {
-  .main { padding: 1rem 0.75rem 5rem; }
-  .mic-btn { width: 72px; height: 72px; font-size: 28px; }
-}
+@media(max-width:480px){.main{padding:1rem 0.75rem 5rem;}.mic-btn{width:68px;height:68px;font-size:26px;}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="logo">Cap<span>tura</span></div>
   <div class="header-right">
     <button class="drive-status disconnected" id="driveBtn" onclick="toggleDriveAuth()">
-      <span class="drive-dot"></span>
-      <span id="driveBtnText">Drive</span>
+      <span class="drive-dot"></span><span id="driveBtnText">Drive</span>
     </button>
-    <button class="btn-icon-sm" onclick="openSettings()" title="Réglages">⚙️</button>
+    <button class="btn-icon-sm" onclick="openSettings()">⚙️</button>
   </div>
 </header>
 
-<!-- MAIN -->
 <main class="main">
-
-  <!-- DRIVE BANNER -->
-  <div id="driveBanner" style="display:none;"></div>
-
-  <!-- MIC SECTION -->
   <div class="mic-section">
     <div class="mic-label">Nouvelle capture</div>
     <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️</button>
     <div class="live-zone empty" id="liveZone">Appuie sur le micro et parle…</div>
+    <div class="edit-hint" id="editHint">✏️ Tu peux corriger le texte ci-dessus — sélectionne un mot pour le mémoriser</div>
+    <div class="correction-bar" id="correctionBar">
+      <span style="white-space:nowrap">Mémoriser "<strong id="corrFrom"></strong>" →</span>
+      <input type="text" class="corr-input" id="corrTo" placeholder="correction…">
+      <button class="btn-memorize" onclick="memorizeCorrection()">Mémoriser ✓</button>
+    </div>
     <div class="meta-row">
       <select id="domainSelect"><option value="">Domaine (auto)</option></select>
       <input type="date" id="dateInput">
@@ -524,34 +200,24 @@ select:focus, input[type=date]:focus { border-color: var(--blue); }
     </button>
   </div>
 
-  <!-- STATS -->
   <div class="stats-row">
-    <div class="stat-card">
-      <div class="stat-num" id="statTotal">0</div>
-      <div class="stat-lbl">Total</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="statIdeas">0</div>
-      <div class="stat-lbl">Idées</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num" id="statTodos">0</div>
-      <div class="stat-lbl">À faire</div>
+    <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-num" id="statIdeas">0</div><div class="stat-lbl">Idées</div></div>
+    <div class="stat-card"><div class="stat-num" id="statTodos">0</div><div class="stat-lbl">À faire</div></div>
+  </div>
+
+  <div class="filters-scroll">
+    <div class="filters-row" id="filtersRow">
+      <button class="filter-pill active-all" onclick="setFilter('all',this)">Tout</button>
+      <button class="filter-pill" onclick="setFilter('idea',this)">Idées</button>
+      <button class="filter-pill" onclick="setFilter('todo',this)">À faire</button>
+      <button class="filter-pill" onclick="setFilter('urgent',this)">Urgent</button>
+      <span id="domainFilters"></span>
     </div>
   </div>
 
-  <!-- FILTERS -->
-  <div class="filters-row" id="filtersRow">
-    <button class="filter-pill active-all" onclick="setFilter('all',this)">Tout</button>
-    <button class="filter-pill" onclick="setFilter('idea',this)">Idées</button>
-    <button class="filter-pill" onclick="setFilter('todo',this)">À faire</button>
-    <button class="filter-pill" onclick="setFilter('urgent',this)">Urgent</button>
-    <span id="domainFilters"></span>
-  </div>
-
-  <!-- LIST -->
   <div id="itemsList"></div>
-
+  <div class="sync-info" id="syncInfo"></div>
 </main>
 
 <!-- SETTINGS MODAL -->
@@ -559,495 +225,523 @@ select:focus, input[type=date]:focus { border-color: var(--blue); }
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>Réglages</h2>
+    <div class="hint-text">Clé API : locale sur cet appareil. Tout le reste : synchronisé via Drive sur tous tes appareils.</div>
 
-    <label>Clé API Anthropic</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-…">
+    <div class="modal-section">
+      <div class="modal-section-title">Clé API Anthropic</div>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-…">
+    </div>
 
-    <label>Email pour les rappels</label>
-    <input type="email" id="emailInput" placeholder="ton@email.com">
+    <div class="modal-section">
+      <div class="modal-section-title">Email pour les rappels</div>
+      <input type="email" id="emailInput" placeholder="ton@email.com">
+    </div>
 
-    <label>Projets / Domaines</label>
-    <div class="hint-text">Ces catégories apparaissent dans les filtres. Clever2Nexus, Lack Design, Privé et Famille sont toujours présents.</div>
-    <div class="dict-list" id="catList"></div>
-    <button class="btn-dict-add" onclick="addCatRow()">+ Ajouter un projet</button>
+    <div class="modal-section">
+      <div class="modal-section-title">Projets / Domaines</div>
+      <div class="hint-text">Renomme ou ajoute des catégories. Toutes sont modifiables.</div>
+      <div class="edit-list" id="catList"></div>
+      <button class="btn-add-row" onclick="addCatRow()">+ Ajouter un projet</button>
+    </div>
 
-    <label>Glossaire vocal</label>
-    <div class="hint-text">Liste tes termes importants. L'IA les reconnaît même si le micro les déforme phonétiquement.</div>
-    <div class="dict-list" id="glossList"></div>
-    <button class="btn-dict-add" onclick="addGlossRow()">+ Ajouter un terme</button>
+    <div class="modal-section">
+      <div class="modal-section-title">Glossaire vocal</div>
+      <div class="hint-text">Terme + description. L'IA reconnaît ces termes même phonétiquement déformés par le micro.</div>
+      <div class="edit-list" id="glossList"></div>
+      <button class="btn-add-row" onclick="addGlossRow()">+ Ajouter un terme</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Corrections phonétiques</div>
+      <div class="hint-text">Apprises automatiquement quand tu corriges une dictée. Synchronisées sur tous tes appareils via Drive.</div>
+      <div class="edit-list" id="corrList"></div>
+      <button class="btn-add-row" onclick="addCorrRow()">+ Ajouter manuellement</button>
+    </div>
 
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeSettings()">Annuler</button>
-      <button class="btn-save" onclick="saveSettings()">Enregistrer</button>
+      <button class="btn-save" onclick="saveSettings()">Enregistrer et synchroniser</button>
     </div>
+  </div>
+</div>
+
+<!-- PROJECT PICKER -->
+<div class="project-picker" id="projectPicker">
+  <div class="project-picker-box">
+    <div class="project-picker-title">Dans quel projet classer cette capture ?</div>
+    <div id="projectPickerBtns"></div>
+    <button class="project-picker-skip" onclick="skipProjectPicker()">Laisser sans projet</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ───────────────────────────────────────────────
 const GOOGLE_CLIENT_ID = '505442840775-agomh45sdj2m68dv8d11gaaggt1qsv5b.apps.googleusercontent.com';
-const DRIVE_FILE_NAME  = 'captura_data.json';
-const SCOPES           = 'https://www.googleapis.com/auth/drive.appdata';
-const DEFAULT_CATS     = ['Clever2Nexus', 'Lack Design', 'Privé', 'Famille'];
+const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+const F_ITEMS = 'captura_items.json';
+const F_SETTINGS = 'captura_settings.json';
+const DEFAULT_CATS = ['Clever2Nexus','Lack Design','Privé','Famille'];
 
-// ── STATE ────────────────────────────────────────────────
-let items        = [];
-let currentFilter= 'all';
-let recognition  = null;
-let isRecording  = false;
-let fullText     = '';
-let driveFileId  = null;
-let accessToken  = null;
-let tokenClient  = null;
-let isSyncing    = false;
+let items = [];
+let S = { cats:[...DEFAULT_CATS], gloss:[], corrections:[], email:'' };
+let currentFilter='all', recognition=null, isRecording=false;
+let fullText='', selectedWord='';
+let accessToken=null, tokenClient=null, isSyncing=false, fileIds={};
 
-// ── LOCAL STORAGE HELPERS ────────────────────────────────
 const ls = {
-  get: k       => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
-  set: (k,v)   => localStorage.setItem(k, JSON.stringify(v)),
-  str: k       => localStorage.getItem(k) || '',
-  setStr:(k,v) => localStorage.setItem(k,v)
+  get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
+  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
+  str:k=>localStorage.getItem(k)||'',
+  setStr:(k,v)=>localStorage.setItem(k,v)
 };
 
-function getApiKey()    { return ls.str('cap_apikey'); }
-function getEmail()     { return ls.str('cap_email'); }
-function getGloss()     { return ls.get('cap_gloss') || []; }
-function getExtraCats() { return ls.get('cap_cats') || []; }
-function getAllCats()    { return [...DEFAULT_CATS, ...getExtraCats()]; }
+function getApiKey(){return ls.str('cap_apikey');}
 
-// ── GOOGLE DRIVE AUTH ────────────────────────────────────
-function initGoogleAuth() {
-  if (typeof google === 'undefined') return;
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: SCOPES,
-    callback: async (resp) => {
-      if (resp.error) { showToast('Erreur Drive : ' + resp.error); return; }
-      accessToken = resp.access_token;
-      ls.setStr('cap_drive_token', accessToken);
-      updateDriveUI('connected');
-      await loadFromDrive();
+// ── DRIVE ────────────────────────────────────────────────
+function initGoogleAuth(){
+  if(typeof google==='undefined'){setTimeout(initGoogleAuth,600);return;}
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:GOOGLE_CLIENT_ID,scope:SCOPES,
+    callback:async(r)=>{
+      if(r.error){showToast('Drive : '+r.error);return;}
+      accessToken=r.access_token;ls.setStr('cap_token',accessToken);
+      updateDriveUI('connected');await syncFromDrive();
     }
   });
-  const saved = ls.str('cap_drive_token');
-  if (saved) {
-    accessToken = saved;
-    updateDriveUI('connected');
-    loadFromDrive();
-  }
+  const t=ls.str('cap_token');
+  if(t){accessToken=t;updateDriveUI('connected');syncFromDrive();}
+  else updateDriveUI('disconnected');
 }
 
-function toggleDriveAuth() {
-  if (accessToken) {
-    accessToken = null;
-    ls.setStr('cap_drive_token', '');
-    driveFileId = null;
-    updateDriveUI('disconnected');
-    showToast('Drive déconnecté');
+function toggleDriveAuth(){
+  if(accessToken){accessToken=null;ls.setStr('cap_token','');fileIds={};updateDriveUI('disconnected');showToast('Drive déconnecté');}
+  else{if(!tokenClient){showToast('Google non chargé');return;}tokenClient.requestAccessToken({prompt:''});}
+}
+
+function updateDriveUI(state){
+  const btn=document.getElementById('driveBtn'),txt=document.getElementById('driveBtnText');
+  btn.className='drive-status '+state;
+  if(state==='connected'){txt.textContent='Drive ✓';setSyncInfo('Synchronisé avec Google Drive');}
+  else if(state==='syncing'){txt.textContent='Sync…';setSyncInfo('Synchronisation…');}
+  else{txt.textContent='Drive';setSyncInfo('Non connecté — données locales uniquement');}
+}
+function setSyncInfo(m){document.getElementById('syncInfo').textContent=m;}
+
+async function apiCall(method,url,body){
+  const h={'Authorization':'Bearer '+accessToken};
+  let b;
+  if(body instanceof Blob){b=body;}
+  else if(body instanceof FormData){b=body;}
+  else if(body){h['Content-Type']='application/json';b=JSON.stringify(body);}
+  const r=await fetch(url,{method,headers:h,body:b});
+  if(r.status===401){accessToken=null;ls.setStr('cap_token','');updateDriveUI('disconnected');throw new Error('Token expiré');}
+  return r;
+}
+
+async function getFileId(name){
+  if(fileIds[name])return fileIds[name];
+  const q=encodeURIComponent(`name='${name}' and trashed=false`);
+  const r=await apiCall('GET',`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=appDataFolder&fields=files(id)`);
+  const d=await r.json();
+  if(d.files&&d.files.length){fileIds[name]=d.files[0].id;return fileIds[name];}
+  return null;
+}
+
+async function writeDriveFile(name,data){
+  let fid=await getFileId(name);
+  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  if(fid){
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,
+      {method:'PATCH',headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify(data)});
   } else {
-    if (!tokenClient) { showToast('Google non chargé, réessaie'); return; }
-    tokenClient.requestAccessToken({ prompt: 'consent' });
+    const meta=new Blob([JSON.stringify({name,parents:['appDataFolder']})],{type:'application/json'});
+    const form=new FormData();form.append('metadata',meta);form.append('file',blob);
+    const r=await apiCall('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',form);
+    const d=await r.json();fileIds[name]=d.id;
   }
 }
 
-function updateDriveUI(state) {
-  const btn  = document.getElementById('driveBtn');
-  const txt  = document.getElementById('driveBtnText');
-  const banner = document.getElementById('driveBanner');
-  btn.className = 'drive-status ' + state;
-  if (state === 'connected')    { txt.textContent = 'Drive ✓'; banner.style.display = 'none'; }
-  else if (state === 'syncing') { txt.textContent = 'Sync…'; }
-  else {
-    txt.textContent = 'Drive';
-    banner.className = 'drive-banner warn';
-    banner.innerHTML = '⚠️ Non connecté à Drive — données locales uniquement.';
-    banner.style.display = 'flex';
-  }
+async function readDriveFile(name){
+  const fid=await getFileId(name);if(!fid)return null;
+  const r=await apiCall('GET',`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`);
+  try{return await r.json();}catch{return null;}
 }
 
-async function driveRequest(method, url, body) {
-  const headers = { 'Authorization': 'Bearer ' + accessToken };
-  if (body && !(body instanceof FormData)) headers['Content-Type'] = 'application/json';
-  const res = await fetch(url, { method, headers, body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : undefined });
-  if (res.status === 401) { accessToken = null; ls.setStr('cap_drive_token',''); updateDriveUI('disconnected'); throw new Error('Token expiré'); }
-  return res;
-}
-
-async function findOrCreateFile() {
-  if (driveFileId) return driveFileId;
-  const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
-  const res = await driveRequest('GET', `https://www.googleapis.com/drive/v3/files?q=${q}&spaces=appDataFolder&fields=files(id,name)`);
-  const data = await res.json();
-  if (data.files && data.files.length > 0) { driveFileId = data.files[0].id; return driveFileId; }
-  const meta = new Blob([JSON.stringify({ name: DRIVE_FILE_NAME, parents: ['appDataFolder'] })], { type: 'application/json' });
-  const content = new Blob([JSON.stringify([])], { type: 'application/json' });
-  const form = new FormData();
-  form.append('metadata', meta);
-  form.append('file', content);
-  const cr = await driveRequest('POST', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id', form);
-  const created = await cr.json();
-  driveFileId = created.id;
-  return driveFileId;
-}
-
-async function saveToDrive() {
-  if (!accessToken || isSyncing) return;
-  isSyncing = true;
-  updateDriveUI('syncing');
-  try {
-    const fid = await findOrCreateFile();
-    const content = new Blob([JSON.stringify(items)], { type: 'application/json' });
-    await driveRequest('PATCH', `https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`, content);
+async function syncFromDrive(){
+  if(!accessToken||isSyncing)return;
+  isSyncing=true;updateDriveUI('syncing');
+  try{
+    const[ri,rs]=await Promise.all([readDriveFile(F_ITEMS),readDriveFile(F_SETTINGS)]);
+    let changed=false;
+    if(Array.isArray(ri)&&ri.length>=items.length){items=ri;changed=true;}
+    if(rs&&typeof rs==='object'){S={...S,...rs};changed=true;}
+    if(changed){saveLocal();renderAll();showToast('Synchronisé ✓');}
     updateDriveUI('connected');
-  } catch(e) {
-    showToast('Erreur sync Drive');
-    updateDriveUI('connected');
-  } finally { isSyncing = false; }
+  }catch(e){showToast('Sync : '+e.message);updateDriveUI('connected');}
+  finally{isSyncing=false;}
 }
 
-async function loadFromDrive() {
-  if (!accessToken) return;
-  updateDriveUI('syncing');
-  try {
-    const fid = await findOrCreateFile();
-    const res  = await driveRequest('GET', `https://www.googleapis.com/drive/v3/files/${fid}?alt=media`);
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
-      items = data;
-      saveLocal();
-      renderItems();
-      updateStats();
-      showToast('Données chargées depuis Drive');
-    }
-    updateDriveUI('connected');
-  } catch(e) {
-    updateDriveUI('connected');
-  }
+async function saveAll(){
+  saveLocal();
+  if(!accessToken)return;
+  isSyncing=true;updateDriveUI('syncing');
+  try{await Promise.all([writeDriveFile(F_ITEMS,items),writeDriveFile(F_SETTINGS,S)]);}
+  catch(e){showToast('Erreur Drive : '+e.message);}
+  finally{isSyncing=false;updateDriveUI('connected');}
 }
+function saveLocal(){ls.set('cap_items',items);ls.set('cap_settings',S);}
 
-function saveLocal() { ls.set('cap_items', items); }
-function saveAll()   { saveLocal(); saveToDrive(); }
-
-// ── SETTINGS ─────────────────────────────────────────────
-function openSettings() {
-  document.getElementById('apiKeyInput').value = getApiKey();
-  document.getElementById('emailInput').value  = getEmail();
-  renderCatList(getExtraCats());
-  renderGlossList(getGloss());
+// ── SETTINGS UI ──────────────────────────────────────────
+function openSettings(){
+  document.getElementById('apiKeyInput').value=getApiKey();
+  document.getElementById('emailInput').value=S.email||'';
+  renderCatList(S.cats);renderGlossList(S.gloss);renderCorrList(S.corrections);
   document.getElementById('settingsModal').classList.add('open');
 }
-function closeSettings() { document.getElementById('settingsModal').classList.remove('open'); }
+function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
 
-function renderCatList(cats) {
-  document.getElementById('catList').innerHTML = cats.map((c,i) => `
-    <div class="dict-row">
-      <input type="text" value="${esc(c)}" id="cat-${i}" placeholder="Nom du projet">
-      <button class="btn-dict-del" onclick="removeCatRow(${i})">✕</button>
-    </div>`).join('');
+function renderCatList(cats){
+  document.getElementById('catList').innerHTML=(cats||[]).map((c,i)=>`
+    <div class="edit-row"><input type="text" value="${esc(c)}" id="cat-${i}" placeholder="Projet">
+    <button class="btn-del" onclick="removeCatRow(${i})">✕</button></div>`).join('');
 }
-function addCatRow()    { const c=readCatsUI(); c.push(''); renderCatList(c); document.getElementById(`cat-${c.length-1}`)?.focus(); }
-function removeCatRow(i){ const c=readCatsUI(); c.splice(i,1); renderCatList(c); }
-function readCatsUI()   { return [...document.querySelectorAll('#catList .dict-row')].map((_,i)=>(document.getElementById(`cat-${i}`)?.value||'').trim()).filter(Boolean); }
+function addCatRow(){const c=readCatsUI();c.push('');renderCatList(c);document.getElementById(`cat-${c.length-1}`)?.focus();}
+function removeCatRow(i){const c=readCatsUI();c.splice(i,1);renderCatList(c);}
+function readCatsUI(){return[...document.querySelectorAll('#catList .edit-row')].map((_,i)=>(document.getElementById(`cat-${i}`)?.value||'').trim()).filter(Boolean);}
 
-function renderGlossList(g) {
-  document.getElementById('glossList').innerHTML = g.map((e,i) => `
-    <div class="dict-row">
+function renderGlossList(g){
+  document.getElementById('glossList').innerHTML=(g||[]).map((e,i)=>`
+    <div class="edit-row">
       <input type="text" value="${esc(e.term)}" id="gt-${i}" placeholder="Terme" style="flex:0.9;">
-      <span class="dict-arrow" style="font-size:11px">—</span>
-      <input type="text" value="${esc(e.desc)}" id="gd-${i}" placeholder="Description courte" style="flex:1.5;">
-      <button class="btn-dict-del" onclick="removeGlossRow(${i})">✕</button>
+      <span class="edit-arrow">—</span>
+      <input type="text" value="${esc(e.desc)}" id="gd-${i}" placeholder="Description" style="flex:1.5;">
+      <button class="btn-del" onclick="removeGlossRow(${i})">✕</button>
     </div>`).join('');
 }
-function addGlossRow()    { const g=readGlossUI(); g.push({term:'',desc:''}); renderGlossList(g); document.getElementById(`gt-${g.length-1}`)?.focus(); }
-function removeGlossRow(i){ const g=readGlossUI(); g.splice(i,1); renderGlossList(g); }
-function readGlossUI()    { return [...document.querySelectorAll('#glossList .dict-row')].map((_,i)=>({ term:(document.getElementById(`gt-${i}`)?.value||'').trim(), desc:(document.getElementById(`gd-${i}`)?.value||'').trim() })).filter(e=>e.term); }
+function addGlossRow(){const g=readGlossUI();g.push({term:'',desc:''});renderGlossList(g);document.getElementById(`gt-${g.length-1}`)?.focus();}
+function removeGlossRow(i){const g=readGlossUI();g.splice(i,1);renderGlossList(g);}
+function readGlossUI(){return[...document.querySelectorAll('#glossList .edit-row')].map((_,i)=>({term:(document.getElementById(`gt-${i}`)?.value||'').trim(),desc:(document.getElementById(`gd-${i}`)?.value||'').trim()})).filter(e=>e.term);}
 
-function buildGlossPrompt() {
-  const g = getGloss();
-  if (!g.length) return '';
-  return '\n\nGLOSSAIRE — reconnaître ces termes même phonétiquement déformés :\n' + g.map(e=>`- "${e.term}"${e.desc?' : '+e.desc:''}`).join('\n');
+function renderCorrList(c){
+  document.getElementById('corrList').innerHTML=(c||[]).map((e,i)=>`
+    <div class="edit-row">
+      <input type="text" value="${esc(e.from)}" id="cf-${i}" placeholder="Mot dicté" style="flex:1;">
+      <span class="edit-arrow">→</span>
+      <input type="text" value="${esc(e.to)}" id="ct-${i}" placeholder="Correction" style="flex:1;">
+      <button class="btn-del" onclick="removeCorrRow(${i})">✕</button>
+    </div>`).join('');
+}
+function addCorrRow(){const c=readCorrUI();c.push({from:'',to:''});renderCorrList(c);document.getElementById(`cf-${c.length-1}`)?.focus();}
+function removeCorrRow(i){const c=readCorrUI();c.splice(i,1);renderCorrList(c);}
+function readCorrUI(){return[...document.querySelectorAll('#corrList .edit-row')].map((_,i)=>({from:(document.getElementById(`cf-${i}`)?.value||'').trim().toLowerCase(),to:(document.getElementById(`ct-${i}`)?.value||'').trim()})).filter(e=>e.from&&e.to);}
+
+function saveSettings(){
+  const k=document.getElementById('apiKeyInput').value.trim();
+  if(k)ls.setStr('cap_apikey',k);
+  S.email=document.getElementById('emailInput').value.trim();
+  S.cats=readCatsUI();S.gloss=readGlossUI();S.corrections=readCorrUI();
+  closeSettings();saveAll();renderAll();showToast('Réglages sauvegardés et synchronisés ✓');
 }
 
-function saveSettings() {
-  const key=document.getElementById('apiKeyInput').value.trim();
-  const email=document.getElementById('emailInput').value.trim();
-  if(key)   ls.setStr('cap_apikey', key);
-  if(email) ls.setStr('cap_email', email);
-  ls.set('cap_cats',  readCatsUI());
-  ls.set('cap_gloss', readGlossUI());
-  closeSettings();
-  renderDomainSelect();
-  renderDomainFilters();
-  showToast('Réglages enregistrés');
+function buildGlossPrompt(){
+  if(!S.gloss||!S.gloss.length)return'';
+  return'\n\nGLOSSAIRE — reconnais ces termes même phonétiquement déformés :\n'+
+    S.gloss.map(e=>`- "${e.term}"${e.desc?' : '+e.desc:''}`).join('\n')+
+    '\nSi un mot ressemble phonétiquement à un terme du glossaire, utilise le terme exact.';
+}
+
+function applyCorrections(text){
+  let r=text;
+  (S.corrections||[]).forEach(c=>{
+    if(!c.from)return;
+    const rx=new RegExp('\\b'+c.from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi');
+    r=r.replace(rx,c.to);
+  });
+  return r;
+}
+
+// ── CORRECTION INTERACTIVE ───────────────────────────────
+function checkSelection(){
+  const sel=window.getSelection();
+  if(!sel||sel.isCollapsed){hideCorrBar();return;}
+  const word=sel.toString().trim();
+  if(word.length<2||word.split(' ').length>2){hideCorrBar();return;}
+  selectedWord=word.toLowerCase();
+  document.getElementById('corrFrom').textContent=word;
+  document.getElementById('corrTo').value='';
+  document.getElementById('correctionBar').classList.add('show');
+}
+
+function hideCorrBar(){document.getElementById('correctionBar').classList.remove('show');selectedWord='';}
+
+function memorizeCorrection(){
+  const to=document.getElementById('corrTo').value.trim();
+  if(!to||!selectedWord)return;
+  S.corrections=S.corrections||[];
+  const ex=S.corrections.find(c=>c.from===selectedWord);
+  if(ex)ex.to=to;else S.corrections.push({from:selectedWord,to});
+  hideCorrBar();saveAll();
+  showToast(`"${selectedWord}" → "${to}" mémorisé ✓`);
 }
 
 // ── MIC ──────────────────────────────────────────────────
-function toggleMic() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showToast('Micro non supporté sur ce navigateur'); return; }
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){showToast('Micro non dispo — tape directement');return;}
+  if(isRecording){recognition.stop();return;}
+  fullText='';
+  recognition=new SR();
+  recognition.lang='fr-CH';recognition.continuous=true;recognition.interimResults=true;
 
-  if (isRecording) { recognition.stop(); return; }
-
-  fullText = '';
-  recognition = new SR();
-  recognition.lang = 'fr-CH';
-  recognition.continuous = true;
-  recognition.interimResults = true;
-
-  recognition.onstart = () => {
-    isRecording = true;
-    document.getElementById('micBtn').className = 'mic-btn listening';
-    document.getElementById('micBtn').textContent = '⏹️';
-    setLiveZone('', true);
+  recognition.onstart=()=>{
+    isRecording=true;
+    document.getElementById('micBtn').className='mic-btn listening';
+    document.getElementById('micBtn').textContent='⏹️';
+    setLive('Je t\'écoute…',true);
+    hideCorrBar();
+    document.getElementById('editHint').classList.remove('show');
   };
 
-  recognition.onresult = (e) => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (e.results[i].isFinal) fullText += e.results[i][0].transcript + ' ';
-      else interim += e.results[i][0].transcript;
+  recognition.onresult=(e)=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)fullText+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
     }
-    setLiveZone(fullText, false, interim);
+    setLive(fullText.trim(),false,interim);
   };
 
-  recognition.onend = () => {
-    isRecording = false;
-    document.getElementById('micBtn').className = 'mic-btn';
-    document.getElementById('micBtn').textContent = '🎙️';
-    if (fullText.trim()) setLiveZone(fullText.trim(), false);
+  recognition.onend=()=>{
+    isRecording=false;
+    document.getElementById('micBtn').className='mic-btn';
+    document.getElementById('micBtn').textContent='🎙️';
+    fullText=fullText.trim();
+    const z=document.getElementById('liveZone');
+    z.contentEditable='true';
+    z.classList.add('editable');
+    document.getElementById('editHint').classList.add('show');
+    setLive(fullText,false,'');
   };
 
-  recognition.onerror = (e) => {
-    isRecording = false;
-    document.getElementById('micBtn').className = 'mic-btn';
-    document.getElementById('micBtn').textContent = '🎙️';
-    if (e.error !== 'no-speech') showToast('Erreur micro : ' + e.error);
+  recognition.onerror=(e)=>{
+    isRecording=false;
+    document.getElementById('micBtn').className='mic-btn';
+    document.getElementById('micBtn').textContent='🎙️';
+    if(e.error!=='no-speech')showToast('Micro : '+e.error);
   };
-
   recognition.start();
 }
 
-function setLiveZone(final, empty, interim='') {
-  const z = document.getElementById('liveZone');
-  if (empty) { z.className='live-zone empty'; z.innerHTML='Je t\'écoute…'; return; }
-  z.className = 'live-zone';
-  z.innerHTML = `<span class="live-final">${esc(final)}</span><span class="live-interim">${esc(interim)}</span>`;
-  if (!final && !interim) { z.className='live-zone empty'; z.textContent='Appuie sur le micro et parle…'; }
+function setLive(text,listening,interim){
+  const z=document.getElementById('liveZone');
+  if(listening){z.className='live-zone empty';z.contentEditable='false';z.textContent=text;return;}
+  if(!text&&!interim){z.className='live-zone empty';z.contentEditable='false';z.textContent='Appuie sur le micro et parle…';return;}
+  z.className='live-zone'+(z.contentEditable==='true'?' editable':'');
+  z.innerHTML=`<span>${esc(text)}</span><span style="color:var(--text3)">${esc(interim||'')}</span>`;
 }
 
 // ── PROCESS ──────────────────────────────────────────────
-async function processEntry() {
-  const text = (fullText || document.getElementById('liveZone').textContent || '').trim();
-  const skipTexts = ['Appuie sur le micro et parle…','Je t\'écoute…',''];
-  if (!text || skipTexts.includes(text)) { showToast('Rien à analyser'); return; }
+async function processEntry(){
+  const z=document.getElementById('liveZone');
+  const rawText=(z.innerText||fullText||'').trim();
+  if(!rawText||rawText==='Appuie sur le micro et parle…'||rawText==='Je t\'écoute…'){showToast('Rien à analyser');return;}
+  const apiKey=getApiKey();
+  if(!apiKey){showToast('Configure ta clé API dans Réglages');openSettings();return;}
 
-  const apiKey = getApiKey();
-  if (!apiKey) { showToast('Configure ta clé API dans Réglages'); openSettings(); return; }
-
-  const domain   = document.getElementById('domainSelect').value;
-  const date     = document.getElementById('dateInput').value;
-  const reminder = document.getElementById('reminderSelect').value;
-
+  const text=applyCorrections(rawText);
+  const domain=document.getElementById('domainSelect').value;
+  const date=document.getElementById('dateInput').value;
+  const reminder=document.getElementById('reminderSelect').value;
   setLoading(true);
 
-  const allCats = getAllCats();
-  const system  = `Tu es un assistant de classification pour Régis, entrepreneur en Suisse romande.
-Tu analyses des dictées vocales en français et les classes avec précision.
-
-Réponds UNIQUEMENT en JSON valide, sans markdown ni explications.
+  const cats=S.cats||DEFAULT_CATS;
+  const sys=`Tu es un assistant de classification pour Régis, entrepreneur en Suisse romande.
+Tu analyses des dictées vocales et les classes avec précision sémantique.
+Réponds UNIQUEMENT en JSON valide, sans markdown.
 
 {
   "type": "idea" ou "todo",
-  "title": "titre court max 8 mots",
-  "summary": "résumé clair en 1-2 phrases",
-  "project": "parmi : ${allCats.join(', ')}, ou Autre",
+  "title": "titre clair max 8 mots",
+  "summary": "résumé en 1-2 phrases",
+  "project": "parmi : ${cats.join(', ')}, ou Autre si pas clairement identifiable",
   "priority": "normal" ou "urgent",
   "tags": ["tag1","tag2"] max 3
 }
 
-Règles :
-- idea = idée, réflexion, inspiration à explorer
+Règles STRICTES :
+- idea = idée, inspiration, concept à explorer
 - todo = tâche concrète, action, appel, document, deadline
-- urgent si la personne dit urgent/important ou date < 7 jours
-- Détecte le projet même indirectement (harnais magnétique = Clever2Nexus, cuisine 3D = Lack Design)
+- urgent = si explicitement dit ou date < 7 jours
+- IMPORTANT : N'attribue un projet que si clairement mentionné ou très fortement impliqué. Si doute → "Autre"
+- "carton décharge" → Privé. "harnais magnétique" → Clever2Nexus. "plan cuisine 3D" → Lack Design
 - Domaine forcé : ${domain||'auto'}${buildGlossPrompt()}`;
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        system,
-        messages: [{ role: 'user', content: text }]
-      })
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,system:sys,messages:[{role:'user',content:text}]})
     });
+    if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Erreur API');}
+    const d=await r.json();
+    const raw=d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+    const p=JSON.parse(raw);
 
-    if (!res.ok) { const e=await res.json(); throw new Error(e.error?.message||'Erreur API'); }
-    const data  = await res.json();
-    const raw   = data.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-    const parsed= JSON.parse(raw);
-
-    const item = {
-      id: Date.now(),
-      original: text,
-      type: parsed.type || 'todo',
-      title: parsed.title || text.slice(0,60),
-      summary: parsed.summary || '',
-      project: domain || parsed.project || '',
-      priority: parsed.priority || 'normal',
-      tags: parsed.tags || [],
-      date: date || '',
-      reminder: date ? reminder : '',
-      driveSync: !!accessToken,
-      createdAt: new Date().toISOString()
+    const newItem = {
+      id:Date.now(),original:rawText,corrected:text!==rawText?text:null,
+      type:p.type||'todo',title:p.title||rawText.slice(0,60),summary:p.summary||'',
+      project:domain||p.project||'',priority:p.priority||'normal',
+      tags:p.tags||[],date:date||'',reminder:date?reminder:'',
+      driveSync:!!accessToken,createdAt:new Date().toISOString()
     };
 
-    items.unshift(item);
-    saveAll();
-    renderItems();
-    updateStats();
+    // Reset form
+    fullText='';
+    z.contentEditable='false';z.classList.remove('editable');
+    setLive('',false,'');
+    document.getElementById('editHint').classList.remove('show');
+    document.getElementById('domainSelect').value='';
+    document.getElementById('dateInput').value='';
+    document.getElementById('reminderRow').style.display='none';
+    hideCorrBar();
 
-    // Reset
-    fullText = '';
-    setLiveZone('', false);
-    document.getElementById('domainSelect').value = '';
-    document.getElementById('dateInput').value    = '';
-    document.getElementById('reminderRow').style.display = 'none';
-
-    showToast(item.type==='idea' ? '💡 Idée capturée' : '✅ Tâche ajoutée');
-
-  } catch(e) {
-    console.error(e);
-    showToast('Erreur : ' + e.message.slice(0,50));
-  } finally { setLoading(false); }
+    // If project unclear and no forced domain → ask user
+    const unclear = !domain && (!p.project || p.project==='Autre' || p.project==='autre');
+    if (unclear) {
+      showProjectPicker(newItem);
+    } else {
+      await finalizeItem(newItem);
+    }
+  }catch(e){showToast('Erreur : '+e.message.slice(0,60));}
+  finally{setLoading(false);}
 }
 
-function setLoading(on) {
-  document.getElementById('analyseBtn').disabled = on;
-  document.getElementById('spinner').style.display = on ? 'block' : 'none';
-  document.getElementById('analyseText').textContent = on ? 'Analyse…' : 'Analyser';
+function setLoading(on){
+  document.getElementById('analyseBtn').disabled=on;
+  document.getElementById('spinner').style.display=on?'block':'none';
+  document.getElementById('analyseText').textContent=on?'Analyse…':'Analyser';
 }
 
-// ── FILTERS ──────────────────────────────────────────────
-function setFilter(f, el) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-pill').forEach(p => p.className = 'filter-pill');
-  if (f==='all')    el.classList.add('active-all');
-  else if (f==='idea')   el.classList.add('active-idea');
-  else if (f==='todo')   el.classList.add('active-todo');
-  else if (f==='urgent') el.classList.add('active-urgent');
+// ── PROJECT PICKER ───────────────────────────────────────
+let pendingItem = null;
+
+function showProjectPicker(item) {
+  pendingItem = item;
+  const btns = document.getElementById('projectPickerBtns');
+  btns.innerHTML = (S.cats||[]).map(c=>
+    `<button class="project-picker-item" onclick="assignProject('${esc(c)}')">${esc(c)}</button>`
+  ).join('');
+  document.getElementById('projectPicker').classList.add('open');
+}
+
+function assignProject(cat) {
+  if(!pendingItem)return;
+  pendingItem.project=cat;
+  document.getElementById('projectPicker').classList.remove('open');
+  finalizeItem(pendingItem);
+  pendingItem=null;
+}
+
+function skipProjectPicker() {
+  document.getElementById('projectPicker').classList.remove('open');
+  if(pendingItem){finalizeItem(pendingItem);pendingItem=null;}
+}
+
+async function finalizeItem(item) {
+  items.unshift(item);
+  await saveAll();
+  renderAll();
+  showToast(item.type==='idea'?'💡 Idée capturée':'✅ Tâche ajoutée');
+}
+
+// ── FILTERS & RENDER ─────────────────────────────────────
+function setFilter(f,el){
+  currentFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.className='filter-pill');
+  if(f==='all')el.classList.add('active-all');
+  else if(f==='idea')el.classList.add('active-idea');
+  else if(f==='todo')el.classList.add('active-todo');
+  else if(f==='urgent')el.classList.add('active-urgent');
   else el.classList.add('active-domain');
   renderItems();
 }
 
-// ── RENDER ────────────────────────────────────────────────
-function renderItems() {
-  const list = document.getElementById('itemsList');
-  let filtered = items;
-  if (currentFilter==='idea')   filtered = filtered.filter(i=>i.type==='idea');
-  else if (currentFilter==='todo')   filtered = filtered.filter(i=>i.type==='todo');
-  else if (currentFilter==='urgent') filtered = filtered.filter(i=>i.priority==='urgent');
-  else if (currentFilter!=='all') filtered = filtered.filter(i=>i.project===currentFilter);
+function renderAll(){renderDomainSelect();renderDomainFilters();renderItems();updateStats();}
 
-  if (!filtered.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🎙️</div><p>${items.length===0?'Aucune capture pour l\'instant.<br>Appuie sur le micro et parle.':'Aucun élément dans cette catégorie.'}</p></div>`;
-    return;
-  }
-
-  const todos = filtered.filter(i=>i.type==='todo');
-  const ideas = filtered.filter(i=>i.type==='idea');
-  let html = '';
-
-  if (todos.length && currentFilter!=='idea') {
-    html += `<div class="section-title"><span class="section-dot dot-todo"></span>À faire (${todos.length})</div>`;
-    todos.forEach(i => html += card(i));
-  }
-  if (ideas.length && currentFilter!=='todo') {
-    html += `<div class="section-title"><span class="section-dot dot-idea"></span>Idées (${ideas.length})</div>`;
-    ideas.forEach(i => html += card(i));
-  }
-  list.innerHTML = html;
+function renderItems(){
+  const list=document.getElementById('itemsList');
+  let f=[...items];
+  if(currentFilter==='idea')f=f.filter(i=>i.type==='idea');
+  else if(currentFilter==='todo')f=f.filter(i=>i.type==='todo');
+  else if(currentFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
+  else if(currentFilter!=='all')f=f.filter(i=>i.project===currentFilter);
+  if(!f.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">🎙️</div><p>${items.length===0?'Aucune capture.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
+  const todos=f.filter(i=>i.type==='todo'),ideas=f.filter(i=>i.type==='idea');
+  let h='';
+  if(todos.length&&currentFilter!=='idea'){h+=`<div class="section-title"><span class="section-dot dot-todo"></span>À faire (${todos.length})</div>`;todos.forEach(i=>h+=card(i));}
+  if(ideas.length&&currentFilter!=='todo'){h+=`<div class="section-title"><span class="section-dot dot-idea"></span>Idées (${ideas.length})</div>`;ideas.forEach(i=>h+=card(i));}
+  list.innerHTML=h;
 }
 
-function card(item) {
-  const urgent = item.priority==='urgent';
-  const cls    = urgent ? 'urgent' : (item.type==='idea' ? 'idea-type' : 'todo-type');
-  const tBadge = item.type==='idea' ? '<span class="badge badge-idea">Idée</span>' : '<span class="badge badge-todo">À faire</span>';
-  const uBadge = urgent ? '<span class="badge badge-urgent">Urgent</span>' : '';
-  const dBadge = item.project ? `<span class="badge badge-domain">${esc(item.project)}</span>` : '';
-  const tags   = (item.tags||[]).map(t=>`<span class="badge badge-project">${esc(t)}</span>`).join('');
-  const date   = item.date ? `<span class="badge badge-date">📅 ${fmtDate(item.date)}</span>` : '';
-  const drive  = item.driveSync ? '<span class="badge badge-drive">Drive ✓</span>' : '';
-  const done   = item.type==='todo' ? `<button class="btn-act" onclick="markDone(${item.id})" title="Fait">✓</button>` : '';
-  return `<div class="item-card ${cls}">
-    <div class="item-top">
-      <div class="item-content">
-        <div class="item-title">${esc(item.title)}</div>
-        ${item.summary?`<div class="item-summary">${esc(item.summary)}</div>`:''}
-        <div class="item-badges">${tBadge}${uBadge}${dBadge}${tags}${date}${drive}</div>
-        <div class="item-original">${esc(item.original)}</div>
-      </div>
-      <div class="item-actions">${done}<button class="btn-act" onclick="deleteItem(${item.id})" title="Supprimer">✕</button></div>
-    </div>
-  </div>`;
+function card(item){
+  const u=item.priority==='urgent',cls=u?'urgent':(item.type==='idea'?'idea-type':'todo-type');
+  const tB=item.type==='idea'?'<span class="badge badge-idea">Idée</span>':'<span class="badge badge-todo">À faire</span>';
+  const uB=u?'<span class="badge badge-urgent">Urgent</span>':'';
+  const dB=item.project?`<span class="badge badge-domain">${esc(item.project)}</span>`:'';
+  const tags=(item.tags||[]).map(t=>`<span class="badge badge-project">${esc(t)}</span>`).join('');
+  const date=item.date?`<span class="badge badge-date">📅 ${fmtDate(item.date)}</span>`:'';
+  const drv=item.driveSync?'<span class="badge badge-drive">Drive ✓</span>':'';
+  const done=item.type==='todo'?`<button class="btn-act" onclick="markDone(${item.id})">✓</button>`:'';
+  return`<div class="item-card ${cls}"><div class="item-top"><div class="item-content">
+    <div class="item-title">${esc(item.title)}</div>
+    ${item.summary?`<div class="item-summary">${esc(item.summary)}</div>`:''}
+    <div class="item-badges">${tB}${uB}${dB}${tags}${date}${drv}</div>
+    <div class="item-original">${esc(item.original)}</div>
+  </div><div class="item-actions">${done}<button class="btn-act" onclick="deleteItem(${item.id})">✕</button></div></div></div>`;
 }
 
-function fmtDate(d) { if(!d)return''; const[y,m,day]=d.split('-'); return `${day}.${m}.${y}`; }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function markDone(id) { items=items.filter(i=>i.id!==id); saveAll(); renderItems(); updateStats(); showToast('Tâche terminée'); }
-function deleteItem(id){ items=items.filter(i=>i.id!==id); saveAll(); renderItems(); updateStats(); showToast('Supprimé'); }
-
-function updateStats() {
-  document.getElementById('statTotal').textContent = items.length;
-  document.getElementById('statIdeas').textContent = items.filter(i=>i.type==='idea').length;
-  document.getElementById('statTodos').textContent = items.filter(i=>i.type==='todo').length;
+function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function markDone(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();showToast('Tâche terminée ✓');}
+function deleteItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();showToast('Supprimé');}
+function updateStats(){
+  document.getElementById('statTotal').textContent=items.length;
+  document.getElementById('statIdeas').textContent=items.filter(i=>i.type==='idea').length;
+  document.getElementById('statTodos').textContent=items.filter(i=>i.type==='todo').length;
+}
+function renderDomainSelect(){
+  const sel=document.getElementById('domainSelect'),prev=sel.value;
+  sel.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===prev?' selected':''}>${esc(c)}</option>`).join('');
+}
+function renderDomainFilters(){
+  document.getElementById('domainFilters').innerHTML=(S.cats||[]).map(c=>`<button class="filter-pill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');
 }
 
-// ── DOMAIN UI ────────────────────────────────────────────
-function renderDomainSelect() {
-  const sel = document.getElementById('domainSelect');
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">Domaine (auto)</option>' + getAllCats().map(c=>`<option value="${esc(c)}"${c===prev?' selected':''}>${esc(c)}</option>`).join('');
-}
-function renderDomainFilters() {
-  document.getElementById('domainFilters').innerHTML = getAllCats().map(c=>`<button class="filter-pill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-// ── TOAST ────────────────────────────────────────────────
-function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
-
-// ── DATE → REMINDER ──────────────────────────────────────
-document.getElementById('dateInput').addEventListener('change', function() {
-  document.getElementById('reminderRow').style.display = this.value ? 'flex' : 'none';
+document.getElementById('dateInput').addEventListener('change',function(){
+  document.getElementById('reminderRow').style.display=this.value?'flex':'none';
 });
+
+document.getElementById('liveZone').addEventListener('mouseup',checkSelection);
+document.getElementById('liveZone').addEventListener('touchend',()=>setTimeout(checkSelection,100));
+document.getElementById('liveZone').addEventListener('input',()=>{fullText=document.getElementById('liveZone').innerText||'';});
 
 // ── INIT ─────────────────────────────────────────────────
-items = ls.get('cap_items') || [];
-renderDomainSelect();
-renderDomainFilters();
-renderItems();
-updateStats();
+items=ls.get('cap_items')||[];
+const savedS=ls.get('cap_settings');
+if(savedS&&typeof savedS==='object'){S={...S,...savedS};}
+if(!S.cats||!S.cats.length)S.cats=[...DEFAULT_CATS];
+if(!S.gloss)S.gloss=[];
+if(!S.corrections)S.corrections=[];
 
-window.addEventListener('load', () => {
-  setTimeout(initGoogleAuth, 500);
-});
-
-if (!getApiKey()) setTimeout(()=>showToast('Configure ta clé API dans Réglages ⚙️'), 1000);
+renderAll();
+window.addEventListener('load',()=>setTimeout(initGoogleAuth,600));
+if(!getApiKey())setTimeout(()=>showToast('Configure ta clé API dans Réglages ⚙️'),1000);
 </script>
 </body>
 </html>
