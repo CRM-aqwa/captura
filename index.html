@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura v13 - Safari Fix</title>
+    <title>Captura Final v14</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; --green: #32d74b; --red: #ff453a; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
         input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 14px; }
-        #mic-btn { width: 80px; height: 80px; border-radius: 40px; border: none; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 30px; cursor: pointer; margin-bottom: 20px; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
+        #mic-btn { width: 80px; height: 80px; border-radius: 40px; border: none; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 30px; cursor: pointer; margin-bottom: 20px; -webkit-tap-highlight-color: transparent; }
         #mic-btn.active { background: var(--red); color: #fff; transform: scale(1.1); }
         #display-zone { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #e5e5ea; min-height: 100px; font-size: 16px; }
         #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); color: var(--blue); font-weight: bold; white-space: pre-wrap; display: none; }
@@ -19,14 +19,14 @@
 <body>
 
 <div class="card">
-    <h3>Captura Live v13</h3>
+    <h3>Captura Live</h3>
     <input type="password" id="apiKey" placeholder="Clé API Gemini">
     <button id="mic-btn">🎙️</button>
     <div id="display-zone">
-        <div id="live-text">Prêt...</div>
+        <div id="live-text">Prêt pour l'essai final...</div>
         <div id="ai-output"></div>
     </div>
-    <div id="debug-console">> Console prête.</div>
+    <div id="debug-console">> Console prête. On corrige le nom du modèle.</div>
 </div>
 
 <script>
@@ -46,85 +46,77 @@
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let rec = null;
-    let currentFinalText = "";
+    let currentText = "";
 
     if (!Recognition) {
-        log("ERREUR : Safari requis sur iPhone", "#ff453a");
+        log("ERREUR : Utilisez Safari", "#ff453a");
     } else {
         rec = new Recognition();
         rec.lang = 'fr-CH';
         rec.interimResults = true;
-        rec.continuous = false; // BEAUCOUP plus stable sur iOS
+        rec.continuous = false;
 
         btn.onclick = () => {
             if (btn.classList.contains('active')) {
-                log("Action : Arrêt demandé.");
                 rec.stop();
             } else {
                 const key = apiInput.value.trim();
-                if (!key) return alert("Entrez votre clé API");
+                if (!key) return alert("Clé API manquante");
                 localStorage.setItem('gemini_key', key);
-                
-                currentFinalText = "";
+                currentText = "";
                 aiOutput.style.display = "none";
-                liveText.innerText = "Parlez maintenant...";
                 btn.classList.add('active');
-                log("Micro : DÉMARRAGE...");
+                log("Action : Micro ON");
                 rec.start();
             }
         };
 
         rec.onresult = (event) => {
-            let interim = "";
-            let final = "";
+            let transcript = "";
             for (let i = 0; i < event.results.length; i++) {
-                if (event.results[i].isFinal) {
-                    final += event.results[i][0].transcript;
-                } else {
-                    interim += event.results[i][0].transcript;
-                }
+                transcript += event.results[i][0].transcript;
             }
-            currentFinalText = final || interim;
-            liveText.innerHTML = `<strong>Dictée :</strong> ${currentFinalText}`;
-            log("Capture : Données reçues...");
+            currentText = transcript;
+            liveText.innerHTML = `<strong>Dictée :</strong> ${currentText}`;
+            log("Capture : OK");
         };
-
-        rec.onerror = (e) => log("ERREUR MICRO : " + e.error, "#ff453a");
 
         rec.onend = () => {
             btn.classList.remove('active');
-            log("Micro : ÉTEINT.");
-            if (currentFinalText.trim().length > 2) {
-                log("Envoi à l'IA...");
-                callGemini(currentFinalText);
-            } else {
-                log("Échec : Texte vide ou trop court.", "#ff453a");
+            log("Système : Micro éteint.");
+            if (currentText.length > 2) {
+                callGemini(currentText);
             }
         };
 
         async function callGemini(text) {
             const key = apiInput.value.trim();
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${key}`;
+            // CORRECTION ICI : "gemini-1.5-flash" au lieu de "gemini-1.5-flash-latest"
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+
+            log("Envoi à Google (Modèle : 1.5-flash)...");
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Analyse cette dictée et donne moi le TYPE (Action ou Idée), le RÉSUMÉ et l'ACTION : " + text }] }]
+                        contents: [{ parts: [{ text: "Analyse cette dictée courte et donne TYPE (Action/Idée), RÉSUMÉ (1 phrase), ACTION : " + text }] }]
                     })
                 });
 
+                log(`Réponse HTTP : ${response.status}`);
                 const data = await response.json();
+
                 if (data.error) throw new Error(data.error.message);
 
                 const result = data.candidates[0].content.parts[0].text;
                 aiOutput.innerText = result;
                 aiOutput.style.display = "block";
-                log("IA : Analyse terminée !");
+                log("SUCCÈS : Analyse reçue ! ✅");
 
             } catch (e) {
-                log("ERREUR IA : " + e.message, "#ff453a");
+                log("ERREUR : " + e.message, "#ff453a");
             }
         }
     }
