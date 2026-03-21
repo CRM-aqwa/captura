@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura Stable 2026</title>
+    <title>Captura Stable v18</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; --green: #32d74b; --red: #ff453a; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -20,6 +20,8 @@
 
 <div class="card">
     <h2 style="margin-top:0; color:#1c1c1e;">Captura Live</h2>
+    <p style="font-size: 12px; color: #8e8e93; margin-bottom: 15px;">Assistant de dictée intelligent</p>
+    
     <input type="password" id="apiKey" placeholder="Coller la clé API Gemini ici">
     
     <button id="mic-btn">🎙️</button>
@@ -29,7 +31,7 @@
         <div id="ai-output"></div>
     </div>
 
-    <div id="debug-console">> Système initialisé (v17).</div>
+    <div id="debug-console">> Système prêt (v18).</div>
 </div>
 
 <script>
@@ -39,106 +41,5 @@
     const aiOutput = document.getElementById('ai-output');
     const apiInput = document.getElementById('apiKey');
 
+    // Récupération de la clé sauvegardée
     apiInput.value = localStorage.getItem('gemini_key') || '';
-
-    function log(msg, color = "#32d74b") {
-        const time = new Date().toLocaleTimeString('fr-CH');
-        debug.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
-        debug.scrollTop = debug.scrollHeight;
-    }
-
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let rec = null;
-    let finalTranscript = "";
-
-    if (!Recognition) {
-        log("ERREUR : Navigateur non compatible.", "#ff453a");
-    } else {
-        rec = new Recognition();
-        rec.lang = 'fr-CH';
-        rec.interimResults = true;
-        rec.continuous = false; // Plus fiable sur iOS
-
-        btn.onclick = () => {
-            if (btn.classList.contains('active')) {
-                rec.stop();
-            } else {
-                const key = apiInput.value.trim();
-                if (!key) return alert("Veuillez entrer votre clé API.");
-                localStorage.setItem('gemini_key', key);
-                
-                finalTranscript = "";
-                aiOutput.style.display = "none";
-                liveText.style.color = "#1c1c1e";
-                liveText.innerText = "Je vous écoute...";
-                btn.classList.add('active');
-                log("Micro : Démarrage...");
-                rec.start();
-            }
-        };
-
-        rec.onresult = (event) => {
-            let current = "";
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                current += event.results[i][0].transcript;
-            }
-            finalTranscript = current;
-            liveText.innerHTML = `<strong>Dictée :</strong> ${finalTranscript}`;
-        };
-
-        rec.onend = () => {
-            btn.classList.remove('active');
-            log("Micro : Éteint.");
-            if (finalTranscript.trim().length > 3) {
-                log("Envoi à Gemini (v1 stable)...");
-                callGemini(finalTranscript);
-            } else {
-                log("Avertissement : Texte trop court.", "#ff9500");
-            }
-        };
-
-        rec.onerror = (e) => log("Erreur Micro : " + e.error, "#ff453a");
-
-        async function callGemini(content) {
-            const key = apiInput.value.trim();
-            // URL mise à jour en v1 stable
-            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: "Agis comme un assistant suisse efficace. Analyse cette dictée et donne-moi uniquement : \n1. TYPE (Action ou Note)\n2. RÉSUMÉ (10 mots max)\n3. ACTION À PRENDRE\n\nTexte : " + content
-                            }]
-                        }]
-                    })
-                });
-
-                const data = await response.json();
-                log(`Réponse HTTP : ${response.status}`);
-
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
-
-                if (data.candidates && data.candidates[0].content) {
-                    const textResult = data.candidates[0].content.parts[0].text;
-                    aiOutput.innerText = textResult;
-                    aiOutput.style.display = "block";
-                    log("Analyse réussie ! ✅");
-                } else {
-                    log("Erreur : Réponse IA vide.", "#ff453a");
-                }
-
-            } catch (e) {
-                log("ERREUR API : " + e.message, "#ff453a");
-                console.error(e);
-            }
-        }
-    }
-</script>
-</body>
-</html>
