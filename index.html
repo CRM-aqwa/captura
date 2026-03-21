@@ -253,6 +253,10 @@ select option{background:var(--surface2);}
 .btn-del:hover{color:var(--red);}
 .btn-add{background:none;border:0.5px dashed var(--border2);border-radius:var(--radius-xs);padding:8px;font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer;margin-top:6px;width:100%;text-align:center;transition:all 0.12s;}
 .btn-add:hover{background:var(--surface2);}
+.btn-data{background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:11px 14px;font-family:inherit;font-size:14px;font-weight:500;color:var(--text);cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.12s;}
+.btn-data:hover{background:var(--surface3);border-color:var(--border3);}
+.btn-data.btn-archive{color:var(--purple);}
+.btn-data.btn-archive:hover{background:var(--purple-dim);border-color:var(--purple);}
 .elist{display:flex;flex-direction:column;gap:6px;}
 
 /* ── PROJECT PICKER ── */
@@ -281,6 +285,12 @@ select option{background:var(--surface2);}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
 .topbar-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
 
+.btn-data{width:100%;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px 14px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;color:var(--text);text-align:left;display:flex;align-items:center;gap:10px;transition:all 0.12s;}
+.btn-data:hover{background:var(--surface3);}
+.btn-data.btn-archive{color:var(--yellow);}
+.btn-data.btn-archive:hover{background:var(--yellow-dim);}
+.btn-data.btn-import{color:var(--accent2);}
+.btn-data.btn-import:hover{background:var(--accent2-dim);}
 .sync-info{font-size:11px;color:var(--text3);text-align:center;padding:6px;}
 .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface3);color:var(--text);border:0.5px solid var(--border2);padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:400;transition:transform .25s ease;white-space:nowrap;box-shadow:var(--shadow);}
 .toast.show{transform:translateX(-50%) translateY(0);}
@@ -437,6 +447,28 @@ select option{background:var(--surface2);}
       <div class="elist" id="corrList"></div>
       <button class="btn-add" onclick="addCorr()">+ Ajouter manuellement</button>
     </div>
+
+    <div class="msec">
+      <div class="msec-title">Données et sauvegardes</div>
+      <div class="hint">Exporte tout en un fichier lisible. Importe une sauvegarde existante. Archive l'année en cours dans Drive.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <button class="btn-data" onclick="exportAll()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exporter tout (JSON)
+        </button>
+        <button class="btn-data" onclick="$('importFile').click()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importer une sauvegarde
+        </button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
+        <button class="btn-data btn-archive" onclick="archiveYear(false)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          Archiver l'année <span id="archiveYearLbl"></span>
+        </button>
+      </div>
+      <div class="hint" id="archiveInfo" style="margin-top:8px;"></div>
+    </div>
+
     <div class="mfooter">
       <button class="btn-cancel" onclick="closeSettings()">Annuler</button>
       <button class="btn-save" onclick="saveSettings()">Enregistrer ✓</button>
@@ -602,19 +634,106 @@ async function syncDown(){
   }catch(e){toast('Sync : '+e.message);driveUI('connected');}
   finally{syncing=false;}
 }
-async function saveAll(){
-  saveLocal();if(!token)return;
-  syncing=true;driveUI('syncing');
-  try{await Promise.all([dWrite(FI,items),dWrite(FJ,journal),dWrite(FS,S)]);}
-  catch(e){toast('Drive : '+e.message);}
-  finally{syncing=false;driveUI('connected');}
-}
 function saveLocal(){ls.set('cap_i',items);ls.set('cap_j',journal);ls.set('cap_s',S);}
+
+// ── EXPORT / IMPORT / ARCHIVE ─────────────────────────────
+function exportAll(){
+  const data={
+    version:2,exportedAt:new Date().toISOString(),
+    items,journal,settings:S
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`captura_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();URL.revokeObjectURL(url);
+  toast('Export téléchargé ✓');
+}
+
+function importBackup(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.items&&!data.journal){toast('Fichier invalide');return;}
+      if(Array.isArray(data.items)){
+        const map={};items.forEach(i=>map[i.id]=i);data.items.forEach(i=>map[i.id]=i);
+        items=Object.values(map).sort((a,b)=>b.id-a.id);
+      }
+      if(Array.isArray(data.journal)){
+        const map={};journal.forEach(e=>map[e.id]=e);data.journal.forEach(e=>map[e.id]=e);
+        journal=Object.values(map).sort((a,b)=>b.id-a.id);
+      }
+      if(data.settings&&typeof data.settings==='object'){
+        S={...S,...data.settings};
+      }
+      await saveAll();renderAll();
+      toast(`Import réussi — ${data.items?.length||0} captures, ${data.journal?.length||0} entrées journal`);
+    }catch(err){toast('Erreur import : '+err.message.slice(0,40));}
+  };
+  reader.readAsText(file);
+  event.target.value='';
+}
+
+async function archiveYear(auto){
+  const now=new Date();
+  const yearToArchive=auto?now.getFullYear()-1:now.getFullYear();
+  const yearStr=String(yearToArchive);
+  const archiveName=`captura_archive_${yearStr}.json`;
+
+  const archiveItems=items.filter(i=>(i.createdAt||'').startsWith(yearStr));
+  const archiveJournal=journal.filter(e=>(e.date||'').startsWith(yearStr));
+
+  if(archiveItems.length===0&&archiveJournal.length===0){
+    if(!auto)toast(`Aucune donnée de ${yearStr} à archiver`);
+    return;
+  }
+
+  const archiveData={version:2,year:yearToArchive,archivedAt:now.toISOString(),items:archiveItems,journal:archiveJournal};
+
+  try{
+    if(token){
+      await dWrite(archiveName,archiveData);
+      toast(`Archive ${yearStr} sauvegardée dans Drive ✓`);
+    }
+    // Also download locally
+    const blob=new Blob([JSON.stringify(archiveData,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=archiveName;a.click();URL.revokeObjectURL(url);
+
+    if(!auto){
+      // Remove archived items from active data
+      items=items.filter(i=>!(i.createdAt||'').startsWith(yearStr));
+      journal=journal.filter(e=>!(e.date||'').startsWith(yearStr));
+      await saveAll();renderAll();
+      toast(`${archiveItems.length+archiveJournal.length} entrées archivées et retirées ✓`);
+    }
+    $('archiveInfo').textContent=`Dernière archive : ${yearStr} — ${archiveItems.length} captures, ${archiveJournal.length} entrées journal`;
+  }catch(err){toast('Erreur archive : '+err.message.slice(0,40));}
+}
+
+function checkAutoArchive(){
+  const now=new Date();
+  if(now.getMonth()===0&&now.getDate()===1){
+    const lastArchive=ls.str('cap_last_archive');
+    const thisYear=String(now.getFullYear());
+    if(lastArchive!==thisYear){
+      ls.setStr('cap_last_archive',thisYear);
+      archiveYear(true);
+    }
+  }
+}
 
 // ── SETTINGS ──────────────────────────────────────────────
 function openSettings(){
   $('apiIn').value=apiKey();$('emailIn').value=S.email||'';
   renderCats(S.cats);renderGloss(S.gloss);renderCorrs(S.corrections);
+  const y=new Date().getFullYear();
+  $('archiveYearLbl').textContent=y;
+  const lastArchive=ls.str('cap_last_archive');
+  $('archiveInfo').textContent=lastArchive?`Dernière archive automatique : ${lastArchive}`:'';
   $('settingsModal').classList.add('open');
 }
 function closeSettings(){$('settingsModal').classList.remove('open');}
@@ -637,7 +756,12 @@ function saveSettings(){
 }
 function glossPrompt(){
   if(!S.gloss||!S.gloss.length)return'';
-  return'\n\nGLOSSAIRE — reconnais ces termes même phonétiquement déformés :\n'+S.gloss.map(e=>`- "${e.term}"${e.desc?' : '+e.desc:''}`).join('\n');
+  const lines=S.gloss.map(e=>{
+    const t=(e.term||'').replace(/"/g,"'");
+    const d=(e.desc||'').replace(/"/g,"'");
+    return `- ${t}${d?' : '+d:''}`;
+  }).join('\n');
+  return'\n\nGLOSSAIRE — reconnais ces termes même phonétiquement déformés :\n'+lines+'\n';
 }
 function applyCorrs(t){
   let r=t;
@@ -793,7 +917,10 @@ async function callAI(k,sys,text,maxTok){
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTok,system:sys,messages:[{role:'user',content:text}]})});
   if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
   const d=await r.json();
-  return d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  const raw=d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+  // Extract JSON object if surrounded by extra text
+  const match=raw.match(/\{[\s\S]*\}/);
+  return match?match[0]:raw;
 }
 
 function setLoad(on,btnId,spId,txtId,label){
@@ -980,7 +1107,127 @@ function updateStats(){$('sTot').textContent=items.length;$('sIdeas').textConten
 function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
 function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
 
-// ── EXPORT ────────────────────────────────────────────────
+// ── EXPORT / IMPORT / ARCHIVE ─────────────────────────────
+function exportAll(){
+  const data={
+    version:2,
+    exportedAt:new Date().toISOString(),
+    items,journal,settings:S
+  };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const d=new Date();
+  a.href=url;
+  a.download=`captura_backup_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();URL.revokeObjectURL(url);
+  toast('Export téléchargé ✓');
+}
+
+function importBackup(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data.items&&!data.journal){toast('Fichier invalide');return;}
+      if(Array.isArray(data.items)){
+        const map={};items.forEach(i=>map[i.id]=i);data.items.forEach(i=>map[i.id]=i);
+        items=Object.values(map).sort((a,b)=>b.id-a.id);
+      }
+      if(Array.isArray(data.journal)){
+        const map={};journal.forEach(e=>map[e.id]=e);data.journal.forEach(e=>map[e.id]=e);
+        journal=Object.values(map).sort((a,b)=>b.id-a.id);
+      }
+      if(data.settings){S={...S,...data.settings};}
+      await saveAll();renderAll();
+      toast(`Import réussi — ${items.length} captures, ${journal.length} entrées journal`);
+    }catch(err){toast('Erreur import : '+err.message);}
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
+
+async function archiveYear(isAuto){
+  const now=new Date();
+  const yearToArchive=isAuto?now.getFullYear()-1:now.getFullYear();
+  const label=isAuto?`${yearToArchive} (auto)`:`${yearToArchive}`;
+
+  const archivedItems=items.filter(i=>{
+    const y=new Date(i.createdAt||0).getFullYear();return y===yearToArchive;
+  });
+  const archivedJournal=journal.filter(e=>{
+    const y=new Date(e.date||e.createdAt||0).getFullYear();return y===yearToArchive;
+  });
+
+  if(archivedItems.length===0&&archivedJournal.length===0){
+    if(!isAuto)toast(`Aucune donnée de ${yearToArchive} à archiver`);
+    return;
+  }
+
+  const archiveData={year:yearToArchive,archivedAt:now.toISOString(),items:archivedItems,journal:archivedJournal};
+
+  // Save to Drive as separate archive file
+  if(token){
+    try{
+      await dWrite(`captura_archive_${yearToArchive}.json`,archiveData);
+    }catch(e){console.warn('Archive Drive failed:',e);}
+  }
+
+  // Also download locally
+  const blob=new Blob([JSON.stringify(archiveData,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`captura_archive_${yearToArchive}.json`;
+  if(!isAuto){a.click();}
+  URL.revokeObjectURL(url);
+
+  // Remove archived items from active data
+  items=items.filter(i=>new Date(i.createdAt||0).getFullYear()!==yearToArchive);
+  journal=journal.filter(e=>new Date(e.date||e.createdAt||0).getFullYear()!==yearToArchive);
+  await saveAll();renderAll();
+
+  const msg=`${archivedItems.length} captures + ${archivedJournal.length} entrées journal archivées (${label})`;
+  toast(msg);
+  $('archiveInfo').textContent=`Dernière archive : ${label} — ${archivedItems.length} captures, ${archivedJournal.length} journal`;
+}
+
+function checkAutoArchive(){
+  const now=new Date();
+  const lastArchiveKey='cap_last_archive';
+  const lastArchive=ls.str(lastArchiveKey);
+  const thisYear=now.getFullYear();
+  // Auto-archive on first load of a new year
+  if(now.getMonth()===0&&now.getDate()<=7&&lastArchive!==String(thisYear)){
+    ls.setStr(lastArchiveKey,String(thisYear));
+    setTimeout(()=>archiveYear(true),3000); // delay to let app load first
+  }
+}
+
+// ── DIFFERENTIAL SYNC ─────────────────────────────────────
+let lastSyncedItemCount=0, lastSyncedJournalCount=0;
+
+async function saveAll(){
+  saveLocal();if(!token)return;
+  // Differential: only sync if data actually changed
+  const iChanged=items.length!==lastSyncedItemCount||JSON.stringify(items.slice(0,3))!==ls.str('cap_sync_sig_i');
+  const jChanged=journal.length!==lastSyncedJournalCount||JSON.stringify(journal.slice(0,3))!==ls.str('cap_sync_sig_j');
+  if(!iChanged&&!jChanged){return;} // nothing changed, skip network call
+  syncing=true;driveUI('syncing');
+  try{
+    const writes=[];
+    if(iChanged)writes.push(dWrite(FI,items));
+    if(jChanged)writes.push(dWrite(FJ,journal));
+    writes.push(dWrite(FS,S)); // settings always sync (lightweight)
+    await Promise.all(writes);
+    lastSyncedItemCount=items.length;lastSyncedJournalCount=journal.length;
+    ls.setStr('cap_sync_sig_i',JSON.stringify(items.slice(0,3)));
+    ls.setStr('cap_sync_sig_j',JSON.stringify(journal.slice(0,3)));
+  }catch(e){toast('Drive : '+e.message);}
+  finally{syncing=false;driveUI('connected');}
+}
+
+// ── PRINT ─────────────────────────────────────────────────
 function printPage(){
   $('printTitle').style.display='block';
   window.print();
@@ -1045,6 +1292,8 @@ if(!S.gloss || S.gloss.length===0){
 saveLocal();
 
 renderAll();
+const archLbl=$('archiveYearLbl');if(archLbl)archLbl.textContent=new Date().getFullYear();
+checkAutoArchive();
 window.addEventListener('load',()=>setTimeout(initAuth,600));
 if(!apiKey())setTimeout(()=>toast('Configure ta clé API dans Réglages ⚙️'),1000);
 </script>
