@@ -251,7 +251,7 @@ select option{background:var(--surface2);}
 .topbar-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
 
 .sync-info{font-size:11px;color:var(--text3);text-align:center;padding:6px;}
-.toast{position:fixed;bottom:calc(var(--nav-h) + 10px);left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface3);color:var(--text);border:0.5px solid var(--border2);padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:400;transition:transform .25s ease;white-space:nowrap;box-shadow:var(--shadow);}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface3);color:var(--text);border:0.5px solid var(--border2);padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:400;transition:transform .25s ease;white-space:nowrap;box-shadow:var(--shadow);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 @media(max-width:480px){.page{padding:1rem .75rem 1.5rem;}.mic-btn{width:64px;height:64px;font-size:26px;}}
@@ -505,8 +505,17 @@ async function syncDown(){
   try{
     const[ri,rj,rs]=await Promise.all([dRead(FI),dRead(FJ),dRead(FS)]);
     let ch=false;
-    if(Array.isArray(ri)&&ri.length>=items.length){items=ri;ch=true;}
-    if(Array.isArray(rj)&&rj.length>=journal.length){journal=rj;ch=true;}
+    if(Array.isArray(ri)){
+      // Merge: combine local + remote, deduplicate by id, sort by date
+      const merged=Object.values([...items,...ri].reduce((acc,item)=>{acc[item.id]=item;return acc;},{}));
+      merged.sort((a,b)=>b.id-a.id);
+      if(merged.length>items.length){items=merged;ch=true;}
+    }
+    if(Array.isArray(rj)){
+      const mergedJ=Object.values([...journal,...rj].reduce((acc,e)=>{acc[e.id]=e;return acc;},{}));
+      mergedJ.sort((a,b)=>b.id-a.id);
+      if(mergedJ.length>journal.length){journal=mergedJ;ch=true;}
+    }
     if(rs&&typeof rs==='object'){S={...S,...rs};ch=true;}
     if(ch){saveLocal();renderAll();if(curTab==='jrn')renderJournal(journal);toast('Synchronisé ✓');}
     driveUI('connected');
@@ -659,7 +668,7 @@ async function processJournal(){
   setLoad(true,'jBtn','jSpinner','jBtnTxt','Enregistrer');
   const sys=`Tu es l'assistant mémoire de Régis. Il dicte des événements de sa vie.
 Réponds UNIQUEMENT en JSON valide sans markdown.
-{"summary":"résumé clair 1-3 phrases en français","persons":["noms personnes"],"places":["lieux"],"amounts":["montants avec devise"],"keywords":["5-8 mots-clés pour retrouver"]}
+{"summary":"Nettoie le texte dicté : supprime les hésitations, répétitions et mots inutiles, corrige l'orthographe, mais garde EXACTEMENT les mots et le style de Régis. Première personne (je/j'ai). Ne réécris pas, ne reformule pas, ne change pas le sens ni le ton.","persons":["noms personnes mentionnées"],"places":["lieux mentionnés"],"amounts":["montants avec devise"],"keywords":["5-8 mots-clés pour retrouver cet événement"]}
 ${glossPrompt()}`;
   try{
     const r=await callAI(k,sys,text,500);
@@ -822,13 +831,14 @@ $('liveZone').addEventListener('touchend',()=>setTimeout(checkSel,100));
 $('liveZone').addEventListener('input',()=>{capTxt=$('liveZone').innerText||'';});
 
 // ── INIT ──────────────────────────────────────────────────
-items=ls.get('cap_i')||[];
-journal=ls.get('cap_j')||[];
-const ss=ls.get('cap_s');
-if(ss&&typeof ss==='object')S={...S,...ss};
-if(!S.cats?.length)S.cats=[...DCATS];
-if(!S.gloss)S.gloss=[];
-if(!S.corrections)S.corrections=[];
+// Migration : récupère les anciennes clés si les nouvelles sont vides
+items = ls.get('cap_i') || ls.get('cap_items') || [];
+journal = ls.get('cap_j') || ls.get('cap_journal') || [];
+const ss = ls.get('cap_s') || ls.get('cap_settings');
+if(ss && typeof ss==='object') S={...S,...ss};
+if(!S.cats?.length) S.cats=[...DCATS];
+if(!S.gloss) S.gloss=[];
+if(!S.corrections) S.corrections=[];
 
 renderAll();
 window.addEventListener('load',()=>setTimeout(initAuth,600));
