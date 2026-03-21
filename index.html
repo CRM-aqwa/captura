@@ -3,30 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura 2026 - Fix Final</title>
+    <title>Captura Stable 2026</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; --green: #32d74b; --red: #ff453a; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 10px; margin-bottom: 20px; text-align: center; font-size: 14px; }
-        #mic-btn { width: 80px; height: 80px; border-radius: 40px; border: none; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 30px; cursor: pointer; margin-bottom: 20px; -webkit-tap-highlight-color: transparent; }
-        #mic-btn.active { background: var(--red); color: #fff; transform: scale(1.1); }
-        #display-zone { text-align: left; background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #e5e5ea; min-height: 100px; font-size: 16px; }
-        #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); color: var(--blue); font-weight: bold; white-space: pre-wrap; display: none; }
-        #debug-console { margin-top: 20px; padding: 10px; background: #1c1c1e; color: var(--green); border-radius: 10px; font-family: monospace; font-size: 11px; text-align: left; max-height: 150px; overflow-y: auto; width: 100%; box-sizing: border-box; border: 1px solid #3a3a3c; }
+        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 14px; outline: none; }
+        #mic-btn { width: 85px; height: 85px; border-radius: 50%; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 32px; cursor: pointer; margin-bottom: 20px; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
+        #mic-btn.active { background: var(--red); color: #fff; transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 59, 48, 0.4); }
+        #display-zone { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; border: 1px solid #e5e5ea; min-height: 120px; font-size: 16px; width: 100%; box-sizing: border-box; }
+        #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); color: #1c1c1e; line-height: 1.5; white-space: pre-wrap; display: none; }
+        #debug-console { margin-top: 20px; padding: 12px; background: #1c1c1e; color: var(--green); border-radius: 12px; font-family: 'SF Mono', monospace; font-size: 11px; text-align: left; max-height: 140px; overflow-y: auto; width: 100%; box-sizing: border-box; border: 1px solid #3a3a3c; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h3>Captura Live v16</h3>
-    <input type="password" id="apiKey" placeholder="Clé API Gemini">
+    <h2 style="margin-top:0; color:#1c1c1e;">Captura Live</h2>
+    <input type="password" id="apiKey" placeholder="Coller la clé API Gemini ici">
+    
     <button id="mic-btn">🎙️</button>
+    
     <div id="display-zone">
-        <div id="live-text">Prêt pour l'essai final...</div>
+        <div id="live-text" style="color: #8e8e93;">Prêt pour la dictée...</div>
         <div id="ai-output"></div>
     </div>
-    <div id="debug-console">> Console prête. Tentative de connexion stable.</div>
+
+    <div id="debug-console">> Système initialisé (v17).</div>
 </div>
 
 <script>
@@ -39,76 +42,102 @@
     apiInput.value = localStorage.getItem('gemini_key') || '';
 
     function log(msg, color = "#32d74b") {
-        const time = new Date().toLocaleTimeString();
+        const time = new Date().toLocaleTimeString('fr-CH');
         debug.innerHTML += `<div style="color:${color}">[${time}] ${msg}</div>`;
         debug.scrollTop = debug.scrollHeight;
     }
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let rec = new Recognition();
-    rec.lang = 'fr-CH';
-    rec.interimResults = true;
-    rec.continuous = false;
-    let currentText = "";
+    let rec = null;
+    let finalTranscript = "";
 
-    btn.onclick = () => {
-        if (btn.classList.contains('active')) {
-            rec.stop();
-        } else {
+    if (!Recognition) {
+        log("ERREUR : Navigateur non compatible.", "#ff453a");
+    } else {
+        rec = new Recognition();
+        rec.lang = 'fr-CH';
+        rec.interimResults = true;
+        rec.continuous = false; // Plus fiable sur iOS
+
+        btn.onclick = () => {
+            if (btn.classList.contains('active')) {
+                rec.stop();
+            } else {
+                const key = apiInput.value.trim();
+                if (!key) return alert("Veuillez entrer votre clé API.");
+                localStorage.setItem('gemini_key', key);
+                
+                finalTranscript = "";
+                aiOutput.style.display = "none";
+                liveText.style.color = "#1c1c1e";
+                liveText.innerText = "Je vous écoute...";
+                btn.classList.add('active');
+                log("Micro : Démarrage...");
+                rec.start();
+            }
+        };
+
+        rec.onresult = (event) => {
+            let current = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                current += event.results[i][0].transcript;
+            }
+            finalTranscript = current;
+            liveText.innerHTML = `<strong>Dictée :</strong> ${finalTranscript}`;
+        };
+
+        rec.onend = () => {
+            btn.classList.remove('active');
+            log("Micro : Éteint.");
+            if (finalTranscript.trim().length > 3) {
+                log("Envoi à Gemini (v1 stable)...");
+                callGemini(finalTranscript);
+            } else {
+                log("Avertissement : Texte trop court.", "#ff9500");
+            }
+        };
+
+        rec.onerror = (e) => log("Erreur Micro : " + e.error, "#ff453a");
+
+        async function callGemini(content) {
             const key = apiInput.value.trim();
-            if (!key) return alert("Clé API manquante");
-            localStorage.setItem('gemini_key', key);
-            currentText = "";
-            aiOutput.style.display = "none";
-            btn.classList.add('active');
-            log("Micro : ON");
-            rec.start();
-        }
-    };
+            // URL mise à jour en v1 stable
+            const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${key}`;
 
-    rec.onresult = (event) => {
-        let transcript = "";
-        for (let i = 0; i < event.results.length; i++) { transcript += event.results[i][0].transcript; }
-        currentText = transcript;
-        liveText.innerHTML = `<strong>Dictée :</strong> ${currentText}`;
-    };
-
-    rec.onend = () => {
-        btn.classList.remove('active');
-        log("Système : Envoi...");
-        if (currentText.length > 2) tryModels(currentText);
-    };
-
-    async function tryModels(text) {
-        const key = apiInput.value.trim();
-        // Liste des noms de modèles par ordre de probabilité de succès en 2026
-        const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
-        
-        for (const modelName of models) {
-            log(`Essai du modèle : ${modelName}...`);
-            const url = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${key}`;
-            
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: "Analyse : " + text }] }] })
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: "Agis comme un assistant suisse efficace. Analyse cette dictée et donne-moi uniquement : \n1. TYPE (Action ou Note)\n2. RÉSUMÉ (10 mots max)\n3. ACTION À PRENDRE\n\nTexte : " + content
+                            }]
+                        }]
+                    })
                 });
 
-                if (response.status === 200) {
-                    const data = await response.json();
-                    aiOutput.innerText = data.candidates[0].content.parts[0].text;
-                    aiOutput.style.display = "block";
-                    log(`SUCCÈS avec ${modelName} ! ✅`);
-                    return; // On s'arrête dès que ça marche
-                } else {
-                    log(`Échec ${modelName} (Code ${response.status})`, "#ff9500");
+                const data = await response.json();
+                log(`Réponse HTTP : ${response.status}`);
+
+                if (data.error) {
+                    throw new Error(data.error.message);
                 }
+
+                if (data.candidates && data.candidates[0].content) {
+                    const textResult = data.candidates[0].content.parts[0].text;
+                    aiOutput.innerText = textResult;
+                    aiOutput.style.display = "block";
+                    log("Analyse réussie ! ✅");
+                } else {
+                    log("Erreur : Réponse IA vide.", "#ff453a");
+                }
+
             } catch (e) {
-                log(`Erreur réseau sur ${modelName}`, "#ff453a");
+                log("ERREUR API : " + e.message, "#ff453a");
+                console.error(e);
             }
         }
-        log("ERREUR : Aucun modèle n'a répondu.", "#ff453a");
     }
 </script>
 </body>
