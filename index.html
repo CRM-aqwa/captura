@@ -59,10 +59,14 @@ body{font-family:'DM Sans',-apple-system,'Segoe UI',sans-serif;background:var(--
 /* ── BOTTOM NAV ── */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:rgba(13,13,15,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;z-index:100;padding-bottom:env(safe-area-inset-bottom,8px);}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;padding:6px 0;max-width:120px;transition:all 0.15s;}
-.nav-icon{font-size:22px;transition:transform 0.15s;}
 .nav-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);transition:color 0.15s;}
+.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;transition:transform 0.15s;color:var(--text3);}
+.nav-icon svg{width:24px;height:24px;}
 .nav-btn.active .nav-icon{transform:scale(1.1);}
 .nav-btn.active .nav-label{color:var(--accent);}
+#navCap.active .nav-icon{color:var(--accent);}
+#navJrn.active .nav-icon{color:var(--accent2);}
+#navJrn.active .nav-label{color:var(--accent2);}
 
 /* ── PAGES ── */
 .page{display:none;padding:1.25rem 1rem 1.5rem;max-width:600px;margin:0 auto;}
@@ -151,10 +155,37 @@ select option{background:var(--surface2);}
 .b-drive{background:var(--green-dim);color:var(--green);font-size:10px;}
 .b-person{background:rgba(255,107,53,0.12);color:var(--accent);}
 .icard-actions{display:flex;gap:3px;flex-shrink:0;}
-.ibtn{width:28px;height:28px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;transition:all 0.12s;}
+.ibtn{width:32px;height:32px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;transition:all 0.12s;}
 .ibtn:hover{background:var(--surface3);color:var(--text);}
 .ibtn.green:hover{color:var(--green);}
 .ibtn.red:hover{color:var(--red);}
+
+/* ACTION MENU */
+.action-menu-overlay{display:none;position:fixed;inset:0;z-index:250;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center;}
+.action-menu-overlay.open{display:flex;}
+.action-menu{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;border-top:0.5px solid var(--border2);padding:1rem 1.25rem 2.5rem;width:100%;max-width:600px;animation:slideUp .2s ease;}
+.action-menu-title{font-size:12px;font-weight:600;color:var(--text3);text-align:center;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.8px;}
+.action-menu-item{width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;color:var(--text);text-align:left;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:all 0.12s;}
+.action-menu-item:hover{background:var(--surface3);}
+.action-menu-item.done-btn:hover{color:var(--green);}
+.action-menu-item.edit-btn:hover{color:var(--accent2);}
+.action-menu-item.del-btn{color:var(--red);}
+.action-menu-item.del-btn:hover{background:var(--red-dim);}
+.action-menu-cancel{width:100%;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:14px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;color:var(--text2);margin-top:4px;}
+
+/* CONFIRM DELETE */
+.confirm-del{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1.5rem;}
+.confirm-del.open{display:flex;}
+.confirm-box{background:var(--bg2);border-radius:var(--radius);border:0.5px solid var(--border2);padding:1.5rem;width:100%;max-width:340px;text-align:center;}
+.confirm-box h3{font-size:17px;font-weight:600;margin-bottom:8px;}
+.confirm-box p{font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.5;}
+.confirm-btns{display:flex;gap:8px;}
+.confirm-cancel{flex:1;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:12px;font-family:inherit;font-size:15px;cursor:pointer;color:var(--text2);}
+.confirm-ok{flex:1;background:var(--red);border:none;border-radius:var(--radius-sm);padding:12px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;color:#fff;}
+
+/* DONE items */
+.icard.done-item{opacity:0.5;}
+.icard.done-item .icard-title{text-decoration:line-through;}
 .icard-original{font-size:12px;color:var(--text3);font-style:italic;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);display:none;}
 .icard:hover .icard-original{display:block;}
 
@@ -318,6 +349,7 @@ select option{background:var(--surface2);}
       <button class="fpill" onclick="setFilter('idea',this)">Idées</button>
       <button class="fpill" onclick="setFilter('todo',this)">À faire</button>
       <button class="fpill" onclick="setFilter('urgent',this)">Urgent</button>
+      <button class="fpill" onclick="setFilter('done',this)">Terminé</button>
       <span id="domFilters"></span>
     </div>
   </div>
@@ -338,7 +370,7 @@ select option{background:var(--surface2);}
       <input type="date" id="jDate">
       <span class="dover-label" style="font-size:11px;color:var(--text3);">(vide = aujourd'hui)</span>
     </div>
-    <button class="btn-primary purple" id="jBtn" onclick="processJournal()">
+    <button class="btn-primary" id="jBtn" onclick="processJournal()" style="background:var(--accent2);">
       <div class="spinner" id="jSpinner"></div>
       <span id="jBtnTxt">Enregistrer</span>
     </button>
@@ -362,11 +394,19 @@ select option{background:var(--surface2);}
 <!-- ═══ BOTTOM NAV ═══ -->
 <nav class="bottom-nav">
   <button class="nav-btn active" id="navCap" onclick="switchTab('cap')">
-    <span class="nav-icon">💡</span>
+    <span class="nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-3 9H8c0-3-3-5-3-9a7 7 0 0 1 7-7z"/><line x1="8" y1="22" x2="16" y2="22"/><line x1="9" y1="18" x2="15" y2="18"/>
+      </svg>
+    </span>
     <span class="nav-label">Capturer</span>
   </button>
   <button class="nav-btn" id="navJrn" onclick="switchTab('jrn')">
-    <span class="nav-icon">📖</span>
+    <span class="nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+    </span>
     <span class="nav-label">Journal</span>
   </button>
 </nav>
@@ -410,6 +450,38 @@ select option{background:var(--surface2);}
     <div class="ppicker-title">Dans quel projet classer cette capture ?</div>
     <div id="ppickerBtns"></div>
     <button class="ppicker-skip" onclick="skipPicker()">Laisser sans projet</button>
+  </div>
+</div>
+
+<!-- ACTION MENU -->
+<div class="action-menu-overlay" id="actionMenu">
+  <div class="action-menu">
+    <div class="action-menu-title" id="actionMenuTitle">Actions</div>
+    <button class="action-menu-item done-btn" id="actionDoneBtn" onclick="actionDone()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Marquer comme terminé
+    </button>
+    <button class="action-menu-item edit-btn" onclick="actionEdit()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Modifier
+    </button>
+    <button class="action-menu-item del-btn" onclick="actionDeleteConfirm()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Supprimer définitivement
+    </button>
+    <button class="action-menu-cancel" onclick="closeActionMenu()">Annuler</button>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-del" id="confirmDel">
+  <div class="confirm-box">
+    <h3>Supprimer ?</h3>
+    <p>Cette action est définitive. La capture sera effacée de tous tes appareils.</p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="closeConfirmDel()">Annuler</button>
+      <button class="confirm-ok" onclick="confirmDelete()">Supprimer</button>
+    </div>
   </div>
 </div>
 
@@ -509,16 +581,20 @@ async function syncDown(){
   try{
     const[ri,rj,rs]=await Promise.all([dRead(FI),dRead(FJ),dRead(FS)]);
     let ch=false;
-    if(Array.isArray(ri)){
-      // Merge: combine local + remote, deduplicate by id, sort by date
-      const merged=Object.values([...items,...ri].reduce((acc,item)=>{acc[item.id]=item;return acc;},{}));
-      merged.sort((a,b)=>b.id-a.id);
-      if(merged.length>items.length){items=merged;ch=true;}
+    if(Array.isArray(ri)&&ri.length>0){
+      // Merge local + drive by id, drive wins on conflict
+      const map={};
+      items.forEach(i=>map[i.id]=i);
+      ri.forEach(i=>map[i.id]=i); // drive overwrites local
+      const merged=Object.values(map).sort((a,b)=>b.id-a.id);
+      items=merged;ch=true;
     }
-    if(Array.isArray(rj)){
-      const mergedJ=Object.values([...journal,...rj].reduce((acc,e)=>{acc[e.id]=e;return acc;},{}));
-      mergedJ.sort((a,b)=>b.id-a.id);
-      if(mergedJ.length>journal.length){journal=mergedJ;ch=true;}
+    if(Array.isArray(rj)&&rj.length>0){
+      const map={};
+      journal.forEach(e=>map[e.id]=e);
+      rj.forEach(e=>map[e.id]=e);
+      journal=Object.values(map).sort((a,b)=>b.id-a.id);
+      ch=true;
     }
     if(rs&&typeof rs==='object'){S={...S,...rs};ch=true;}
     if(ch){saveLocal();renderAll();if(curTab==='jrn')renderJournal(journal);toast('Synchronisé ✓');}
@@ -839,33 +915,67 @@ function renderAll(){renderDomSel();renderDomFilters();renderItems();updateStats
 function renderItems(){
   const list=$('itemsList');
   let f=[...items];
+  if(curFilter==='done'){
+    f=f.filter(i=>i.done);
+    if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">✓</div><p>Aucune tâche terminée.</p></div>`;return;}
+    let h=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>Terminé (${f.length})</div>`;
+    f.forEach(i=>h+=icard(i));list.innerHTML=h;return;
+  }
+  // Exclude done items from all other views
+  f=f.filter(i=>!i.done);
   if(curFilter==='idea')f=f.filter(i=>i.type==='idea');
   else if(curFilter==='todo')f=f.filter(i=>i.type==='todo');
   else if(curFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
   else if(curFilter!=='all')f=f.filter(i=>i.project===curFilter);
-  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">💡</div><p>${items.length===0?'Aucune capture.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
+  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">💡</div><p>${items.filter(i=>!i.done).length===0?'Aucune capture.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
   const todos=f.filter(i=>i.type==='todo'),ideas=f.filter(i=>i.type==='idea');
   let h='';
   if(todos.length&&curFilter!=='idea'){h+=`<div class="sec-head"><span class="sec-dot dot-todo"></span>À faire (${todos.length})</div>`;todos.forEach(i=>h+=icard(i));}
   if(ideas.length&&curFilter!=='todo'){h+=`<div class="sec-head"><span class="sec-dot dot-idea"></span>Idées (${ideas.length})</div>`;ideas.forEach(i=>h+=icard(i));}
   list.innerHTML=h;
 }
+
+// ── ACTION MENU ───────────────────────────────────────────
+let activeItemId=null;
+function openActionMenu(id){
+  activeItemId=id;
+  const item=items.find(i=>i.id===id);if(!item)return;
+  $('actionMenuTitle').textContent=item.title.slice(0,40)+(item.title.length>40?'…':'');
+  $('actionDoneBtn').style.display=(item.type==='todo'&&!item.done)?'flex':'none';
+  $('actionMenu').classList.add('open');
+}
+function closeActionMenu(){$('actionMenu').classList.remove('open');}
+function actionDone(){
+  const id=activeItemId;closeActionMenu();
+  const it=items.find(i=>i.id===id);if(!it)return;
+  it.done=true;it.doneAt=new Date().toISOString();
+  saveAll();renderAll();toast('Tâche terminée ✓');
+}
+function actionEdit(){const id=activeItemId;closeActionMenu();setTimeout(()=>startEdit(id),100);}
+function actionDeleteConfirm(){$('actionMenu').classList.remove('open');$('confirmDel').classList.add('open');}
+function closeConfirmDel(){$('confirmDel').classList.remove('open');$('actionMenu').classList.add('open');}
+function confirmDelete(){
+  $('confirmDel').classList.remove('open');
+  if(!activeItemId)return;
+  items=items.filter(i=>i.id!==activeItemId);
+  saveAll();renderAll();toast('Supprimé');activeItemId=null;
+}
+
 function icard(item){
-  const u=item.priority==='urgent',cls=u?'urg':(item.type==='idea'?'idea-t':'todo-t');
-  const tB=item.type==='idea'?'<span class="badge b-idea">Idée</span>':'<span class="badge b-todo">À faire</span>';
-  const uB=u?'<span class="badge b-urg">Urgent</span>':'';
+  const u=item.priority==='urgent',isDone=!!item.done;
+  const cls=isDone?'done-item':(u?'urg':(item.type==='idea'?'idea-t':'todo-t'));
+  const tB=item.type==='idea'?'<span class="badge b-idea">Idée</span>':(isDone?'<span class="badge b-drive">Terminé</span>':'<span class="badge b-todo">À faire</span>');
+  const uB=u&&!isDone?'<span class="badge b-urg">Urgent</span>':'';
   const dB=item.project&&item.project!=='Autre'?`<span class="badge b-dom">${esc(item.project)}</span>`:'';
   const tags=(item.tags||[]).map(t=>`<span class="badge b-tag">${esc(t)}</span>`).join('');
   const date=item.date?`<span class="badge b-date">📅 ${fmtDate(item.date)}</span>`:'';
   const drv=item.driveSync?'<span class="badge b-drive">Drive ✓</span>':'';
-  const done=item.type==='todo'?`<button class="ibtn green" onclick="markDone(${item.id})" title="Fait">✓</button>`:'';
-  return`<div class="icard ${cls}" id="card-${item.id}"><div class="icard-top"><div class="icard-body"><div class="icard-title">${esc(item.title)}</div>${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}<div class="icard-badges">${tB}${uB}${dB}${tags}${date}${drv}</div><div class="icard-original">${esc(item.original)}</div></div><div class="icard-actions">${done}<button class="ibtn" onclick="startEdit(${item.id})" title="Modifier">✏️</button><button class="ibtn red" onclick="delItem(${item.id})" title="Supprimer">✕</button></div></div></div>`;
+  return`<div class="icard ${cls}" id="card-${item.id}"><div class="icard-top"><div class="icard-body"><div class="icard-title">${esc(item.title)}</div>${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}<div class="icard-badges">${tB}${uB}${dB}${tags}${date}${drv}</div><div class="icard-original">${esc(item.original)}</div></div><div class="icard-actions"><button class="ibtn" onclick="openActionMenu(${item.id})" title="Actions" style="font-size:18px;color:var(--text2);">···</button></div></div></div>`;
 }
+function delItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Supprimé');}
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
 function fmtDateFull(d){try{return new Date(d+'T12:00:00').toLocaleDateString('fr-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch{return d;}}
-function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}}
-function markDone(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Tâche terminée ✓');}
-function delItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Supprimé');}
+function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}
 function updateStats(){$('sTot').textContent=items.length;$('sIdeas').textContent=items.filter(i=>i.type==='idea').length;$('sTodos').textContent=items.filter(i=>i.type==='todo').length;}
 function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
 function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
@@ -887,14 +997,52 @@ $('liveZone').addEventListener('touchend',()=>setTimeout(checkSel,100));
 $('liveZone').addEventListener('input',()=>{capTxt=$('liveZone').innerText||'';});
 
 // ── INIT ──────────────────────────────────────────────────
+const DEFAULT_GLOSS = [
+  {term:'MAGNEXX',desc:'marque de produit magnétique, jamais corrigée automatiquement'},
+  {term:'Clever2Nexus',desc:'nom d\'entreprise de Régis, distributrice MAGNEXX en D-A-CH'},
+  {term:'Egizia',desc:'prénom rare souvent mal reconnu à la dictée'},
+  {term:'Stephan',desc:'prénom spécifique à orthographe non standard en français'},
+  {term:'Steullet',desc:'nom propre peu courant difficile à écrire correctement'},
+  {term:'Delémont',desc:'ville suisse souvent transcrite comme de Léman'},
+  {term:'Bâle',desc:'ville suisse parfois mal reconnue selon la prononciation'},
+  {term:'DACH',desc:'acronyme régional D-A-CH rarement reconnu correctement'},
+  {term:'Fidlock',desc:'marque technique difficile à reconnaître phonétiquement'},
+  {term:'AV-Core',desc:'terme technique produit MAGNEXX mélangeant lettres et anglais'},
+  {term:'RO-Core',desc:'variante produit MAGNEXX sujette à confusion phonétique'},
+  {term:'Zoho',desc:'nom de logiciel court ambigu difficile à reconnaître'},
+  {term:'Odoo',desc:'nom de logiciel atypique souvent déformé à la dictée'},
+  {term:'PaletteCAD',desc:'logiciel 3D avec majuscules et combinaison complexe'},
+  {term:'NotebookLM',desc:'nom technique rarement reconnu correctement'},
+  {term:'Shopify',desc:'plateforme e-commerce, nom anglais souvent mal transcrit'},
+  {term:'API',desc:'prononcé a-p-i, abréviation technique souvent mal interprétée'},
+  {term:'CRM',desc:'suite de lettres souvent mal retranscrite'},
+  {term:'Étanchéité',desc:'mot technique souvent simplifié phonétiquement'},
+  {term:'Accouplement magnétique',desc:'terme technique long rarement reconnu correctement'},
+  {term:'Douche italienne',desc:'expression parfois mal segmentée à la dictée'},
+  {term:'WC suspendu',desc:'combinaison parfois mal comprise à la dictée'},
+  {term:'Packaging',desc:'mot anglais souvent mal transcrit'},
+  {term:'Workflow',desc:'mot anglais rarement correctement reconnu en français'},
+  {term:'Prototype',desc:'parfois séparé en proto-type à la dictée'},
+  {term:'Automatisation',desc:'parfois simplifiée phonétiquement'},
+  {term:'Modélisation',desc:'parfois déformée à la dictée'},
+  {term:'Salle de bain',desc:'parfois mal segmenté en dictée rapide'}
+];
+
 // Migration : récupère les anciennes clés si les nouvelles sont vides
 items = ls.get('cap_i') || ls.get('cap_items') || [];
 journal = ls.get('cap_j') || ls.get('cap_journal') || [];
 const ss = ls.get('cap_s') || ls.get('cap_settings');
 if(ss && typeof ss==='object') S={...S,...ss};
 if(!S.cats?.length) S.cats=[...DCATS];
-if(!S.gloss) S.gloss=[];
 if(!S.corrections) S.corrections=[];
+// Merge default glossary with existing — no duplicates
+if(!S.gloss || S.gloss.length===0){
+  S.gloss = DEFAULT_GLOSS;
+} else {
+  const existing = new Set(S.gloss.map(g=>g.term.toLowerCase()));
+  DEFAULT_GLOSS.forEach(g=>{ if(!existing.has(g.term.toLowerCase())) S.gloss.push(g); });
+}
+saveLocal();
 
 renderAll();
 window.addEventListener('load',()=>setTimeout(initAuth,600));
