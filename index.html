@@ -3,35 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura Stable v18</title>
+    <title>Captura Enterprise v20</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; --green: #32d74b; --red: #ff453a; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 14px; outline: none; }
-        #mic-btn { width: 85px; height: 85px; border-radius: 50%; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 32px; cursor: pointer; margin-bottom: 20px; transition: 0.3s; -webkit-tap-highlight-color: transparent; }
-        #mic-btn.active { background: var(--red); color: #fff; transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 59, 48, 0.4); }
-        #display-zone { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; border: 1px solid #e5e5ea; min-height: 120px; font-size: 16px; width: 100%; box-sizing: border-box; }
-        #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); color: #1c1c1e; line-height: 1.5; white-space: pre-wrap; display: none; }
-        #debug-console { margin-top: 20px; padding: 12px; background: #1c1c1e; color: var(--green); border-radius: 12px; font-family: 'SF Mono', monospace; font-size: 11px; text-align: left; max-height: 140px; overflow-y: auto; width: 100%; box-sizing: border-box; border: 1px solid #3a3a3c; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; -webkit-font-smoothing: antialiased; }
+        .card { background: #fff; width: 100%; max-width: 400px; padding: 30px; border-radius: 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); text-align: center; box-sizing: border-box; }
+        input { width: 100%; padding: 14px; border: 1px solid #d1d1d6; border-radius: 14px; margin-bottom: 25px; text-align: center; font-size: 15px; background: #f9f9f9; }
+        #mic-btn { width: 90px; height: 90px; border-radius: 45px; border: none; background: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.1); font-size: 35px; cursor: pointer; margin-bottom: 25px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #mic-btn.active { background: var(--red); color: #fff; transform: scale(1.15); box-shadow: 0 0 25px rgba(255, 69, 58, 0.5); }
+        #display-zone { text-align: left; background: #f2f2f7; padding: 20px; border-radius: 18px; min-height: 120px; width: 100%; box-sizing: border-box; }
+        #ai-output { margin-top: 20px; padding-top: 20px; border-top: 1px solid #d1d1d6; color: #000; font-weight: 500; display: none; }
+        #debug-console { margin-top: 25px; padding: 12px; background: #000; color: var(--green); border-radius: 12px; font-family: "SF Mono", monospace; font-size: 10px; text-align: left; max-height: 120px; overflow-y: auto; width: 100%; box-sizing: border-box; opacity: 0.9; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2 style="margin-top:0; color:#1c1c1e;">Captura Live</h2>
-    <p style="font-size: 12px; color: #8e8e93; margin-bottom: 15px;">Assistant de dictée intelligent</p>
-    
-    <input type="password" id="apiKey" placeholder="Coller la clé API Gemini ici">
+    <h2 style="margin: 0 0 10px 0;">Captura Live</h2>
+    <input type="password" id="apiKey" placeholder="Clé API Gemini">
     
     <button id="mic-btn">🎙️</button>
     
     <div id="display-zone">
-        <div id="live-text" style="color: #8e8e93;">Prêt pour la dictée...</div>
+        <div id="live-text" style="color: #3a3a3c;">Appuyez pour parler...</div>
         <div id="ai-output"></div>
     </div>
 
-    <div id="debug-console">> Système prêt (v18).</div>
+    <div id="debug-console">> Initialisation Safari Engine...</div>
 </div>
 
 <script>
@@ -41,5 +39,87 @@
     const aiOutput = document.getElementById('ai-output');
     const apiInput = document.getElementById('apiKey');
 
-    // Récupération de la clé sauvegardée
     apiInput.value = localStorage.getItem('gemini_key') || '';
+
+    function log(msg, color = "#32d74b") {
+        debug.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        debug.scrollTop = debug.scrollHeight;
+    }
+
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = new Recognition();
+    rec.lang = 'fr-CH';
+    rec.interimResults = true;
+    let transcript = "";
+
+    btn.onclick = async () => {
+        if (btn.classList.contains('active')) {
+            rec.stop();
+        } else {
+            try {
+                // Demande de permission micro standard Safari
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                const key = apiInput.value.trim();
+                if (!key) return alert("Clé manquante");
+                localStorage.setItem('gemini_key', key);
+                
+                transcript = "";
+                aiOutput.style.display = "none";
+                btn.classList.add('active');
+                log("Système : Écoute...");
+                rec.start();
+            } catch (err) { log("Erreur : Micro refusé", "#ff453a"); }
+        }
+    };
+
+    rec.onresult = (e) => {
+        transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+        liveText.innerHTML = `<strong>Dictée :</strong> ${transcript}`;
+    };
+
+    rec.onend = () => {
+        btn.classList.remove('active');
+        if (transcript.length > 2) callGemini(transcript);
+    };
+
+    async function callGemini(text) {
+        const key = apiInput.value.trim();
+        // L'URL EXACTE REQUISE EN MARS 2026 POUR LES REQUÊTES WEB DIRECTES
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+
+        log("Connexion Google...");
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                mode: 'cors', // Crucial pour Safari
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: "Fais un résumé très court et une action pour cette dictée suisse : " + text
+                        }]
+                    }]
+                })
+            });
+
+            log(`Status : ${response.status}`);
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error.message);
+
+            const result = data.candidates[0].content.parts[0].text;
+            aiOutput.innerText = result;
+            aiOutput.style.display = "block";
+            log("Terminé avec succès. ✅");
+
+        } catch (e) {
+            log("Erreur : " + e.message, "#ff453a");
+            console.error(e);
+        }
+    }
+</script>
+</body>
+</html>
