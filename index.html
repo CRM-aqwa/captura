@@ -612,26 +612,46 @@ async function syncDown(){
   syncing=true;driveUI('syncing');
   try{
     const[ri,rj,rs]=await Promise.all([dRead(FI),dRead(FJ),dRead(FS)]);
-    let ch=false;
-    if(Array.isArray(ri)&&ri.length>0){
-      // Merge local + drive by id, drive wins on conflict
+    let needReSave=false;
+
+    // Toujours fusionner local + Drive par id — les deux appareils apportent leurs données
+    if(Array.isArray(ri)){
       const map={};
       items.forEach(i=>map[i.id]=i);
-      ri.forEach(i=>map[i.id]=i); // drive overwrites local
+      ri.forEach(i=>map[i.id]=i);
       const merged=Object.values(map).sort((a,b)=>b.id-a.id);
-      items=merged;ch=true;
+      if(merged.length!==items.length){items=merged;needReSave=true;}
+      else items=merged;
     }
-    if(Array.isArray(rj)&&rj.length>0){
+    if(Array.isArray(rj)){
       const map={};
       journal.forEach(e=>map[e.id]=e);
       rj.forEach(e=>map[e.id]=e);
-      journal=Object.values(map).sort((a,b)=>b.id-a.id);
-      ch=true;
+      const merged=Object.values(map).sort((a,b)=>b.id-a.id);
+      if(merged.length!==journal.length){journal=merged;needReSave=true;}
+      else journal=merged;
     }
-    if(rs&&typeof rs==='object'){S={...S,...rs};ch=true;}
-    if(ch){saveLocal();renderAll();if(curTab==='jrn')renderJournal(journal);toast('Synchronisé ✓');}
+    if(rs&&typeof rs==='object'){S={...S,...rs};}
+
+    saveLocal();
+    renderAll();
+    if(curTab==='jrn')renderJournal(journal);
+
+    // Si la fusion a apporté de nouvelles données, re-sauvegarder Drive
+    // pour que l'autre appareil les voie aussi
+    if(needReSave){
+      await Promise.all([dWrite(FI,items),dWrite(FJ,journal)]);
+      toast('Synchronisé ✓');
+    }
     driveUI('connected');
-  }catch(e){toast('Sync : '+e.message);driveUI('connected');}
+  }catch(e){
+    if(e.message.includes('Token expiré')){
+      toast('Drive : reconnecte-toi (bouton Drive)');
+    } else {
+      toast('Sync : '+e.message);
+    }
+    driveUI('disconnected');
+  }
   finally{syncing=false;}
 }
 function saveLocal(){ls.set('cap_i',items);ls.set('cap_j',journal);ls.set('cap_s',S);}
@@ -1204,25 +1224,12 @@ function checkAutoArchive(){
   }
 }
 
-// ── DIFFERENTIAL SYNC ─────────────────────────────────────
-let lastSyncedItemCount=0, lastSyncedJournalCount=0;
-
 async function saveAll(){
-  saveLocal();if(!token)return;
-  // Differential: only sync if data actually changed
-  const iChanged=items.length!==lastSyncedItemCount||JSON.stringify(items.slice(0,3))!==ls.str('cap_sync_sig_i');
-  const jChanged=journal.length!==lastSyncedJournalCount||JSON.stringify(journal.slice(0,3))!==ls.str('cap_sync_sig_j');
-  if(!iChanged&&!jChanged){return;} // nothing changed, skip network call
+  saveLocal();
+  if(!token)return;
   syncing=true;driveUI('syncing');
   try{
-    const writes=[];
-    if(iChanged)writes.push(dWrite(FI,items));
-    if(jChanged)writes.push(dWrite(FJ,journal));
-    writes.push(dWrite(FS,S)); // settings always sync (lightweight)
-    await Promise.all(writes);
-    lastSyncedItemCount=items.length;lastSyncedJournalCount=journal.length;
-    ls.setStr('cap_sync_sig_i',JSON.stringify(items.slice(0,3)));
-    ls.setStr('cap_sync_sig_j',JSON.stringify(journal.slice(0,3)));
+    await Promise.all([dWrite(FI,items),dWrite(FJ,journal),dWrite(FS,S)]);
   }catch(e){toast('Drive : '+e.message);}
   finally{syncing=false;driveUI('connected');}
 }
