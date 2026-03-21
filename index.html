@@ -975,7 +975,7 @@ function icard(item){
 function delItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Supprimé');}
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
 function fmtDateFull(d){try{return new Date(d+'T12:00:00').toLocaleDateString('fr-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch{return d;}}
-function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}
+function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}}
 function updateStats(){$('sTot').textContent=items.length;$('sIdeas').textContent=items.filter(i=>i.type==='idea').length;$('sTodos').textContent=items.filter(i=>i.type==='todo').length;}
 function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
 function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
