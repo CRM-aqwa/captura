@@ -3,158 +3,258 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Captura — Régis</title>
+<title>Captura</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-:root {
-  --bg:#F5F5F7;--surface:#FFF;--surface2:#F0F0F2;
-  --text:#1D1D1F;--text2:#6E6E73;--text3:#AEAEB2;
-  --blue:#007AFF;--blue-bg:#EBF4FF;
-  --green:#34C759;--green-bg:#EDFBF1;
-  --red:#FF3B30;--red-bg:#FFF1F0;
-  --orange:#FF9500;--orange-bg:#FFF8ED;
-  --border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.15);
-  --radius:16px;--radius-sm:10px;--radius-xs:8px;
-  --shadow:0 2px 16px rgba(0,0,0,0.06);--shadow-lg:0 8px 40px rgba(0,0,0,0.12);
+:root{
+  --bg:#0D0D0F;
+  --bg2:#141416;
+  --bg3:#1C1C1F;
+  --bg4:#242428;
+  --surface:#1E1E22;
+  --surface2:#28282D;
+  --surface3:#323238;
+  --text:#F2F2F7;
+  --text2:#8E8E99;
+  --text3:#48484F;
+  --accent:#FF6B35;
+  --accent-dim:rgba(255,107,53,0.15);
+  --accent2:#007AFF;
+  --accent2-dim:rgba(0,122,255,0.15);
+  --green:#30D158;
+  --green-dim:rgba(48,209,88,0.12);
+  --red:#FF453A;
+  --red-dim:rgba(255,69,58,0.12);
+  --purple:#BF5AF2;
+  --purple-dim:rgba(191,90,242,0.12);
+  --yellow:#FFD60A;
+  --yellow-dim:rgba(255,214,10,0.12);
+  --border:rgba(255,255,255,0.06);
+  --border2:rgba(255,255,255,0.10);
+  --border3:rgba(255,255,255,0.16);
+  --radius:14px;--radius-sm:10px;--radius-xs:8px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+  --shadow-lg:0 12px 48px rgba(0,0,0,0.6);
+  --nav-h:68px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:-apple-system,'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',-apple-system,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5;padding-bottom:var(--nav-h);-webkit-font-smoothing:antialiased;}
 
-.header{background:rgba(255,255,255,0.88);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:0.5px solid var(--border);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
+/* ── HEADER ── */
+.header{background:rgba(13,13,15,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;}
 .logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--text);letter-spacing:-0.3px;}
-.logo span{color:var(--blue);}
+.logo span{color:var(--accent);}
 .header-right{display:flex;align-items:center;gap:8px;}
-.btn-icon-sm{background:none;border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:18px;transition:background 0.15s;}
-.btn-icon-sm:hover{background:var(--surface2);}
-.drive-status{font-size:11px;font-weight:600;padding:5px 11px;border-radius:99px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
-.drive-status.disconnected{background:var(--surface2);color:var(--text2);}
-.drive-status.connected{background:var(--green-bg);color:#1a7a32;}
-.drive-status.syncing{background:var(--blue-bg);color:var(--blue);}
-.drive-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.btn-icon-sm{background:none;border:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:17px;transition:all 0.15s;}
+.btn-icon-sm:hover{background:var(--surface2);color:var(--text);}
+.drive-pill{font-size:11px;font-weight:600;padding:5px 11px;border-radius:99px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;letter-spacing:0.2px;}
+.drive-pill.disconnected{background:var(--surface2);color:var(--text2);}
+.drive-pill.connected{background:var(--green-dim);color:var(--green);}
+.drive-pill.syncing{background:var(--accent2-dim);color:var(--accent2);}
+.drive-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 
-.main{max-width:600px;margin:0 auto;padding:1.25rem 1rem 5rem;}
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:rgba(13,13,15,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;z-index:100;padding-bottom:env(safe-area-inset-bottom,8px);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;padding:6px 0;max-width:120px;transition:all 0.15s;}
+.nav-icon{font-size:22px;transition:transform 0.15s;}
+.nav-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--text3);transition:color 0.15s;}
+.nav-btn.active .nav-icon{transform:scale(1.1);}
+.nav-btn.active .nav-label{color:var(--accent);}
 
-.mic-section{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem 1.25rem 1.25rem;margin-bottom:1rem;}
-.mic-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:1rem;text-align:center;}
-.mic-btn{width:76px;height:76px;border-radius:50%;border:none;background:var(--surface2);cursor:pointer;font-size:30px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;transition:all 0.2s;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
-.mic-btn:hover{transform:scale(1.05);}
-.mic-btn.listening{background:var(--red);color:#fff;animation:micPulse 1.5s infinite;}
-@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(255,59,48,0.4);}70%{box-shadow:0 0 0 20px rgba(255,59,48,0);}100%{box-shadow:0 0 0 0 rgba(255,59,48,0);}}
+/* ── PAGES ── */
+.page{display:none;padding:1.25rem 1rem 1.5rem;max-width:600px;margin:0 auto;}
+.page.active{display:block;}
 
-.live-zone{background:var(--surface2);border-radius:var(--radius-sm);padding:12px 14px;min-height:72px;font-size:15px;color:var(--text);line-height:1.6;border:1.5px solid transparent;transition:border-color 0.2s;cursor:text;}
+/* ── MIC SECTION ── */
+.mic-section{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:1.5rem 1.25rem 1.25rem;margin-bottom:1rem;}
+.section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:1rem;text-align:center;}
+.mic-wrap{display:flex;justify-content:center;margin-bottom:1rem;}
+.mic-btn{width:72px;height:72px;border-radius:50%;border:none;background:var(--surface2);cursor:pointer;font-size:28px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:0 0 0 0 var(--accent-dim);}
+.mic-btn:hover{background:var(--surface3);transform:scale(1.04);}
+.mic-btn.listening{background:var(--red-dim);border:1.5px solid var(--red);animation:micPulse 1.4s infinite;}
+.mic-btn.searching{background:var(--purple-dim);border:1.5px solid var(--purple);animation:micPulse 1.4s infinite;}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(255,69,58,0.3);}70%{box-shadow:0 0 0 18px rgba(255,69,58,0);}100%{box-shadow:0 0 0 0 rgba(255,69,58,0);}}
+
+.live-zone{background:var(--bg3);border-radius:var(--radius-sm);padding:12px 14px;min-height:68px;font-size:15px;color:var(--text);line-height:1.6;border:1.5px solid transparent;transition:border-color 0.2s;}
 .live-zone.empty{color:var(--text3);font-style:italic;}
-.live-zone.editable{border-color:var(--blue);background:var(--surface);}
-.edit-hint{font-size:11px;color:var(--blue);text-align:center;margin-top:5px;display:none;}
+.live-zone.editable{border-color:var(--accent2);background:var(--surface);}
+.edit-hint{font-size:11px;color:var(--accent2);text-align:center;margin-top:5px;display:none;}
 .edit-hint.show{display:block;}
 
-.correction-bar{display:none;align-items:center;gap:8px;margin-top:8px;background:var(--orange-bg);border-radius:var(--radius-xs);padding:8px 12px;font-size:13px;color:#a05c00;flex-wrap:wrap;}
-.correction-bar.show{display:flex;}
-.btn-memorize{background:var(--orange);color:#fff;border:none;border-radius:var(--radius-xs);padding:5px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
-.corr-input{flex:1;min-width:80px;font-family:inherit;font-size:13px;padding:4px 8px;border-radius:6px;border:0.5px solid var(--border-strong);background:var(--surface);outline:none;}
+.corr-bar{display:none;align-items:center;gap:8px;margin-top:8px;background:var(--yellow-dim);border-radius:var(--radius-xs);padding:8px 12px;font-size:13px;color:var(--yellow);flex-wrap:wrap;border:0.5px solid rgba(255,214,10,0.2);}
+.corr-bar.show{display:flex;}
+.corr-input{flex:1;min-width:80px;font-family:inherit;font-size:13px;padding:5px 9px;border-radius:6px;border:0.5px solid var(--border2);background:var(--surface2);color:var(--text);outline:none;}
+.btn-memorize{background:var(--yellow);color:#000;border:none;border-radius:6px;padding:5px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
 
 .meta-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
-select,input[type=date]{font-family:inherit;font-size:13px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-xs);padding:7px 10px;outline:none;-webkit-appearance:none;}
-select:focus,input[type=date]:focus{border-color:var(--blue);}
+select,input[type=date]{font-family:inherit;font-size:13px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-xs);padding:7px 10px;outline:none;-webkit-appearance:none;}
+select option{background:var(--surface2);}
 .reminder-row{display:flex;gap:8px;align-items:center;margin-top:8px;justify-content:center;flex-wrap:wrap;}
-.reminder-label{font-size:12px;color:var(--text3);}
+.rlabel{font-size:12px;color:var(--text3);}
 
-.btn-analyse{margin-top:12px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,transform 0.1s;}
-.btn-analyse:hover{opacity:0.88;}
-.btn-analyse:active{transform:scale(0.98);}
-.btn-analyse:disabled{opacity:0.4;cursor:not-allowed;}
-.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
+.btn-primary{width:100%;margin-top:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s,transform 0.1s;letter-spacing:0.2px;}
+.btn-primary:hover{opacity:0.88;}
+.btn-primary:active{transform:scale(0.98);}
+.btn-primary:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-primary.purple{background:var(--purple);}
+.spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
+/* ── STATS ── */
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
-.stat-card{background:var(--surface);border-radius:var(--radius-sm);padding:10px;text-align:center;box-shadow:var(--shadow);}
-.stat-num{font-size:22px;font-weight:300;font-family:'DM Serif Display',serif;}
-.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.6px;margin-top:2px;}
+.stat-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
+.stat-num{font-size:24px;font-weight:300;font-family:'DM Serif Display',serif;color:var(--text);}
+.stat-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-top:2px;}
 
+/* ── FILTERS ── */
 .filters-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-bottom:1rem;}
 .filters-scroll::-webkit-scrollbar{display:none;}
-.filters-row{display:flex;gap:6px;padding-bottom:4px;width:max-content;min-width:100%;}
-.filter-pill{font-size:13px;font-weight:500;padding:6px 14px;border-radius:99px;border:0.5px solid var(--border-strong);cursor:pointer;color:var(--text2);background:var(--surface);white-space:nowrap;transition:all 0.12s;}
-.filter-pill.active-all{background:var(--text);color:#fff;border-color:var(--text);}
-.filter-pill.active-idea{background:var(--green);color:#fff;border-color:var(--green);}
-.filter-pill.active-todo{background:var(--blue);color:#fff;border-color:var(--blue);}
-.filter-pill.active-urgent{background:var(--red);color:#fff;border-color:var(--red);}
-.filter-pill.active-domain{background:var(--surface2);color:var(--text);border-color:var(--border-strong);font-weight:600;}
+.filters-row{display:flex;gap:6px;padding-bottom:2px;width:max-content;min-width:100%;}
+.fpill{font-size:12px;font-weight:600;padding:5px 13px;border-radius:99px;border:0.5px solid var(--border2);cursor:pointer;color:var(--text2);background:var(--surface);white-space:nowrap;transition:all 0.12s;letter-spacing:0.2px;}
+.fpill:hover{border-color:var(--border3);}
+.fpill.a-all{background:var(--text);color:var(--bg);border-color:var(--text);}
+.fpill.a-idea{background:var(--green-dim);color:var(--green);border-color:var(--green);}
+.fpill.a-todo{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2);}
+.fpill.a-urgent{background:var(--red-dim);color:var(--red);border-color:var(--red);}
+.fpill.a-dom{background:var(--surface2);color:var(--text);border-color:var(--border3);font-weight:700;}
 
-.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px;margin-top:1.25rem;display:flex;align-items:center;gap:8px;}
-.section-title::after{content:'';flex:1;height:0.5px;background:var(--border);}
-.section-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+/* ── SECTION HEADER ── */
+.sec-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin:1.25rem 0 8px;display:flex;align-items:center;gap:10px;}
+.sec-head::after{content:'';flex:1;height:0.5px;background:var(--border);}
+.sec-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .dot-idea{background:var(--green);}
-.dot-todo{background:var(--blue);}
+.dot-todo{background:var(--accent2);}
 
-.item-card{background:var(--surface);border-radius:var(--radius);padding:1rem 1.1rem;margin-bottom:8px;box-shadow:var(--shadow);animation:fadeUp 0.2s ease;overflow:hidden;position:relative;}
-.item-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.item-card.idea-type::before{background:var(--green);}
-.item-card.todo-type::before{background:var(--blue);}
-.item-card.urgent::before{background:var(--red);}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
-.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-.item-content{flex:1;}
-.item-title{font-size:15px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:3px;}
-.item-summary{font-size:13px;color:var(--text2);line-height:1.5;}
-.item-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
-.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;}
-.badge-idea{background:var(--green-bg);color:#1a7a32;}
-.badge-todo{background:var(--blue-bg);color:#0055b3;}
-.badge-urgent{background:var(--red-bg);color:var(--red);}
-.badge-domain{background:var(--surface2);color:var(--text2);}
-.badge-project{background:#F0EEFF;color:#5856D6;}
-.badge-date{background:var(--orange-bg);color:#a05c00;}
-.badge-drive{background:var(--green-bg);color:#1a7a32;font-size:10px;}
-.item-actions{display:flex;gap:4px;flex-shrink:0;}
-.btn-act{width:30px;height:30px;border:none;background:none;border-radius:var(--radius-xs);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:15px;transition:all 0.12s;}
-.btn-act:hover{background:var(--surface2);color:var(--text);}
-.item-original{font-size:12px;color:var(--text3);font-style:italic;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);display:none;}
-.item-card:hover .item-original{display:block;}
+/* ── CAPTURE CARDS ── */
+.icard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:8px;animation:fadeUp .2s ease;overflow:hidden;position:relative;transition:border-color 0.15s;}
+.icard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;border-radius:2px 0 0 2px;}
+.icard.idea-t::before{background:var(--green);}
+.icard.todo-t::before{background:var(--accent2);}
+.icard.urg::before{background:var(--red);}
+.icard:hover{border-color:var(--border2);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.icard-top{display:flex;align-items:flex-start;gap:10px;}
+.icard-body{flex:1;min-width:0;}
+.icard-title{font-size:15px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:3px;}
+.icard-summary{font-size:13px;color:var(--text2);line-height:1.5;}
+.icard-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;letter-spacing:0.1px;}
+.b-idea{background:var(--green-dim);color:var(--green);}
+.b-todo{background:var(--accent2-dim);color:var(--accent2);}
+.b-urg{background:var(--red-dim);color:var(--red);}
+.b-dom{background:var(--surface3);color:var(--text2);}
+.b-tag{background:var(--purple-dim);color:var(--purple);}
+.b-date{background:var(--yellow-dim);color:var(--yellow);}
+.b-drive{background:var(--green-dim);color:var(--green);font-size:10px;}
+.b-person{background:rgba(255,107,53,0.12);color:var(--accent);}
+.icard-actions{display:flex;gap:3px;flex-shrink:0;}
+.ibtn{width:28px;height:28px;border:none;background:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;transition:all 0.12s;}
+.ibtn:hover{background:var(--surface3);color:var(--text);}
+.ibtn.green:hover{color:var(--green);}
+.ibtn.red:hover{color:var(--red);}
+.icard-original{font-size:12px;color:var(--text3);font-style:italic;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);display:none;}
+.icard:hover .icard-original{display:block;}
 
-.empty-state{text-align:center;padding:3rem 1rem;color:var(--text3);}
-.empty-icon{font-size:48px;margin-bottom:12px;opacity:0.3;}
+/* ── EDIT INLINE ── */
+.icard.editing{border-color:var(--accent2);background:var(--bg3);}
+.edit-field{width:100%;font-family:inherit;font-size:14px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-xs);padding:8px 10px;outline:none;margin-bottom:6px;resize:none;}
+.edit-field:focus{border-color:var(--accent2);}
+.edit-actions{display:flex;gap:6px;margin-top:4px;}
+.btn-edit-save{flex:2;background:var(--accent2);color:#fff;border:none;border-radius:var(--radius-xs);padding:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-edit-cancel{flex:1;background:var(--surface3);color:var(--text2);border:none;border-radius:var(--radius-xs);padding:8px;font-family:inherit;font-size:13px;cursor:pointer;}
 
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);z-index:200;align-items:flex-end;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:1rem 1.25rem 2.5rem;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp 0.25s ease;}
+/* ── JOURNAL ── */
+.jdate-header{font-size:12px;font-weight:600;color:var(--text2);padding:8px 2px 4px;margin-top:14px;letter-spacing:0.3px;}
+.jcard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:8px;animation:fadeUp .2s ease;position:relative;overflow:hidden;transition:border-color 0.15s;}
+.jcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;border-radius:2px 0 0 2px;background:var(--purple);}
+.jcard:hover{border-color:var(--border2);}
+.jcard.smatch{border-color:var(--purple);}
+.jtime{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.jtext{font-size:15px;color:var(--text);line-height:1.5;margin-bottom:6px;}
+.jentities{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.jcard-original{font-size:12px;color:var(--text3);font-style:italic;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--border);display:none;}
+.jcard:hover .jcard-original{display:block;}
+.jdel{position:absolute;top:8px;right:8px;}
+
+/* ── SEARCH ── */
+.search-box{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1rem;}
+.search-inner{display:flex;gap:8px;align-items:center;}
+.sinput{flex:1;font-family:inherit;font-size:15px;color:var(--text);background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 14px;outline:none;}
+.sinput:focus{border-color:var(--purple);}
+.sinput::placeholder{color:var(--text3);}
+.smic{width:42px;height:42px;border-radius:50%;border:none;background:var(--purple-dim);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.smic:hover{background:var(--purple);color:#fff;}
+.smic.listening{background:var(--purple);animation:micPulse 1.4s infinite;}
+.sinfo{font-size:12px;color:var(--purple);margin-top:8px;text-align:center;display:none;}
+.sinfo.show{display:block;}
+
+/* ── DATE OVERRIDE ── */
+.date-override{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
+.dover-label{font-size:12px;color:var(--text3);}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);}
+.empty-icon{font-size:44px;margin-bottom:12px;opacity:0.25;}
+
+/* ── MODAL ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:200;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;border-top:0.5px solid var(--border2);padding:1rem 1.25rem 2.5rem;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .25s ease;}
 @keyframes slideUp{from{transform:translateY(100%);}to{transform:none;}}
-.modal-handle{width:36px;height:4px;background:var(--border-strong);border-radius:99px;margin:0 auto 1.25rem;}
-.modal h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px;}
-.modal-section{margin-top:20px;}
-.modal-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:6px;}
-.hint-text{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:8px;}
-.modal input[type=text],.modal input[type=email],.modal input[type=password]{width:100%;font-family:inherit;font-size:15px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:11px 14px;outline:none;margin-bottom:4px;}
-.modal input:focus{border-color:var(--blue);}
-.modal-footer{display:flex;gap:8px;margin-top:1.5rem;}
+.modal-handle{width:36px;height:4px;background:var(--surface3);border-radius:99px;margin:0 auto 1.25rem;}
+.modal h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:4px;color:var(--text);}
+.msec{margin-top:20px;}
+.msec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:6px;}
+.hint{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:8px;}
+.minput{width:100%;font-family:inherit;font-size:15px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:11px 14px;outline:none;margin-bottom:4px;}
+.minput:focus{border-color:var(--accent2);}
+.mfooter{display:flex;gap:8px;margin-top:1.5rem;}
 .btn-cancel{flex:1;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;color:var(--text2);}
-.btn-save{flex:2;background:var(--blue);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;}
-
-.edit-list{display:flex;flex-direction:column;gap:6px;}
-.edit-row{display:flex;gap:6px;align-items:center;}
-.edit-row input{flex:1;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-xs);padding:8px 10px;outline:none;}
-.edit-row input:focus{border-color:var(--blue);}
-.edit-arrow{font-size:11px;color:var(--text3);flex-shrink:0;}
-.btn-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:18px;padding:0 2px;line-height:1;}
+.btn-save{flex:2;background:var(--accent2);color:#fff;border:none;border-radius:var(--radius-sm);padding:13px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;}
+.erow{display:flex;gap:6px;align-items:center;}
+.erow input{flex:1;font-family:inherit;font-size:13px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-xs);padding:8px 10px;outline:none;}
+.erow input:focus{border-color:var(--accent2);}
+.earrow{font-size:11px;color:var(--text3);flex-shrink:0;}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--text3);font-size:17px;padding:0 2px;line-height:1;}
 .btn-del:hover{color:var(--red);}
-.btn-add-row{background:none;border:0.5px dashed var(--border-strong);border-radius:var(--radius-xs);padding:8px;font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer;margin-top:6px;width:100%;text-align:center;}
-.btn-add-row:hover{background:var(--surface2);}
+.btn-add{background:none;border:0.5px dashed var(--border2);border-radius:var(--radius-xs);padding:8px;font-family:inherit;font-size:13px;color:var(--text2);cursor:pointer;margin-top:6px;width:100%;text-align:center;transition:all 0.12s;}
+.btn-add:hover{background:var(--surface2);}
+.elist{display:flex;flex-direction:column;gap:6px;}
+
+/* ── PROJECT PICKER ── */
+.ppicker{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:300;align-items:flex-end;justify-content:center;}
+.ppicker.open{display:flex;}
+.ppicker-box{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;border-top:0.5px solid var(--border2);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:var(--shadow-lg);animation:slideUp .22s ease;}
+.ppicker-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;text-align:center;}
+.ppicker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:8px;cursor:pointer;color:var(--text);text-align:left;transition:all 0.12s;}
+.ppicker-item:hover,.ppicker-item:active{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2);}
+.ppicker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:10px;cursor:pointer;color:var(--text3);margin-top:4px;}
+
+/* ── EXPORT PRINT ── */
+@media print{
+  .header,.bottom-nav,.mic-section,.stats-row,.filters-scroll,.corr-bar,.edit-hint,.icard-actions,.jdel,.search-box,.empty,.no-print{display:none!important;}
+  body{background:#fff;color:#000;padding:0;}
+  .icard,.jcard{border:1px solid #ddd;margin-bottom:8px;page-break-inside:avoid;}
+  .icard-title,.jtext{color:#000;}
+  .icard-summary,.jtime{color:#555;}
+  .badge{border:1px solid #ddd;}
+  .page{display:block!important;padding:1rem;}
+  .print-title{display:block!important;font-size:18px;font-weight:700;margin-bottom:1rem;padding-bottom:8px;border-bottom:2px solid #000;}
+}
+.print-title{display:none;}
+.btn-export{background:var(--surface2);color:var(--text2);border:0.5px solid var(--border2);border-radius:var(--radius-xs);padding:6px 12px;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.12s;}
+.btn-export:hover{background:var(--surface3);color:var(--text);}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.topbar-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.8px;}
 
 .sync-info{font-size:11px;color:var(--text3);text-align:center;padding:6px;}
-
-.project-picker{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);z-index:300;align-items:flex-end;justify-content:center;}
-.project-picker.open{display:flex;}
-.project-picker-box{background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:var(--shadow-lg);animation:slideUp 0.22s ease;}
-.project-picker-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;text-align:center;}
-.project-picker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:var(--surface2);border:none;border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;cursor:pointer;color:var(--text);text-align:left;transition:background 0.12s;}
-.project-picker-item:hover,.project-picker-item:active{background:var(--blue-bg);color:var(--blue);}
-.project-picker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:10px;cursor:pointer;color:var(--text3);margin-top:4px;}
-
-.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(29,29,31,0.92);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:300;transition:transform 0.25s ease;white-space:nowrap;backdrop-filter:blur(10px);}
+.toast{position:fixed;bottom:calc(var(--nav-h) + 10px);left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface3);color:var(--text);border:0.5px solid var(--border2);padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:400;transition:transform .25s ease;white-space:nowrap;box-shadow:var(--shadow);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
-@media(max-width:480px){.main{padding:1rem 0.75rem 5rem;}.mic-btn{width:68px;height:68px;font-size:26px;}}
+@media(max-width:480px){.page{padding:1rem .75rem 1.5rem;}.mic-btn{width:64px;height:64px;font-size:26px;}}
 </style>
 </head>
 <body>
@@ -162,586 +262,577 @@ select:focus,input[type=date]:focus{border-color:var(--blue);}
 <header class="header">
   <div class="logo">Cap<span>tura</span></div>
   <div class="header-right">
-    <button class="drive-status disconnected" id="driveBtn" onclick="toggleDriveAuth()">
-      <span class="drive-dot"></span><span id="driveBtnText">Drive</span>
+    <button class="drive-pill disconnected" id="driveBtn" onclick="toggleDriveAuth()">
+      <span class="drive-dot"></span><span id="driveTxt">Drive</span>
     </button>
-    <button class="btn-icon-sm" onclick="openSettings()">⚙️</button>
+    <button class="btn-icon-sm" onclick="openSettings()" title="Réglages">⚙️</button>
   </div>
 </header>
 
-<main class="main">
+<!-- ═══ PAGE CAPTURER ═══ -->
+<div class="page active" id="pageCap">
   <div class="mic-section">
-    <div class="mic-label">Nouvelle capture</div>
-    <button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️</button>
+    <div class="section-label">Nouvelle capture</div>
+    <div class="mic-wrap"><button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️</button></div>
     <div class="live-zone empty" id="liveZone">Appuie sur le micro et parle…</div>
-    <div class="edit-hint" id="editHint">✏️ Tu peux corriger le texte ci-dessus — sélectionne un mot pour le mémoriser</div>
-    <div class="correction-bar" id="correctionBar">
+    <div class="edit-hint" id="editHint">✏️ Corrige si besoin — sélectionne un mot pour le mémoriser</div>
+    <div class="corr-bar" id="corrBar">
       <span style="white-space:nowrap">Mémoriser "<strong id="corrFrom"></strong>" →</span>
       <input type="text" class="corr-input" id="corrTo" placeholder="correction…">
-      <button class="btn-memorize" onclick="memorizeCorrection()">Mémoriser ✓</button>
+      <button class="btn-memorize" onclick="memorize()">✓</button>
     </div>
     <div class="meta-row">
-      <select id="domainSelect"><option value="">Domaine (auto)</option></select>
-      <input type="date" id="dateInput">
+      <select id="domSel"><option value="">Domaine (auto)</option></select>
+      <input type="date" id="dateIn">
     </div>
-    <div class="reminder-row" id="reminderRow" style="display:none;">
-      <span class="reminder-label">Rappel</span>
-      <select id="reminderSelect" style="font-family:inherit;font-size:13px;background:var(--surface2);border:0.5px solid var(--border-strong);border-radius:var(--radius-xs);padding:6px 8px;outline:none;">
+    <div class="reminder-row" id="remRow" style="display:none;">
+      <span class="rlabel">Rappel</span>
+      <select id="remSel" style="font-family:inherit;font-size:13px;background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-xs);padding:6px 8px;outline:none;color:var(--text);">
         <option value="1">1 jour avant</option>
         <option value="3">3 jours avant</option>
         <option value="5" selected>5 jours avant</option>
         <option value="7">7 jours avant</option>
       </select>
-      <span class="reminder-label">par email</span>
+      <span class="rlabel">par email</span>
     </div>
-    <button class="btn-analyse" id="analyseBtn" onclick="processEntry()">
+    <button class="btn-primary" id="analyseBtn" onclick="processCapture()">
       <div class="spinner" id="spinner"></div>
-      <span id="analyseText">Analyser</span>
+      <span id="analyseTxt">Analyser</span>
     </button>
   </div>
 
   <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Total</div></div>
-    <div class="stat-card"><div class="stat-num" id="statIdeas">0</div><div class="stat-lbl">Idées</div></div>
-    <div class="stat-card"><div class="stat-num" id="statTodos">0</div><div class="stat-lbl">À faire</div></div>
+    <div class="stat-card"><div class="stat-num" id="sTot">0</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-num" id="sIdeas">0</div><div class="stat-lbl">Idées</div></div>
+    <div class="stat-card"><div class="stat-num" id="sTodos">0</div><div class="stat-lbl">À faire</div></div>
   </div>
 
-  <div class="filters-scroll">
+  <div class="topbar no-print">
+    <div class="topbar-title" id="filterLabel">Toutes les captures</div>
+    <button class="btn-export" onclick="printPage()">🖨️ Exporter</button>
+  </div>
+
+  <div class="filters-scroll no-print">
     <div class="filters-row" id="filtersRow">
-      <button class="filter-pill active-all" onclick="setFilter('all',this)">Tout</button>
-      <button class="filter-pill" onclick="setFilter('idea',this)">Idées</button>
-      <button class="filter-pill" onclick="setFilter('todo',this)">À faire</button>
-      <button class="filter-pill" onclick="setFilter('urgent',this)">Urgent</button>
-      <span id="domainFilters"></span>
+      <button class="fpill a-all" onclick="setFilter('all',this)">Tout</button>
+      <button class="fpill" onclick="setFilter('idea',this)">Idées</button>
+      <button class="fpill" onclick="setFilter('todo',this)">À faire</button>
+      <button class="fpill" onclick="setFilter('urgent',this)">Urgent</button>
+      <span id="domFilters"></span>
     </div>
   </div>
 
+  <div class="print-title" id="printTitle">Captura — Export</div>
   <div id="itemsList"></div>
   <div class="sync-info" id="syncInfo"></div>
-</main>
+</div>
 
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settingsModal">
+<!-- ═══ PAGE JOURNAL ═══ -->
+<div class="page" id="pageJrn">
+  <div class="mic-section">
+    <div class="section-label">Nouvel événement</div>
+    <div class="mic-wrap"><button class="mic-btn" id="jMicBtn" onclick="toggleJMic()">🎙️</button></div>
+    <div class="live-zone empty" id="jLive">Dicte ce qui s'est passé…</div>
+    <div class="date-override">
+      <span class="dover-label">Date :</span>
+      <input type="date" id="jDate">
+      <span class="dover-label" style="font-size:11px;color:var(--text3);">(vide = aujourd'hui)</span>
+    </div>
+    <button class="btn-primary purple" id="jBtn" onclick="processJournal()">
+      <div class="spinner" id="jSpinner"></div>
+      <span id="jBtnTxt">Enregistrer</span>
+    </button>
+  </div>
+
+  <div class="search-box">
+    <div class="search-inner">
+      <input type="text" class="sinput" id="searchIn" placeholder="Rechercher dans le journal…" oninput="searchJournal()" onkeyup="searchJournal()">
+      <button class="smic" id="sMicBtn" onclick="toggleSMic()">🔍</button>
+    </div>
+    <div class="sinfo" id="sInfo"></div>
+  </div>
+
+  <div id="journalList"></div>
+</div>
+
+<!-- ═══ BOTTOM NAV ═══ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="navCap" onclick="switchTab('cap')">
+    <span class="nav-icon">💡</span>
+    <span class="nav-label">Capturer</span>
+  </button>
+  <button class="nav-btn" id="navJrn" onclick="switchTab('jrn')">
+    <span class="nav-icon">📖</span>
+    <span class="nav-label">Journal</span>
+  </button>
+</nav>
+
+<!-- ═══ SETTINGS MODAL ═══ -->
+<div class="overlay" id="settingsModal">
   <div class="modal">
     <div class="modal-handle"></div>
     <h2>Réglages</h2>
-    <div class="hint-text">Clé API : locale sur cet appareil. Tout le reste : synchronisé via Drive sur tous tes appareils.</div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">Clé API Anthropic</div>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-…">
+    <div class="hint">Clé API : locale sur cet appareil. Tout le reste synchronisé via Drive.</div>
+    <div class="msec"><div class="msec-title">Clé API Anthropic</div><input type="password" class="minput" id="apiIn" placeholder="sk-ant-…"></div>
+    <div class="msec"><div class="msec-title">Email pour les rappels</div><input type="email" class="minput" id="emailIn" placeholder="ton@email.com"></div>
+    <div class="msec">
+      <div class="msec-title">Projets / Domaines</div>
+      <div class="hint">Toutes les catégories sont modifiables.</div>
+      <div class="elist" id="catList"></div>
+      <button class="btn-add" onclick="addCat()">+ Ajouter un projet</button>
     </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">Email pour les rappels</div>
-      <input type="email" id="emailInput" placeholder="ton@email.com">
+    <div class="msec">
+      <div class="msec-title">Glossaire vocal</div>
+      <div class="hint">Terme + description. L'IA le reconnaît même phonétiquement déformé. Valable pour Capturer et Journal.</div>
+      <div class="elist" id="glossList"></div>
+      <button class="btn-add" onclick="addGloss()">+ Ajouter un terme</button>
     </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">Projets / Domaines</div>
-      <div class="hint-text">Renomme ou ajoute des catégories. Toutes sont modifiables.</div>
-      <div class="edit-list" id="catList"></div>
-      <button class="btn-add-row" onclick="addCatRow()">+ Ajouter un projet</button>
+    <div class="msec">
+      <div class="msec-title">Corrections phonétiques</div>
+      <div class="hint">Apprises automatiquement. Synchronisées sur tous tes appareils.</div>
+      <div class="elist" id="corrList"></div>
+      <button class="btn-add" onclick="addCorr()">+ Ajouter manuellement</button>
     </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">Glossaire vocal</div>
-      <div class="hint-text">Terme + description. L'IA reconnaît ces termes même phonétiquement déformés par le micro.</div>
-      <div class="edit-list" id="glossList"></div>
-      <button class="btn-add-row" onclick="addGlossRow()">+ Ajouter un terme</button>
-    </div>
-
-    <div class="modal-section">
-      <div class="modal-section-title">Corrections phonétiques</div>
-      <div class="hint-text">Apprises automatiquement quand tu corriges une dictée. Synchronisées sur tous tes appareils via Drive.</div>
-      <div class="edit-list" id="corrList"></div>
-      <button class="btn-add-row" onclick="addCorrRow()">+ Ajouter manuellement</button>
-    </div>
-
-    <div class="modal-footer">
+    <div class="mfooter">
       <button class="btn-cancel" onclick="closeSettings()">Annuler</button>
-      <button class="btn-save" onclick="saveSettings()">Enregistrer et synchroniser</button>
+      <button class="btn-save" onclick="saveSettings()">Enregistrer ✓</button>
     </div>
   </div>
 </div>
 
-<!-- PROJECT PICKER -->
-<div class="project-picker" id="projectPicker">
-  <div class="project-picker-box">
-    <div class="project-picker-title">Dans quel projet classer cette capture ?</div>
-    <div id="projectPickerBtns"></div>
-    <button class="project-picker-skip" onclick="skipProjectPicker()">Laisser sans projet</button>
+<!-- ═══ PROJECT PICKER ═══ -->
+<div class="ppicker" id="ppicker">
+  <div class="ppicker-box">
+    <div class="ppicker-title">Dans quel projet classer cette capture ?</div>
+    <div id="ppickerBtns"></div>
+    <button class="ppicker-skip" onclick="skipPicker()">Laisser sans projet</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const GOOGLE_CLIENT_ID = '505442840775-agomh45sdj2m68dv8d11gaaggt1qsv5b.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-const F_ITEMS = 'captura_items.json';
-const F_SETTINGS = 'captura_settings.json';
-const DEFAULT_CATS = ['Clever2Nexus','Lack Design','Privé','Famille'];
+// ── CONFIG ────────────────────────────────────────────────
+const GID='505442840775-agomh45sdj2m68dv8d11gaaggt1qsv5b.apps.googleusercontent.com';
+const SCOPES='https://www.googleapis.com/auth/drive.appdata';
+const FI='captura_items.json', FJ='captura_journal.json', FS='captura_settings.json';
+const DCATS=['Clever2Nexus','Lack Design','Privé','Famille'];
 
-let items = [];
-let S = { cats:[...DEFAULT_CATS], gloss:[], corrections:[], email:'' };
-let currentFilter='all', recognition=null, isRecording=false;
-let fullText='', selectedWord='';
-let accessToken=null, tokenClient=null, isSyncing=false, fileIds={};
+// ── STATE ─────────────────────────────────────────────────
+let items=[], journal=[];
+let S={cats:[...DCATS],gloss:[],corrections:[],email:''};
+let curFilter='all', curTab='cap';
+let mic=null,jMic=null,sMic=null;
+let recCap=false,recJrn=false,recSrc=false;
+let capTxt='',jrnTxt='',selWord='';
+let token=null,tclient=null,syncing=false,fids={};
+let pending=null;
 
-const ls = {
-  get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
-  set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),
-  str:k=>localStorage.getItem(k)||'',
-  setStr:(k,v)=>localStorage.setItem(k,v)
-};
+const ls={get:k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),str:k=>localStorage.getItem(k)||'',setStr:(k,v)=>localStorage.setItem(k,v)};
+const $=id=>document.getElementById(id);
+const apiKey=()=>ls.str('cap_k');
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-function getApiKey(){return ls.str('cap_apikey');}
-
-// ── DRIVE ────────────────────────────────────────────────
-function initGoogleAuth(){
-  if(typeof google==='undefined'){setTimeout(initGoogleAuth,600);return;}
-  tokenClient=google.accounts.oauth2.initTokenClient({
-    client_id:GOOGLE_CLIENT_ID,scope:SCOPES,
-    callback:async(r)=>{
-      if(r.error){showToast('Drive : '+r.error);return;}
-      accessToken=r.access_token;ls.setStr('cap_token',accessToken);
-      updateDriveUI('connected');await syncFromDrive();
-    }
-  });
-  const t=ls.str('cap_token');
-  if(t){accessToken=t;updateDriveUI('connected');syncFromDrive();}
-  else updateDriveUI('disconnected');
+// ── TABS ──────────────────────────────────────────────────
+function switchTab(t){
+  curTab=t;
+  $('pageCap').className='page'+(t==='cap'?' active':'');
+  $('pageJrn').className='page'+(t==='jrn'?' active':'');
+  $('navCap').className='nav-btn'+(t==='cap'?' active':'');
+  $('navJrn').className='nav-btn'+(t==='jrn'?' active':'');
+  if(t==='jrn')renderJournal(journal);
 }
 
+// ── DRIVE ─────────────────────────────────────────────────
+function initAuth(){
+  if(typeof google==='undefined'){setTimeout(initAuth,600);return;}
+  tclient=google.accounts.oauth2.initTokenClient({client_id:GID,scope:SCOPES,callback:async r=>{
+    if(r.error){toast('Drive : '+r.error);return;}
+    token=r.access_token;ls.setStr('cap_t',token);driveUI('connected');await syncDown();
+  }});
+  const t=ls.str('cap_t');
+  if(t){token=t;driveUI('connected');syncDown();}else driveUI('disconnected');
+}
 function toggleDriveAuth(){
-  if(accessToken){accessToken=null;ls.setStr('cap_token','');fileIds={};updateDriveUI('disconnected');showToast('Drive déconnecté');}
-  else{if(!tokenClient){showToast('Google non chargé');return;}tokenClient.requestAccessToken({prompt:''});}
+  if(token){token=null;ls.setStr('cap_t','');fids={};driveUI('disconnected');toast('Drive déconnecté');}
+  else{if(!tclient){toast('Google non chargé');return;}tclient.requestAccessToken({prompt:''});}
 }
-
-function updateDriveUI(state){
-  const btn=document.getElementById('driveBtn'),txt=document.getElementById('driveBtnText');
-  btn.className='drive-status '+state;
-  if(state==='connected'){txt.textContent='Drive ✓';setSyncInfo('Synchronisé avec Google Drive');}
-  else if(state==='syncing'){txt.textContent='Sync…';setSyncInfo('Synchronisation…');}
-  else{txt.textContent='Drive';setSyncInfo('Non connecté — données locales uniquement');}
+function driveUI(s){
+  const b=$('driveBtn'),t=$('driveTxt');b.className='drive-pill '+s;
+  if(s==='connected'){t.textContent='Drive ✓';setSyncInfo('Synchronisé');}
+  else if(s==='syncing'){t.textContent='Sync…';setSyncInfo('Synchronisation…');}
+  else{t.textContent='Drive';setSyncInfo('Non connecté — local uniquement');}
 }
-function setSyncInfo(m){document.getElementById('syncInfo').textContent=m;}
-
-async function apiCall(method,url,body){
-  const h={'Authorization':'Bearer '+accessToken};
+function setSyncInfo(m){const e=$('syncInfo');if(e)e.textContent=m;}
+async function dFetch(method,url,body){
+  const h={'Authorization':'Bearer '+token};
   let b;
-  if(body instanceof Blob){b=body;}
-  else if(body instanceof FormData){b=body;}
+  if(body instanceof FormData)b=body;
   else if(body){h['Content-Type']='application/json';b=JSON.stringify(body);}
   const r=await fetch(url,{method,headers:h,body:b});
-  if(r.status===401){accessToken=null;ls.setStr('cap_token','');updateDriveUI('disconnected');throw new Error('Token expiré');}
+  if(r.status===401){token=null;ls.setStr('cap_t','');driveUI('disconnected');throw new Error('Token expiré');}
   return r;
 }
-
-async function getFileId(name){
-  if(fileIds[name])return fileIds[name];
+async function getFid(name){
+  if(fids[name])return fids[name];
   const q=encodeURIComponent(`name='${name}' and trashed=false`);
-  const r=await apiCall('GET',`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=appDataFolder&fields=files(id)`);
+  const r=await dFetch('GET',`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=appDataFolder&fields=files(id)`);
   const d=await r.json();
-  if(d.files&&d.files.length){fileIds[name]=d.files[0].id;return fileIds[name];}
+  if(d.files&&d.files.length){fids[name]=d.files[0].id;return fids[name];}
   return null;
 }
-
-async function writeDriveFile(name,data){
-  let fid=await getFileId(name);
-  const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+async function dWrite(name,data){
+  let fid=await getFid(name);
+  const body=JSON.stringify(data);
   if(fid){
-    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,
-      {method:'PATCH',headers:{'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify(data)});
-  } else {
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=media`,{method:'PATCH',headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},body});
+  }else{
     const meta=new Blob([JSON.stringify({name,parents:['appDataFolder']})],{type:'application/json'});
+    const blob=new Blob([body],{type:'application/json'});
     const form=new FormData();form.append('metadata',meta);form.append('file',blob);
-    const r=await apiCall('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',form);
-    const d=await r.json();fileIds[name]=d.id;
+    const r=await dFetch('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',form);
+    const d=await r.json();fids[name]=d.id;
   }
 }
-
-async function readDriveFile(name){
-  const fid=await getFileId(name);if(!fid)return null;
-  const r=await apiCall('GET',`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`);
+async function dRead(name){
+  const fid=await getFid(name);if(!fid)return null;
+  const r=await dFetch('GET',`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`);
   try{return await r.json();}catch{return null;}
 }
-
-async function syncFromDrive(){
-  if(!accessToken||isSyncing)return;
-  isSyncing=true;updateDriveUI('syncing');
+async function syncDown(){
+  if(!token||syncing)return;
+  syncing=true;driveUI('syncing');
   try{
-    const[ri,rs]=await Promise.all([readDriveFile(F_ITEMS),readDriveFile(F_SETTINGS)]);
-    let changed=false;
-    if(Array.isArray(ri)&&ri.length>=items.length){items=ri;changed=true;}
-    if(rs&&typeof rs==='object'){S={...S,...rs};changed=true;}
-    if(changed){saveLocal();renderAll();showToast('Synchronisé ✓');}
-    updateDriveUI('connected');
-  }catch(e){showToast('Sync : '+e.message);updateDriveUI('connected');}
-  finally{isSyncing=false;}
+    const[ri,rj,rs]=await Promise.all([dRead(FI),dRead(FJ),dRead(FS)]);
+    let ch=false;
+    if(Array.isArray(ri)&&ri.length>=items.length){items=ri;ch=true;}
+    if(Array.isArray(rj)&&rj.length>=journal.length){journal=rj;ch=true;}
+    if(rs&&typeof rs==='object'){S={...S,...rs};ch=true;}
+    if(ch){saveLocal();renderAll();if(curTab==='jrn')renderJournal(journal);toast('Synchronisé ✓');}
+    driveUI('connected');
+  }catch(e){toast('Sync : '+e.message);driveUI('connected');}
+  finally{syncing=false;}
 }
-
 async function saveAll(){
-  saveLocal();
-  if(!accessToken)return;
-  isSyncing=true;updateDriveUI('syncing');
-  try{await Promise.all([writeDriveFile(F_ITEMS,items),writeDriveFile(F_SETTINGS,S)]);}
-  catch(e){showToast('Erreur Drive : '+e.message);}
-  finally{isSyncing=false;updateDriveUI('connected');}
+  saveLocal();if(!token)return;
+  syncing=true;driveUI('syncing');
+  try{await Promise.all([dWrite(FI,items),dWrite(FJ,journal),dWrite(FS,S)]);}
+  catch(e){toast('Drive : '+e.message);}
+  finally{syncing=false;driveUI('connected');}
 }
-function saveLocal(){ls.set('cap_items',items);ls.set('cap_settings',S);}
+function saveLocal(){ls.set('cap_i',items);ls.set('cap_j',journal);ls.set('cap_s',S);}
 
-// ── SETTINGS UI ──────────────────────────────────────────
+// ── SETTINGS ──────────────────────────────────────────────
 function openSettings(){
-  document.getElementById('apiKeyInput').value=getApiKey();
-  document.getElementById('emailInput').value=S.email||'';
-  renderCatList(S.cats);renderGlossList(S.gloss);renderCorrList(S.corrections);
-  document.getElementById('settingsModal').classList.add('open');
+  $('apiIn').value=apiKey();$('emailIn').value=S.email||'';
+  renderCats(S.cats);renderGloss(S.gloss);renderCorrs(S.corrections);
+  $('settingsModal').classList.add('open');
 }
-function closeSettings(){document.getElementById('settingsModal').classList.remove('open');}
-
-function renderCatList(cats){
-  document.getElementById('catList').innerHTML=(cats||[]).map((c,i)=>`
-    <div class="edit-row"><input type="text" value="${esc(c)}" id="cat-${i}" placeholder="Projet">
-    <button class="btn-del" onclick="removeCatRow(${i})">✕</button></div>`).join('');
-}
-function addCatRow(){const c=readCatsUI();c.push('');renderCatList(c);document.getElementById(`cat-${c.length-1}`)?.focus();}
-function removeCatRow(i){const c=readCatsUI();c.splice(i,1);renderCatList(c);}
-function readCatsUI(){return[...document.querySelectorAll('#catList .edit-row')].map((_,i)=>(document.getElementById(`cat-${i}`)?.value||'').trim()).filter(Boolean);}
-
-function renderGlossList(g){
-  document.getElementById('glossList').innerHTML=(g||[]).map((e,i)=>`
-    <div class="edit-row">
-      <input type="text" value="${esc(e.term)}" id="gt-${i}" placeholder="Terme" style="flex:0.9;">
-      <span class="edit-arrow">—</span>
-      <input type="text" value="${esc(e.desc)}" id="gd-${i}" placeholder="Description" style="flex:1.5;">
-      <button class="btn-del" onclick="removeGlossRow(${i})">✕</button>
-    </div>`).join('');
-}
-function addGlossRow(){const g=readGlossUI();g.push({term:'',desc:''});renderGlossList(g);document.getElementById(`gt-${g.length-1}`)?.focus();}
-function removeGlossRow(i){const g=readGlossUI();g.splice(i,1);renderGlossList(g);}
-function readGlossUI(){return[...document.querySelectorAll('#glossList .edit-row')].map((_,i)=>({term:(document.getElementById(`gt-${i}`)?.value||'').trim(),desc:(document.getElementById(`gd-${i}`)?.value||'').trim()})).filter(e=>e.term);}
-
-function renderCorrList(c){
-  document.getElementById('corrList').innerHTML=(c||[]).map((e,i)=>`
-    <div class="edit-row">
-      <input type="text" value="${esc(e.from)}" id="cf-${i}" placeholder="Mot dicté" style="flex:1;">
-      <span class="edit-arrow">→</span>
-      <input type="text" value="${esc(e.to)}" id="ct-${i}" placeholder="Correction" style="flex:1;">
-      <button class="btn-del" onclick="removeCorrRow(${i})">✕</button>
-    </div>`).join('');
-}
-function addCorrRow(){const c=readCorrUI();c.push({from:'',to:''});renderCorrList(c);document.getElementById(`cf-${c.length-1}`)?.focus();}
-function removeCorrRow(i){const c=readCorrUI();c.splice(i,1);renderCorrList(c);}
-function readCorrUI(){return[...document.querySelectorAll('#corrList .edit-row')].map((_,i)=>({from:(document.getElementById(`cf-${i}`)?.value||'').trim().toLowerCase(),to:(document.getElementById(`ct-${i}`)?.value||'').trim()})).filter(e=>e.from&&e.to);}
-
+function closeSettings(){$('settingsModal').classList.remove('open');}
+function renderCats(c){$('catList').innerHTML=(c||[]).map((v,i)=>`<div class="erow"><input type="text" value="${esc(v)}" id="cat-${i}" placeholder="Projet"><button class="btn-del" onclick="rmCat(${i})">✕</button></div>`).join('');}
+function addCat(){const c=readCats();c.push('');renderCats(c);$(`cat-${c.length-1}`)?.focus();}
+function rmCat(i){const c=readCats();c.splice(i,1);renderCats(c);}
+function readCats(){return[...document.querySelectorAll('#catList .erow')].map((_,i)=>($(`cat-${i}`)?.value||'').trim()).filter(Boolean);}
+function renderGloss(g){$('glossList').innerHTML=(g||[]).map((e,i)=>`<div class="erow"><input type="text" value="${esc(e.term)}" id="gt-${i}" placeholder="Terme" style="flex:.9;"><span class="earrow">—</span><input type="text" value="${esc(e.desc)}" id="gd-${i}" placeholder="Description" style="flex:1.5;"><button class="btn-del" onclick="rmGloss(${i})">✕</button></div>`).join('');}
+function addGloss(){const g=readGloss();g.push({term:'',desc:''});renderGloss(g);$(`gt-${g.length-1}`)?.focus();}
+function rmGloss(i){const g=readGloss();g.splice(i,1);renderGloss(g);}
+function readGloss(){return[...document.querySelectorAll('#glossList .erow')].map((_,i)=>({term:($(`gt-${i}`)?.value||'').trim(),desc:($(`gd-${i}`)?.value||'').trim()})).filter(e=>e.term);}
+function renderCorrs(c){$('corrList').innerHTML=(c||[]).map((e,i)=>`<div class="erow"><input type="text" value="${esc(e.from)}" id="cf-${i}" placeholder="Mot dicté" style="flex:1;"><span class="earrow">→</span><input type="text" value="${esc(e.to)}" id="ct-${i}" placeholder="Correction" style="flex:1;"><button class="btn-del" onclick="rmCorr(${i})">✕</button></div>`).join('');}
+function addCorr(){const c=readCorrs();c.push({from:'',to:''});renderCorrs(c);$(`cf-${c.length-1}`)?.focus();}
+function rmCorr(i){const c=readCorrs();c.splice(i,1);renderCorrs(c);}
+function readCorrs(){return[...document.querySelectorAll('#corrList .erow')].map((_,i)=>({from:($(`cf-${i}`)?.value||'').trim().toLowerCase(),to:($(`ct-${i}`)?.value||'').trim()})).filter(e=>e.from&&e.to);}
 function saveSettings(){
-  const k=document.getElementById('apiKeyInput').value.trim();
-  if(k)ls.setStr('cap_apikey',k);
-  S.email=document.getElementById('emailInput').value.trim();
-  S.cats=readCatsUI();S.gloss=readGlossUI();S.corrections=readCorrUI();
-  closeSettings();saveAll();renderAll();showToast('Réglages sauvegardés et synchronisés ✓');
+  const k=$('apiIn').value.trim();if(k)ls.setStr('cap_k',k);
+  S.email=$('emailIn').value.trim();S.cats=readCats();S.gloss=readGloss();S.corrections=readCorrs();
+  closeSettings();saveAll();renderAll();toast('Réglages sauvegardés ✓');
 }
-
-function buildGlossPrompt(){
+function glossPrompt(){
   if(!S.gloss||!S.gloss.length)return'';
-  return'\n\nGLOSSAIRE — reconnais ces termes même phonétiquement déformés :\n'+
-    S.gloss.map(e=>`- "${e.term}"${e.desc?' : '+e.desc:''}`).join('\n')+
-    '\nSi un mot ressemble phonétiquement à un terme du glossaire, utilise le terme exact.';
+  return'\n\nGLOSSAIRE — reconnais ces termes même phonétiquement déformés :\n'+S.gloss.map(e=>`- "${e.term}"${e.desc?' : '+e.desc:''}`).join('\n');
 }
-
-function applyCorrections(text){
-  let r=text;
-  (S.corrections||[]).forEach(c=>{
-    if(!c.from)return;
-    const rx=new RegExp('\\b'+c.from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi');
-    r=r.replace(rx,c.to);
-  });
+function applyCorrs(t){
+  let r=t;
+  (S.corrections||[]).forEach(c=>{if(!c.from)return;const rx=new RegExp('\\b'+c.from.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','gi');r=r.replace(rx,c.to);});
   return r;
 }
 
-// ── CORRECTION INTERACTIVE ───────────────────────────────
-function checkSelection(){
-  const sel=window.getSelection();
-  if(!sel||sel.isCollapsed){hideCorrBar();return;}
-  const word=sel.toString().trim();
-  if(word.length<2||word.split(' ').length>2){hideCorrBar();return;}
-  selectedWord=word.toLowerCase();
-  document.getElementById('corrFrom').textContent=word;
-  document.getElementById('corrTo').value='';
-  document.getElementById('correctionBar').classList.add('show');
+// ── PHONETIC CORRECTION ───────────────────────────────────
+function checkSel(){
+  const sel=window.getSelection();if(!sel||sel.isCollapsed){hideCorrBar();return;}
+  const w=sel.toString().trim();if(w.length<2||w.split(' ').length>2){hideCorrBar();return;}
+  selWord=w.toLowerCase();$('corrFrom').textContent=w;$('corrTo').value='';$('corrBar').classList.add('show');
 }
-
-function hideCorrBar(){document.getElementById('correctionBar').classList.remove('show');selectedWord='';}
-
-function memorizeCorrection(){
-  const to=document.getElementById('corrTo').value.trim();
-  if(!to||!selectedWord)return;
+function hideCorrBar(){$('corrBar').classList.remove('show');selWord='';}
+function memorize(){
+  const to=$('corrTo').value.trim();if(!to||!selWord)return;
   S.corrections=S.corrections||[];
-  const ex=S.corrections.find(c=>c.from===selectedWord);
-  if(ex)ex.to=to;else S.corrections.push({from:selectedWord,to});
-  hideCorrBar();saveAll();
-  showToast(`"${selectedWord}" → "${to}" mémorisé ✓`);
+  const ex=S.corrections.find(c=>c.from===selWord);
+  if(ex)ex.to=to;else S.corrections.push({from:selWord,to});
+  hideCorrBar();saveAll();toast(`"${selWord}" → "${to}" mémorisé ✓`);
 }
 
-// ── MIC ──────────────────────────────────────────────────
+// ── MIC: CAPTURE ──────────────────────────────────────────
+function mkSR(lang){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;const r=new SR();r.lang=lang;r.continuous=true;r.interimResults=true;return r;}
 function toggleMic(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){showToast('Micro non dispo — tape directement');return;}
-  if(isRecording){recognition.stop();return;}
-  fullText='';
-  recognition=new SR();
-  recognition.lang='fr-CH';recognition.continuous=true;recognition.interimResults=true;
-
-  recognition.onstart=()=>{
-    isRecording=true;
-    document.getElementById('micBtn').className='mic-btn listening';
-    document.getElementById('micBtn').textContent='⏹️';
-    setLive('Je t\'écoute…',true);
-    hideCorrBar();
-    document.getElementById('editHint').classList.remove('show');
-  };
-
-  recognition.onresult=(e)=>{
-    let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)fullText+=e.results[i][0].transcript+' ';
-      else interim+=e.results[i][0].transcript;
-    }
-    setLive(fullText.trim(),false,interim);
-  };
-
-  recognition.onend=()=>{
-    isRecording=false;
-    document.getElementById('micBtn').className='mic-btn';
-    document.getElementById('micBtn').textContent='🎙️';
-    fullText=fullText.trim();
-    const z=document.getElementById('liveZone');
-    z.contentEditable='true';
-    z.classList.add('editable');
-    document.getElementById('editHint').classList.add('show');
-    setLive(fullText,false,'');
-  };
-
-  recognition.onerror=(e)=>{
-    isRecording=false;
-    document.getElementById('micBtn').className='mic-btn';
-    document.getElementById('micBtn').textContent='🎙️';
-    if(e.error!=='no-speech')showToast('Micro : '+e.error);
-  };
-  recognition.start();
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
+  if(recCap){mic.stop();return;}
+  capTxt='';mic=mkSR('fr-CH');
+  mic.onstart=()=>{recCap=true;$('micBtn').className='mic-btn listening';$('micBtn').textContent='⏹️';setLive('Je t\'écoute…',true);hideCorrBar();$('editHint').classList.remove('show');};
+  mic.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)capTxt+=e.results[i][0].transcript+' ';else it+=e.results[i][0].transcript;}setLive(capTxt.trim(),false,it);};
+  mic.onend=()=>{recCap=false;$('micBtn').className='mic-btn';$('micBtn').textContent='🎙️';capTxt=capTxt.trim();const z=$('liveZone');z.contentEditable='true';z.classList.add('editable');$('editHint').classList.add('show');setLive(capTxt,false,'');};
+  mic.onerror=e=>{recCap=false;$('micBtn').className='mic-btn';$('micBtn').textContent='🎙️';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  mic.start();
 }
-
 function setLive(text,listening,interim){
-  const z=document.getElementById('liveZone');
+  const z=$('liveZone');
   if(listening){z.className='live-zone empty';z.contentEditable='false';z.textContent=text;return;}
   if(!text&&!interim){z.className='live-zone empty';z.contentEditable='false';z.textContent='Appuie sur le micro et parle…';return;}
   z.className='live-zone'+(z.contentEditable==='true'?' editable':'');
   z.innerHTML=`<span>${esc(text)}</span><span style="color:var(--text3)">${esc(interim||'')}</span>`;
 }
 
-// ── PROCESS ──────────────────────────────────────────────
-async function processEntry(){
-  const z=document.getElementById('liveZone');
-  const rawText=(z.innerText||fullText||'').trim();
-  if(!rawText||rawText==='Appuie sur le micro et parle…'||rawText==='Je t\'écoute…'){showToast('Rien à analyser');return;}
-  const apiKey=getApiKey();
-  if(!apiKey){showToast('Configure ta clé API dans Réglages');openSettings();return;}
-
-  const text=applyCorrections(rawText);
-  const domain=document.getElementById('domainSelect').value;
-  const date=document.getElementById('dateInput').value;
-  const reminder=document.getElementById('reminderSelect').value;
-  setLoading(true);
-
-  const cats=S.cats||DEFAULT_CATS;
-  const sys=`Tu es un assistant de classification pour Régis, entrepreneur en Suisse romande.
-Tu analyses des dictées vocales et les classes avec précision sémantique.
-Réponds UNIQUEMENT en JSON valide, sans markdown.
-
-{
-  "type": "idea" ou "todo",
-  "title": "titre clair max 8 mots",
-  "summary": "résumé en 1-2 phrases",
-  "project": "parmi : ${cats.join(', ')}, ou Autre si pas clairement identifiable",
-  "priority": "normal" ou "urgent",
-  "tags": ["tag1","tag2"] max 3
+// ── MIC: JOURNAL ──────────────────────────────────────────
+function toggleJMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
+  if(recJrn){jMic.stop();return;}
+  jrnTxt='';jMic=mkSR('fr-CH');
+  jMic.onstart=()=>{recJrn=true;$('jMicBtn').className='mic-btn listening';$('jMicBtn').textContent='⏹️';setJLive('Je t\'écoute…',true);};
+  jMic.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)jrnTxt+=e.results[i][0].transcript+' ';else it+=e.results[i][0].transcript;}setJLive(jrnTxt.trim(),false,it);};
+  jMic.onend=()=>{recJrn=false;$('jMicBtn').className='mic-btn';$('jMicBtn').textContent='🎙️';jrnTxt=jrnTxt.trim();const z=$('jLive');z.contentEditable='true';z.classList.add('editable');setJLive(jrnTxt,false,'');};
+  jMic.onerror=e=>{recJrn=false;$('jMicBtn').className='mic-btn';$('jMicBtn').textContent='🎙️';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  jMic.start();
+}
+function setJLive(text,listening,interim){
+  const z=$('jLive');
+  if(listening){z.className='live-zone empty';z.contentEditable='false';z.textContent=text;return;}
+  if(!text&&!interim){z.className='live-zone empty';z.contentEditable='false';z.textContent='Dicte ce qui s\'est passé…';return;}
+  z.className='live-zone'+(z.contentEditable==='true'?' editable':'');
+  z.innerHTML=`<span>${esc(text)}</span><span style="color:var(--text3)">${esc(interim||'')}</span>`;
 }
 
-Règles STRICTES :
-- idea = idée, inspiration, concept à explorer
-- todo = tâche concrète, action, appel, document, deadline
-- urgent = si explicitement dit ou date < 7 jours
-- IMPORTANT : N'attribue un projet que si clairement mentionné ou très fortement impliqué. Si doute → "Autre"
-- "carton décharge" → Privé. "harnais magnétique" → Clever2Nexus. "plan cuisine 3D" → Lack Design
-- Domaine forcé : ${domain||'auto'}${buildGlossPrompt()}`;
+// ── MIC: SEARCH ───────────────────────────────────────────
+function toggleSMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
+  if(recSrc){sMic.stop();return;}
+  sMic=new(window.SpeechRecognition||window.webkitSpeechRecognition)();sMic.lang='fr-CH';sMic.continuous=false;sMic.interimResults=false;
+  sMic.onstart=()=>{recSrc=true;$('sMicBtn').className='smic listening';$('sMicBtn').textContent='⏹️';};
+  sMic.onresult=e=>{$('searchIn').value=e.results[0][0].transcript;searchJournal();};
+  sMic.onend=()=>{recSrc=false;$('sMicBtn').className='smic';$('sMicBtn').textContent='🔍';};
+  sMic.onerror=()=>{recSrc=false;$('sMicBtn').className='smic';$('sMicBtn').textContent='🔍';};
+  sMic.start();
+}
 
+// ── PROCESS CAPTURE ───────────────────────────────────────
+async function processCapture(){
+  const z=$('liveZone');
+  const raw=(z.innerText||capTxt||'').trim();
+  if(!raw||['Appuie sur le micro et parle…','Je t\'écoute…'].includes(raw)){toast('Rien à analyser');return;}
+  const k=apiKey();if(!k){toast('Configure ta clé API dans Réglages');openSettings();return;}
+  const text=applyCorrs(raw);
+  const dom=$('domSel').value,date=$('dateIn').value,rem=$('remSel').value;
+  setLoad(true,'analyseBtn','spinner','analyseTxt','Analyser');
+  const cats=S.cats||DCATS;
+  const sys=`Tu es l'assistant de classification de Régis, entrepreneur en Suisse.
+Réponds UNIQUEMENT en JSON valide sans markdown.
+{"type":"idea"|"todo","title":"max 8 mots","summary":"1-2 phrases","project":"parmi:${cats.join(',')} ou Autre si incertain","priority":"normal"|"urgent","tags":["t1","t2"] max 3}
+Règles: idea=idée/inspiration, todo=tâche/action concrète. urgent=si dit ou date<7j. N'attribue projet que si CLAIREMENT mentionné sinon Autre. dom forcé:${dom||'auto'}${glossPrompt()}`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:400,system:sys,messages:[{role:'user',content:text}]})
-    });
-    if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Erreur API');}
-    const d=await r.json();
-    const raw=d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
-    const p=JSON.parse(raw);
-
-    const newItem = {
-      id:Date.now(),original:rawText,corrected:text!==rawText?text:null,
-      type:p.type||'todo',title:p.title||rawText.slice(0,60),summary:p.summary||'',
-      project:domain||p.project||'',priority:p.priority||'normal',
-      tags:p.tags||[],date:date||'',reminder:date?reminder:'',
-      driveSync:!!accessToken,createdAt:new Date().toISOString()
-    };
-
-    // Reset form
-    fullText='';
-    z.contentEditable='false';z.classList.remove('editable');
-    setLive('',false,'');
-    document.getElementById('editHint').classList.remove('show');
-    document.getElementById('domainSelect').value='';
-    document.getElementById('dateInput').value='';
-    document.getElementById('reminderRow').style.display='none';
-    hideCorrBar();
-
-    // If project unclear and no forced domain → ask user
-    const unclear = !domain && (!p.project || p.project==='Autre' || p.project==='autre');
-    if (unclear) {
-      showProjectPicker(newItem);
-    } else {
-      await finalizeItem(newItem);
-    }
-  }catch(e){showToast('Erreur : '+e.message.slice(0,60));}
-  finally{setLoading(false);}
+    const r=await callAI(k,sys,text,400);
+    const p=JSON.parse(r);
+    const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:p.type||'todo',title:p.title||raw.slice(0,60),summary:p.summary||'',project:dom||p.project||'',priority:p.priority||'normal',tags:p.tags||[],date:date||'',reminder:date?rem:'',driveSync:!!token,createdAt:new Date().toISOString()};
+    capTxt='';z.contentEditable='false';z.classList.remove('editable');setLive('',false,'');
+    $('editHint').classList.remove('show');$('domSel').value='';$('dateIn').value='';$('remRow').style.display='none';hideCorrBar();
+    const unclear=!dom&&(!p.project||['Autre','autre',''].includes(p.project));
+    if(unclear)showPicker(item);else await finalize(item);
+  }catch(e){toast('Erreur : '+e.message.slice(0,60));}
+  finally{setLoad(false,'analyseBtn','spinner','analyseTxt','Analyser');}
 }
 
-function setLoading(on){
-  document.getElementById('analyseBtn').disabled=on;
-  document.getElementById('spinner').style.display=on?'block':'none';
-  document.getElementById('analyseText').textContent=on?'Analyse…':'Analyser';
+// ── PROCESS JOURNAL ───────────────────────────────────────
+async function processJournal(){
+  const z=$('jLive');
+  const raw=(z.innerText||jrnTxt||'').trim();
+  if(!raw||['Dicte ce qui s\'est passé…','Je t\'écoute…'].includes(raw)){toast('Rien à enregistrer');return;}
+  const k=apiKey();if(!k){toast('Configure ta clé API dans Réglages');openSettings();return;}
+  const text=applyCorrs(raw);
+  const ovDate=$('jDate').value;
+  setLoad(true,'jBtn','jSpinner','jBtnTxt','Enregistrer');
+  const sys=`Tu es l'assistant mémoire de Régis. Il dicte des événements de sa vie.
+Réponds UNIQUEMENT en JSON valide sans markdown.
+{"summary":"résumé clair 1-3 phrases en français","persons":["noms personnes"],"places":["lieux"],"amounts":["montants avec devise"],"keywords":["5-8 mots-clés pour retrouver"]}
+${glossPrompt()}`;
+  try{
+    const r=await callAI(k,sys,text,500);
+    const p=JSON.parse(r);
+    const entry={id:Date.now(),original:raw,summary:p.summary||raw,persons:p.persons||[],places:p.places||[],amounts:p.amounts||[],keywords:p.keywords||[],date:ovDate||new Date().toISOString().split('T')[0],driveSync:!!token,createdAt:new Date().toISOString()};
+    journal.unshift(entry);await saveAll();
+    jrnTxt='';z.contentEditable='false';z.classList.remove('editable');setJLive('',false,'');$('jDate').value='';
+    renderJournal(journal);toast('📖 Événement enregistré');
+  }catch(e){toast('Erreur : '+e.message.slice(0,60));}
+  finally{setLoad(false,'jBtn','jSpinner','jBtnTxt','Enregistrer');}
 }
 
-// ── PROJECT PICKER ───────────────────────────────────────
-let pendingItem = null;
-
-function showProjectPicker(item) {
-  pendingItem = item;
-  const btns = document.getElementById('projectPickerBtns');
-  btns.innerHTML = (S.cats||[]).map(c=>
-    `<button class="project-picker-item" onclick="assignProject('${esc(c)}')">${esc(c)}</button>`
-  ).join('');
-  document.getElementById('projectPicker').classList.add('open');
+async function callAI(k,sys,text,maxTok){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':k,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:maxTok,system:sys,messages:[{role:'user',content:text}]})});
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'API error');}
+  const d=await r.json();
+  return d.content[0].text.trim().replace(/^```json\s*/i,'').replace(/^```/,'').replace(/```$/,'').trim();
 }
 
-function assignProject(cat) {
-  if(!pendingItem)return;
-  pendingItem.project=cat;
-  document.getElementById('projectPicker').classList.remove('open');
-  finalizeItem(pendingItem);
-  pendingItem=null;
+function setLoad(on,btnId,spId,txtId,label){
+  $(btnId).disabled=on;$(spId).style.display=on?'block':'none';$(txtId).textContent=on?(btnId==='jBtn'?'Analyse…':'Analyse…'):label;
 }
 
-function skipProjectPicker() {
-  document.getElementById('projectPicker').classList.remove('open');
-  if(pendingItem){finalizeItem(pendingItem);pendingItem=null;}
+// ── EDIT CAPTURE ──────────────────────────────────────────
+function startEdit(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  const card=document.getElementById(`card-${id}`);if(!card)return;
+  card.classList.add('editing');
+  card.innerHTML=`
+    <div class="msec-title" style="margin-bottom:8px;">Modifier la capture</div>
+    <input class="edit-field" id="et-${id}" value="${esc(item.title)}" placeholder="Titre">
+    <textarea class="edit-field" id="es-${id}" rows="2" placeholder="Résumé">${esc(item.summary)}</textarea>
+    <div class="edit-actions">
+      <button class="btn-edit-cancel" onclick="cancelEdit(${id})">Annuler</button>
+      <button class="btn-edit-save" onclick="saveEdit(${id})">Sauvegarder ✓</button>
+    </div>`;
+  document.getElementById(`et-${id}`)?.focus();
+}
+function cancelEdit(id){renderItems();}
+async function saveEdit(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  item.title=(document.getElementById(`et-${id}`)?.value||'').trim()||item.title;
+  item.summary=(document.getElementById(`es-${id}`)?.value||'').trim();
+  await saveAll();renderItems();toast('Modifié ✓');
 }
 
-async function finalizeItem(item) {
-  items.unshift(item);
-  await saveAll();
-  renderAll();
-  showToast(item.type==='idea'?'💡 Idée capturée':'✅ Tâche ajoutée');
+// ── SEARCH JOURNAL ────────────────────────────────────────
+function searchJournal(){
+  const q=$('searchIn').value.trim().toLowerCase();
+  const info=$('sInfo');
+  if(!q){info.classList.remove('show');renderJournal(journal);return;}
+  const res=journal.filter(e=>{
+    const blob=(e.summary+' '+e.original+' '+(e.persons||[]).join(' ')+(e.places||[]).join(' ')+(e.keywords||[]).join(' ')).toLowerCase();
+    return q.split(' ').filter(Boolean).every(w=>blob.includes(w));
+  });
+  info.textContent=res.length?`${res.length} résultat${res.length>1?'s':''}`:' Aucun résultat';
+  info.classList.add('show');
+  renderJournal(res,true);
 }
 
-// ── FILTERS & RENDER ─────────────────────────────────────
-function setFilter(f,el){
-  currentFilter=f;
-  document.querySelectorAll('.filter-pill').forEach(p=>p.className='filter-pill');
-  if(f==='all')el.classList.add('active-all');
-  else if(f==='idea')el.classList.add('active-idea');
-  else if(f==='todo')el.classList.add('active-todo');
-  else if(f==='urgent')el.classList.add('active-urgent');
-  else el.classList.add('active-domain');
-  renderItems();
-}
-
-function renderAll(){renderDomainSelect();renderDomainFilters();renderItems();updateStats();}
-
-function renderItems(){
-  const list=document.getElementById('itemsList');
-  let f=[...items];
-  if(currentFilter==='idea')f=f.filter(i=>i.type==='idea');
-  else if(currentFilter==='todo')f=f.filter(i=>i.type==='todo');
-  else if(currentFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
-  else if(currentFilter!=='all')f=f.filter(i=>i.project===currentFilter);
-  if(!f.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">🎙️</div><p>${items.length===0?'Aucune capture.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
-  const todos=f.filter(i=>i.type==='todo'),ideas=f.filter(i=>i.type==='idea');
+// ── RENDER JOURNAL ────────────────────────────────────────
+function renderJournal(entries,isSearch){
+  const list=$('journalList');
+  if(!entries||!entries.length){list.innerHTML=`<div class="empty"><div class="empty-icon">📖</div><p>${journal.length===0?'Ton journal est vide.<br>Dicte ton premier événement.':'Aucun résultat.'}</p></div>`;return;}
+  const byDate={};
+  entries.forEach(e=>{const d=e.date||e.createdAt?.split('T')[0]||'?';if(!byDate[d])byDate[d]=[];byDate[d].push(e);});
+  const dates=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
   let h='';
-  if(todos.length&&currentFilter!=='idea'){h+=`<div class="section-title"><span class="section-dot dot-todo"></span>À faire (${todos.length})</div>`;todos.forEach(i=>h+=card(i));}
-  if(ideas.length&&currentFilter!=='todo'){h+=`<div class="section-title"><span class="section-dot dot-idea"></span>Idées (${ideas.length})</div>`;ideas.forEach(i=>h+=card(i));}
+  dates.forEach(d=>{
+    h+=`<div class="jdate-header">${fmtDateFull(d)}</div>`;
+    byDate[d].forEach(e=>{
+      const ps=(e.persons||[]).map(p=>`<span class="badge b-person">👤 ${esc(p)}</span>`).join('');
+      const pl=(e.places||[]).map(p=>`<span class="badge b-dom">📍 ${esc(p)}</span>`).join('');
+      const am=(e.amounts||[]).map(a=>`<span class="badge b-date">💰 ${esc(a)}</span>`).join('');
+      const kw=(e.keywords||[]).slice(0,3).map(k=>`<span class="badge b-tag">${esc(k)}</span>`).join('');
+      const drv=e.driveSync?'<span class="badge b-drive">Drive ✓</span>':'';
+      h+=`<div class="jcard${isSearch?' smatch':''}">
+        <div class="jtime">${fmtTime(e.createdAt)}</div>
+        <div class="jtext">${esc(e.summary)}</div>
+        <div class="jentities">${ps}${pl}${am}${kw}${drv}</div>
+        <div class="jcard-original">${esc(e.original)}</div>
+        <div class="jdel"><button class="ibtn red" onclick="delJrn(${e.id})">✕</button></div>
+      </div>`;
+    });
+  });
   list.innerHTML=h;
 }
+function delJrn(id){journal=journal.filter(e=>e.id!==id);saveAll();renderJournal(journal);toast('Supprimé');}
 
-function card(item){
-  const u=item.priority==='urgent',cls=u?'urgent':(item.type==='idea'?'idea-type':'todo-type');
-  const tB=item.type==='idea'?'<span class="badge badge-idea">Idée</span>':'<span class="badge badge-todo">À faire</span>';
-  const uB=u?'<span class="badge badge-urgent">Urgent</span>':'';
-  const dB=item.project?`<span class="badge badge-domain">${esc(item.project)}</span>`:'';
-  const tags=(item.tags||[]).map(t=>`<span class="badge badge-project">${esc(t)}</span>`).join('');
-  const date=item.date?`<span class="badge badge-date">📅 ${fmtDate(item.date)}</span>`:'';
-  const drv=item.driveSync?'<span class="badge badge-drive">Drive ✓</span>':'';
-  const done=item.type==='todo'?`<button class="btn-act" onclick="markDone(${item.id})">✓</button>`:'';
-  return`<div class="item-card ${cls}"><div class="item-top"><div class="item-content">
-    <div class="item-title">${esc(item.title)}</div>
-    ${item.summary?`<div class="item-summary">${esc(item.summary)}</div>`:''}
-    <div class="item-badges">${tB}${uB}${dB}${tags}${date}${drv}</div>
-    <div class="item-original">${esc(item.original)}</div>
-  </div><div class="item-actions">${done}<button class="btn-act" onclick="deleteItem(${item.id})">✕</button></div></div></div>`;
+// ── PROJECT PICKER ────────────────────────────────────────
+function showPicker(item){
+  pending=item;
+  $('ppickerBtns').innerHTML=(S.cats||[]).map(c=>`<button class="ppicker-item" onclick="pickProject('${esc(c)}')">${esc(c)}</button>`).join('');
+  $('ppicker').classList.add('open');
 }
+function pickProject(c){if(!pending)return;pending.project=c;$('ppicker').classList.remove('open');finalize(pending);pending=null;}
+function skipPicker(){$('ppicker').classList.remove('open');if(pending){finalize(pending);pending=null;}}
+async function finalize(item){items.unshift(item);await saveAll();renderAll();toast(item.type==='idea'?'💡 Idée capturée':'✅ Tâche ajoutée');}
 
+// ── RENDER CAPTURES ───────────────────────────────────────
+function setFilter(f,el){
+  curFilter=f;
+  document.querySelectorAll('.fpill').forEach(p=>p.className='fpill');
+  const cls={all:'a-all',idea:'a-idea',todo:'a-todo',urgent:'a-urgent'};
+  el.classList.add(cls[f]||'a-dom');
+  const labels={all:'Toutes les captures',idea:'Idées',todo:'À faire',urgent:'Urgent'};
+  $('filterLabel').textContent=labels[f]||f;
+  $('printTitle').textContent=`Captura — ${labels[f]||f}`;
+  renderItems();
+}
+function renderAll(){renderDomSel();renderDomFilters();renderItems();updateStats();}
+function renderItems(){
+  const list=$('itemsList');
+  let f=[...items];
+  if(curFilter==='idea')f=f.filter(i=>i.type==='idea');
+  else if(curFilter==='todo')f=f.filter(i=>i.type==='todo');
+  else if(curFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
+  else if(curFilter!=='all')f=f.filter(i=>i.project===curFilter);
+  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">💡</div><p>${items.length===0?'Aucune capture.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
+  const todos=f.filter(i=>i.type==='todo'),ideas=f.filter(i=>i.type==='idea');
+  let h='';
+  if(todos.length&&curFilter!=='idea'){h+=`<div class="sec-head"><span class="sec-dot dot-todo"></span>À faire (${todos.length})</div>`;todos.forEach(i=>h+=icard(i));}
+  if(ideas.length&&curFilter!=='todo'){h+=`<div class="sec-head"><span class="sec-dot dot-idea"></span>Idées (${ideas.length})</div>`;ideas.forEach(i=>h+=icard(i));}
+  list.innerHTML=h;
+}
+function icard(item){
+  const u=item.priority==='urgent',cls=u?'urg':(item.type==='idea'?'idea-t':'todo-t');
+  const tB=item.type==='idea'?'<span class="badge b-idea">Idée</span>':'<span class="badge b-todo">À faire</span>';
+  const uB=u?'<span class="badge b-urg">Urgent</span>':'';
+  const dB=item.project&&item.project!=='Autre'?`<span class="badge b-dom">${esc(item.project)}</span>`:'';
+  const tags=(item.tags||[]).map(t=>`<span class="badge b-tag">${esc(t)}</span>`).join('');
+  const date=item.date?`<span class="badge b-date">📅 ${fmtDate(item.date)}</span>`:'';
+  const drv=item.driveSync?'<span class="badge b-drive">Drive ✓</span>':'';
+  const done=item.type==='todo'?`<button class="ibtn green" onclick="markDone(${item.id})" title="Fait">✓</button>`:'';
+  return`<div class="icard ${cls}" id="card-${item.id}"><div class="icard-top"><div class="icard-body"><div class="icard-title">${esc(item.title)}</div>${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}<div class="icard-badges">${tB}${uB}${dB}${tags}${date}${drv}</div><div class="icard-original">${esc(item.original)}</div></div><div class="icard-actions">${done}<button class="ibtn" onclick="startEdit(${item.id})" title="Modifier">✏️</button><button class="ibtn red" onclick="delItem(${item.id})" title="Supprimer">✕</button></div></div></div>`;
+}
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function markDone(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();showToast('Tâche terminée ✓');}
-function deleteItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();showToast('Supprimé');}
-function updateStats(){
-  document.getElementById('statTotal').textContent=items.length;
-  document.getElementById('statIdeas').textContent=items.filter(i=>i.type==='idea').length;
-  document.getElementById('statTodos').textContent=items.filter(i=>i.type==='todo').length;
-}
-function renderDomainSelect(){
-  const sel=document.getElementById('domainSelect'),prev=sel.value;
-  sel.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===prev?' selected':''}>${esc(c)}</option>`).join('');
-}
-function renderDomainFilters(){
-  document.getElementById('domainFilters').innerHTML=(S.cats||[]).map(c=>`<button class="filter-pill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');
-}
+function fmtDateFull(d){try{return new Date(d+'T12:00:00').toLocaleDateString('fr-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch{return d;}}
+function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}}
+function markDone(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Tâche terminée ✓');}
+function delItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Supprimé');}
+function updateStats(){$('sTot').textContent=items.length;$('sIdeas').textContent=items.filter(i=>i.type==='idea').length;$('sTodos').textContent=items.filter(i=>i.type==='todo').length;}
+function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
+function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
 
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+// ── EXPORT ────────────────────────────────────────────────
+function printPage(){
+  $('printTitle').style.display='block';
+  window.print();
+  setTimeout(()=>$('printTitle').style.display='none',500);
 }
 
-document.getElementById('dateInput').addEventListener('change',function(){
-  document.getElementById('reminderRow').style.display=this.value?'flex':'none';
-});
+// ── TOAST ─────────────────────────────────────────────────
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 
-document.getElementById('liveZone').addEventListener('mouseup',checkSelection);
-document.getElementById('liveZone').addEventListener('touchend',()=>setTimeout(checkSelection,100));
-document.getElementById('liveZone').addEventListener('input',()=>{fullText=document.getElementById('liveZone').innerText||'';});
+// ── EVENTS ────────────────────────────────────────────────
+$('dateIn').addEventListener('change',function(){$('remRow').style.display=this.value?'flex':'none';});
+$('liveZone').addEventListener('mouseup',checkSel);
+$('liveZone').addEventListener('touchend',()=>setTimeout(checkSel,100));
+$('liveZone').addEventListener('input',()=>{capTxt=$('liveZone').innerText||'';});
 
-// ── INIT ─────────────────────────────────────────────────
-items=ls.get('cap_items')||[];
-const savedS=ls.get('cap_settings');
-if(savedS&&typeof savedS==='object'){S={...S,...savedS};}
-if(!S.cats||!S.cats.length)S.cats=[...DEFAULT_CATS];
+// ── INIT ──────────────────────────────────────────────────
+items=ls.get('cap_i')||[];
+journal=ls.get('cap_j')||[];
+const ss=ls.get('cap_s');
+if(ss&&typeof ss==='object')S={...S,...ss};
+if(!S.cats?.length)S.cats=[...DCATS];
 if(!S.gloss)S.gloss=[];
 if(!S.corrections)S.corrections=[];
 
 renderAll();
-window.addEventListener('load',()=>setTimeout(initGoogleAuth,600));
-if(!getApiKey())setTimeout(()=>showToast('Configure ta clé API dans Réglages ⚙️'),1000);
+window.addEventListener('load',()=>setTimeout(initAuth,600));
+if(!apiKey())setTimeout(()=>toast('Configure ta clé API dans Réglages ⚙️'),1000);
 </script>
 </body>
 </html>
