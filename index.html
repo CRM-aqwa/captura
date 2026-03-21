@@ -67,6 +67,8 @@ body{font-family:'DM Sans',-apple-system,'Segoe UI',sans-serif;background:var(--
 #navCap.active .nav-icon{color:var(--accent);}
 #navJrn.active .nav-icon{color:var(--accent2);}
 #navJrn.active .nav-label{color:var(--accent2);}
+#navIdea.active .nav-icon{color:var(--green);}
+#navIdea.active .nav-label{color:var(--green);}
 
 /* ── PAGES ── */
 .page{display:none;padding:1.25rem 1rem 1.5rem;max-width:600px;margin:0 auto;}
@@ -296,6 +298,63 @@ select option{background:var(--surface2);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 @media(max-width:480px){.page{padding:1rem .75rem 1.5rem;}.mic-btn{width:64px;height:64px;font-size:26px;}}
+
+/* ── IDÉES PAGE ── */
+.idea-action-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.25rem;}
+.idea-big-btn{border-radius:18px;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:22px 16px;transition:transform 0.12s,opacity 0.15s;-webkit-tap-highlight-color:transparent;}
+.idea-big-btn:active{transform:scale(0.97);}
+.idea-big-btn .ibtn-label{font-size:16px;font-weight:600;letter-spacing:0.2px;margin:0;color:inherit;}
+.idea-big-btn .ibtn-sub{font-size:12px;opacity:0.65;margin:0;color:inherit;}
+.ibtn-search{background:var(--bg3);color:#A5A5FF;border:1px solid rgba(165,165,255,0.22);}
+.ibtn-search:hover{background:var(--surface2);}
+.ibtn-new{background:var(--accent);color:#fff;box-shadow:0 4px 20px rgba(255,107,53,0.3);}
+.ibtn-new:hover{opacity:0.9;}
+
+/* Panneau de saisie idée (slide-in) */
+.idea-input-panel{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:1.25rem;margin-bottom:1rem;display:none;}
+.idea-input-panel.open{display:block;}
+.idea-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.idea-panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);}
+.idea-panel-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1;padding:0;}
+
+/* Panneau de recherche */
+.idea-search-panel{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);padding:1.25rem;margin-bottom:1rem;display:none;}
+.idea-search-panel.open{display:block;}
+.idea-search-inner{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.idea-sinput{flex:1;font-family:inherit;font-size:15px;color:var(--text);background:var(--bg3);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 14px;outline:none;}
+.idea-sinput:focus{border-color:var(--green);}
+.idea-smic{width:42px;height:42px;border-radius:50%;border:none;background:rgba(48,209,88,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;}
+.idea-smic:hover{background:var(--green);color:#000;}
+.idea-smic.listening{background:var(--green);animation:micPulse 1.4s infinite;}
+.idea-slive{font-size:13px;color:var(--green);margin-top:6px;padding:6px 10px;background:var(--green-dim);border-radius:var(--radius-xs);display:none;}
+.idea-sinfo{font-size:12px;color:var(--green);margin-top:6px;text-align:center;display:none;}
+.idea-sinfo.show{display:block;}
+.btn-idea-smart{width:100%;background:var(--green-dim);color:var(--green);border:0.5px solid var(--green);border-radius:var(--radius-xs);padding:8px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;display:none;}
+
+/* Filtres idées */
+.idea-filters{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.idea-filters::-webkit-scrollbar{display:none;}
+.idfpill{font-size:12px;font-weight:600;padding:5px 13px;border-radius:99px;border:0.5px solid var(--border2);cursor:pointer;color:var(--text2);background:var(--surface);white-space:nowrap;transition:all 0.12s;}
+.idfpill.active{background:var(--green-dim);color:var(--green);border-color:var(--green);}
+.idfpill.active-proj{background:var(--text);color:var(--bg);border-color:var(--text);}
+
+/* Badge domaine fonctionnel */
+.b-func{background:rgba(48,209,88,0.12);color:var(--green);}
+
+/* Domain picker (comme ppicker) */
+.dpicker{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:300;align-items:flex-end;justify-content:center;}
+.dpicker.open{display:flex;}
+.dpicker-box{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;border-top:0.5px solid var(--border2);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:var(--shadow-lg);animation:slideUp .22s ease;}
+.dpicker-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px;text-align:center;}
+.dpicker-subtitle{font-size:11px;color:var(--text3);text-align:center;margin-bottom:14px;}
+.dpicker-btns{display:flex;flex-direction:column;gap:8px;}
+.dpicker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;color:var(--text);text-align:left;transition:all 0.12s;}
+.dpicker-item:hover{background:var(--green-dim);color:var(--green);border-color:var(--green);}
+.dpicker-custom{display:flex;gap:8px;margin-top:4px;}
+.dpicker-custom input{flex:1;font-family:inherit;font-size:15px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:11px 14px;outline:none;}
+.dpicker-custom input:focus{border-color:var(--green);}
+.dpicker-custom button{background:var(--green);color:#000;border:none;border-radius:var(--radius-sm);padding:11px 18px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.dpicker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:10px;cursor:pointer;color:var(--text3);margin-top:4px;}
 </style>
 </head>
 <body>
@@ -401,6 +460,74 @@ select option{background:var(--surface2);}
   <div id="journalList"></div>
 </div>
 
+<!-- ═══ PAGE IDÉES ═══ -->
+<div class="page" id="pageIdea">
+
+  <!-- Deux grands boutons -->
+  <div class="idea-action-btns">
+    <button class="idea-big-btn ibtn-search" onclick="toggleIdeaSearch()">
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+        <circle cx="19" cy="19" r="11" stroke="#A5A5FF" stroke-width="2.4"/>
+        <line x1="27.5" y1="27.5" x2="37" y2="37" stroke="#A5A5FF" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <span class="ibtn-label">Chercher</span>
+      <span class="ibtn-sub">Dicter ou taper</span>
+    </button>
+    <button class="idea-big-btn ibtn-new" onclick="toggleIdeaInput()">
+      <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+        <path d="M22 5C15.925 5 11 9.925 11 16c0 3.9 1.95 7.35 4.95 9.45V29a1 1 0 0 0 1 1h10.1a1 1 0 0 0 1-1v-3.55C31.05 23.35 33 19.9 33 16c0-6.075-4.925-11-11-11z" stroke="white" stroke-width="2.1" stroke-linejoin="round"/>
+        <line x1="16.5" y1="34" x2="27.5" y2="34" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="18.5" y1="37.5" x2="25.5" y2="37.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="33" cy="11" r="7.5" fill="white"/>
+        <line x1="33" y1="7.5" x2="33" y2="14.5" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="29.5" y1="11" x2="36.5" y2="11" stroke="#FF6B35" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <span class="ibtn-label">Nouvelle idée</span>
+      <span class="ibtn-sub">Dicter maintenant</span>
+    </button>
+  </div>
+
+  <!-- Panneau saisie idée -->
+  <div class="idea-input-panel" id="ideaInputPanel">
+    <div class="idea-panel-header">
+      <span class="idea-panel-title">Nouvelle idée</span>
+      <button class="idea-panel-close" onclick="closeIdeaInput()">×</button>
+    </div>
+    <div class="mic-wrap"><button class="mic-btn" id="iMicBtn" onclick="toggleIMic()">🎙️</button></div>
+    <div class="live-zone empty" id="iLiveZone">Appuie sur le micro et parle…</div>
+    <div class="edit-hint" id="iEditHint">✏️ Corrige si besoin</div>
+    <button class="btn-primary" id="iAnalyseBtn" onclick="processIdea()" style="background:var(--green);margin-top:12px;">
+      <div class="spinner" id="iSpinner"></div>
+      <span id="iAnalyseTxt">Analyser l'idée</span>
+    </button>
+  </div>
+
+  <!-- Panneau recherche -->
+  <div class="idea-search-panel" id="ideaSearchPanel">
+    <div class="idea-panel-header">
+      <span class="idea-panel-title">Rechercher</span>
+      <button class="idea-panel-close" onclick="closeIdeaSearch()">×</button>
+    </div>
+    <div class="idea-search-inner">
+      <input type="text" class="idea-sinput" id="ideaSearchIn" placeholder="Que cherches-tu ?" oninput="filterIdeas()" onkeyup="filterIdeas()">
+      <button class="idea-smic" id="iSMicBtn" onclick="toggleISMic()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/>
+        </svg>
+      </button>
+    </div>
+    <div class="idea-slive" id="iSLive"><span id="iSLiveTxt">Je t'écoute…</span></div>
+    <button class="btn-idea-smart" id="btnIdeaSmart" onclick="ideaSmartSearch()">Recherche intelligente (IA)</button>
+    <div class="idea-sinfo" id="ideaSInfo"></div>
+  </div>
+
+  <!-- Filtres projet -->
+  <div class="idea-filters" id="ideaFilters"></div>
+
+  <!-- Liste des idées -->
+  <div id="ideaList"></div>
+</div>
+
 <!-- ═══ BOTTOM NAV ═══ -->
 <nav class="bottom-nav">
   <button class="nav-btn active" id="navCap" onclick="switchTab('cap')">
@@ -410,6 +537,15 @@ select option{background:var(--surface2);}
       </svg>
     </span>
     <span class="nav-label">Capturer</span>
+  </button>
+  <button class="nav-btn" id="navIdea" onclick="switchTab('idea')">
+    <span class="nav-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-3 9H8c0-3-3-5-3-9a7 7 0 0 1 7-7z"/><line x1="8" y1="22" x2="16" y2="22"/><line x1="9" y1="18" x2="15" y2="18"/>
+        <circle cx="17" cy="7" r="4" fill="currentColor" stroke="none"/><line x1="17" y1="5" x2="17" y2="9" stroke="white" stroke-width="1.5"/><line x1="15" y1="7" x2="19" y2="7" stroke="white" stroke-width="1.5"/>
+      </svg>
+    </span>
+    <span class="nav-label">Idées</span>
   </button>
   <button class="nav-btn" id="navJrn" onclick="switchTab('jrn')">
     <span class="nav-icon">
@@ -517,6 +653,20 @@ select option{background:var(--surface2);}
   </div>
 </div>
 
+<!-- DOMAIN PICKER -->
+<div class="dpicker" id="dpicker">
+  <div class="dpicker-box">
+    <div class="dpicker-title" id="dpickerTitle">Dans quel domaine classer cette idée ?</div>
+    <div class="dpicker-subtitle" id="dpickerSubtitle"></div>
+    <div class="dpicker-btns" id="dpickerBtns"></div>
+    <div class="dpicker-custom">
+      <input type="text" id="dpickerCustom" placeholder="Autre domaine…">
+      <button onclick="pickDomainCustom()">✓</button>
+    </div>
+    <button class="dpicker-skip" onclick="skipDomainPicker()">Sans domaine</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -545,10 +695,13 @@ const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&g
 function switchTab(t){
   curTab=t;
   $('pageCap').className='page'+(t==='cap'?' active':'');
+  $('pageIdea').className='page'+(t==='idea'?' active':'');
   $('pageJrn').className='page'+(t==='jrn'?' active':'');
   $('navCap').className='nav-btn'+(t==='cap'?' active':'');
+  $('navIdea').className='nav-btn'+(t==='idea'?' active':'');
   $('navJrn').className='nav-btn'+(t==='jrn'?' active':'');
   if(t==='jrn')renderJournal(journal);
+  if(t==='idea')renderIdeas();
 }
 
 // ── DRIVE ─────────────────────────────────────────────────
@@ -893,18 +1046,21 @@ async function processCapture(){
   const dom=$('domSel').value,date=$('dateIn').value,rem=$('remSel').value;
   setLoad(true,'analyseBtn','spinner','analyseTxt','Analyser');
   const cats=S.cats||DCATS;
+  const existingDomains=(S.funcDomains||[]).join(',');
   const sys=`Tu es l'assistant de classification de Régis, entrepreneur en Suisse.
 Réponds UNIQUEMENT en JSON valide sans markdown.
-{"type":"idea"|"todo","title":"max 8 mots","summary":"1-2 phrases","project":"parmi:${cats.join(',')} ou Autre si incertain","priority":"normal"|"urgent","tags":["t1","t2"] max 3}
-Règles: idea=idée/inspiration, todo=tâche/action concrète. urgent=si dit ou date<7j. N'attribue projet que si CLAIREMENT mentionné sinon Autre. dom forcé:${dom||'auto'}${glossPrompt()}`;
+{"type":"idea"|"todo","title":"max 8 mots","summary":"1-2 phrases","project":"parmi:${cats.join(',')} ou Autre si incertain","funcDomain":"domaine fonctionnel parmi:${existingDomains||'(vide)'} ou NOUVEAU_DOMAINE si rien ne convient — ex: Marketing, Produit, Opérations, Finance, RH, Commercial, Technique, Communication","confidence":"high"|"low","priority":"normal"|"urgent","tags":["t1","t2"] max 3}
+Règles: idea=idée/inspiration, todo=tâche/action concrète. urgent=si dit ou date<7j. N'attribue projet que si CLAIREMENT mentionné sinon Autre. confidence=low si tu hésites sur project ou funcDomain. dom forcé:${dom||'auto'}${glossPrompt()}`;
   try{
-    const r=await callAI(k,sys,text,400);
+    const r=await callAI(k,sys,text,450);
     const p=JSON.parse(r);
-    const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:p.type||'todo',title:p.title||raw.slice(0,60),summary:p.summary||'',project:dom||p.project||'',priority:p.priority||'normal',tags:p.tags||[],date:date||'',reminder:date?rem:'',driveSync:!!token,createdAt:new Date().toISOString()};
+    const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:p.type||'todo',title:p.title||raw.slice(0,60),summary:p.summary||'',project:dom||p.project||'',funcDomain:p.funcDomain||'',priority:p.priority||'normal',tags:p.tags||[],date:date||'',reminder:date?rem:'',driveSync:!!token,createdAt:new Date().toISOString()};
     capTxt='';z.contentEditable='false';z.classList.remove('editable');setLive('',false,'');
     $('editHint').classList.remove('show');$('domSel').value='';$('dateIn').value='';$('remRow').style.display='none';hideCorrBar();
-    const unclear=!dom&&(!p.project||['Autre','autre',''].includes(p.project));
-    if(unclear)showPicker(item);else await finalize(item);
+    const unclearProject=!dom&&(!p.project||['Autre','autre',''].includes(p.project));
+    if(unclearProject)showPicker(item);
+    else if(p.confidence==='low'&&!item.funcDomain)showDomainPicker(item,p.funcDomain,[]);
+    else{autoRegisterDomain(item.funcDomain);await finalize(item);}
   }catch(e){toast('Erreur : '+e.message.slice(0,60));}
   finally{setLoad(false,'analyseBtn','spinner','analyseTxt','Analyser');}
 }
@@ -944,7 +1100,222 @@ async function callAI(k,sys,text,maxTok){
 }
 
 function setLoad(on,btnId,spId,txtId,label){
-  $(btnId).disabled=on;$(spId).style.display=on?'block':'none';$(txtId).textContent=on?(btnId==='jBtn'?'Analyse…':'Analyse…'):label;
+  $(btnId).disabled=on;$(spId).style.display=on?'block':'none';$(txtId).textContent=on?'Analyse…':label;
+}
+
+// ── IDÉES : MICRO ─────────────────────────────────────────
+let iMic=null,iSMic=null,recIdea=false,recISearch=false,ideaTxt='';
+
+function toggleIdeaInput(){
+  const p=$('ideaInputPanel'),s=$('ideaSearchPanel');
+  s.classList.remove('open');
+  p.classList.toggle('open');
+  if(p.classList.contains('open'))p.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeIdeaInput(){$('ideaInputPanel').classList.remove('open');if(recIdea&&iMic)iMic.stop();}
+function toggleIdeaSearch(){
+  const p=$('ideaSearchPanel'),i=$('ideaInputPanel');
+  i.classList.remove('open');
+  p.classList.toggle('open');
+  if(p.classList.contains('open')){p.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>$('ideaSearchIn').focus(),150);}
+}
+function closeIdeaSearch(){$('ideaSearchPanel').classList.remove('open');if(recISearch&&iSMic)iSMic.stop();}
+
+function toggleIMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
+  if(recIdea){iMic.stop();return;}
+  ideaTxt='';iMic=mkSR('fr-CH');
+  iMic.onstart=()=>{recIdea=true;$('iMicBtn').className='mic-btn listening';$('iMicBtn').textContent='⏹️';setILive('Je t\'écoute…',true);};
+  iMic.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)ideaTxt+=e.results[i][0].transcript+' ';else it+=e.results[i][0].transcript;}setILive(ideaTxt.trim(),false,it);};
+  iMic.onend=()=>{recIdea=false;$('iMicBtn').className='mic-btn';$('iMicBtn').textContent='🎙️';ideaTxt=ideaTxt.trim();const z=$('iLiveZone');z.contentEditable='true';z.classList.add('editable');$('iEditHint').classList.add('show');setILive(ideaTxt,false,'');};
+  iMic.onerror=e=>{recIdea=false;$('iMicBtn').className='mic-btn';$('iMicBtn').textContent='🎙️';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  iMic.start();
+}
+function setILive(text,listening,interim){
+  const z=$('iLiveZone');
+  if(listening){z.className='live-zone empty';z.contentEditable='false';z.textContent=text;return;}
+  if(!text&&!interim){z.className='live-zone empty';z.contentEditable='false';z.textContent='Appuie sur le micro et parle…';return;}
+  z.className='live-zone'+(z.contentEditable==='true'?' editable':'');
+  z.innerHTML=`<span>${esc(text)}</span><span style="color:var(--text3)">${esc(interim||'')}</span>`;
+}
+
+function toggleISMic(){
+  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
+  if(recISearch){iSMic.stop();return;}
+  iSMic=mkSR('fr-CH');iSMic.continuous=true;iSMic.interimResults=true;
+  iSMic.onstart=()=>{recISearch=true;$('iSMicBtn').className='idea-smic listening';$('iSLive').style.display='block';$('iSLiveTxt').textContent='Je t\'écoute…';$('ideaSearchIn').value='';};
+  iSMic.onresult=e=>{
+    let final='',interim='';
+    for(let i=0;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';else interim+=e.results[i][0].transcript;}
+    const txt=(final+interim).trim();$('iSLiveTxt').textContent=txt||'Je t\'écoute…';
+    if(final.trim()){$('ideaSearchIn').value=final.trim();filterIdeas();$('btnIdeaSmart').style.display='block';}
+  };
+  iSMic.onend=()=>{recISearch=false;$('iSMicBtn').className='idea-smic';$('iSLive').style.display='none';if($('ideaSearchIn').value.trim())filterIdeas();};
+  iSMic.onerror=e=>{recISearch=false;$('iSMicBtn').className='idea-smic';$('iSLive').style.display='none';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  iSMic.start();
+}
+
+// ── IDÉES : PROCESS ───────────────────────────────────────
+async function processIdea(){
+  const z=$('iLiveZone');
+  const raw=(z.innerText||ideaTxt||'').trim();
+  if(!raw||['Appuie sur le micro et parle…','Je t\'écoute…'].includes(raw)){toast('Rien à analyser');return;}
+  const k=apiKey();if(!k){toast('Configure ta clé API dans Réglages');openSettings();return;}
+  const text=applyCorrs(raw);
+  setLoad(true,'iAnalyseBtn','iSpinner','iAnalyseTxt','Analyser l\'idée');
+  const cats=S.cats||DCATS;
+  const existingDomains=(S.funcDomains||[]).join(',');
+  const sys=`Tu es l'assistant de classification de Régis, entrepreneur en Suisse.
+Il dicte une IDÉE (inspiration, concept, réflexion).
+Réponds UNIQUEMENT en JSON valide sans markdown.
+{"title":"max 8 mots","summary":"1-2 phrases claires","project":"parmi:${cats.join(',')} ou Autre","funcDomain":"domaine fonctionnel parmi:${existingDomains||'(vide — crée si pertinent)'} — ex: Marketing, Produit, Commercial, Technique, Communication, Finance, Opérations — crée un nouveau domaine court si rien ne convient","confidence":"high"|"low","proposedDomains":["dom1","dom2"] — uniquement si confidence=low, 2-3 alternatives,"tags":["t1","t2","t3"] max 4,"subject":"sujet précis en 1-3 mots ex: Influenceurs, AV-Core, Packaging"}
+Règles: N'attribue projet que si CLAIREMENT mentionné sinon Autre. confidence=low si hésitation sur project ou funcDomain.${glossPrompt()}`;
+  try{
+    const r=await callAI(k,sys,text,500);
+    const p=JSON.parse(r);
+    const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:'idea',title:p.title||raw.slice(0,60),summary:p.summary||'',project:p.project||'',funcDomain:p.funcDomain||'',subject:p.subject||'',priority:'normal',tags:p.tags||[],driveSync:!!token,createdAt:new Date().toISOString()};
+    ideaTxt='';z.contentEditable='false';z.classList.remove('editable');setILive('',false,'');$('iEditHint').classList.remove('show');
+    const unclearProject=!item.project||['Autre','autre',''].includes(item.project);
+    if(unclearProject){
+      showPicker(item);
+    } else if(p.confidence==='low'){
+      showDomainPicker(item,p.funcDomain,p.proposedDomains||[]);
+    } else {
+      autoRegisterDomain(item.funcDomain);
+      await finalize(item);
+      closeIdeaInput();
+    }
+  }catch(e){toast('Erreur : '+e.message.slice(0,60));}
+  finally{setLoad(false,'iAnalyseBtn','iSpinner','iAnalyseTxt','Analyser l\'idée');}
+}
+
+// ── DOMAIN PICKER ─────────────────────────────────────────
+let pendingDomainItem=null;
+
+function showDomainPicker(item,suggested,alternatives){
+  pendingDomainItem=item;
+  $('dpickerTitle').textContent='Dans quel domaine classer cette idée ?';
+  $('dpickerSubtitle').textContent=suggested?`L'IA propose : "${suggested}"`:'L\'IA hésite — choisis ou écris';
+  $('dpickerCustom').value=suggested||'';
+  const existing=S.funcDomains||[];
+  const proposals=[...new Set([...(alternatives||[]),suggested||''].filter(Boolean))].filter(d=>d&&d!=='NOUVEAU_DOMAINE');
+  const all=[...new Set([...proposals,...existing])].filter(Boolean).slice(0,6);
+  $('dpickerBtns').innerHTML=all.map(d=>`<button class="dpicker-item" onclick="pickDomain('${esc(d)}')">${esc(d)}</button>`).join('');
+  $('dpicker').classList.add('open');
+}
+function pickDomain(d){
+  if(!pendingDomainItem)return;
+  pendingDomainItem.funcDomain=d;
+  $('dpicker').classList.remove('open');
+  autoRegisterDomain(d);
+  finalize(pendingDomainItem).then(()=>{closeIdeaInput();pendingDomainItem=null;});
+}
+function pickDomainCustom(){
+  const d=$('dpickerCustom').value.trim();
+  if(!d){toast('Entre un domaine');return;}
+  pickDomain(d);
+}
+function skipDomainPicker(){
+  $('dpicker').classList.remove('open');
+  if(pendingDomainItem){finalize(pendingDomainItem).then(()=>{closeIdeaInput();pendingDomainItem=null;});}
+}
+function autoRegisterDomain(d){
+  if(!d||d==='NOUVEAU_DOMAINE')return;
+  S.funcDomains=S.funcDomains||[];
+  if(!S.funcDomains.includes(d)){S.funcDomains.push(d);saveLocal();}
+}
+
+// ── IDÉES : RENDER ────────────────────────────────────────
+let ideaFilter='all';
+
+function renderIdeaFilters(){
+  const cats=S.cats||[];
+  let h=`<button class="idfpill${ideaFilter==='all'?' active-proj':''}" onclick="setIdeaFilter('all',this)">Tout</button>`;
+  cats.forEach(c=>{
+    const count=items.filter(i=>i.type==='idea'&&!i.done&&i.project===c).length;
+    if(count>0)h+=`<button class="idfpill${ideaFilter===c?' active-proj':''}" onclick="setIdeaFilter('${esc(c)}',this)">${esc(c)} <span style="opacity:0.6;font-size:10px;">${count}</span></button>`;
+  });
+  const domains=[...new Set(items.filter(i=>i.type==='idea'&&!i.done&&i.funcDomain).map(i=>i.funcDomain))];
+  domains.forEach(d=>{h+=`<button class="idfpill${ideaFilter===('d:'+d)?' active':''}" onclick="setIdeaFilter('d:${esc(d)}',this)">${esc(d)}</button>`;});
+  $('ideaFilters').innerHTML=h;
+}
+function setIdeaFilter(f,el){
+  ideaFilter=f;
+  document.querySelectorAll('.idfpill').forEach(p=>p.classList.remove('active','active-proj'));
+  if(f==='all')el.classList.add('active-proj');else el.classList.add(f.startsWith('d:')?'active':'active-proj');
+  renderIdeas();
+}
+function renderIdeas(overrideList){
+  renderIdeaFilters();
+  const list=$('ideaList');
+  let ideas=overrideList||(items.filter(i=>i.type==='idea'&&!i.done));
+  if(!overrideList){
+    if(ideaFilter==='all'){}
+    else if(ideaFilter.startsWith('d:'))ideas=ideas.filter(i=>i.funcDomain===ideaFilter.slice(2));
+    else ideas=ideas.filter(i=>i.project===ideaFilter);
+  }
+  if(!ideas.length){list.innerHTML=`<div class="empty"><div class="empty-icon" style="font-size:36px;opacity:0.15;margin-bottom:12px;">💡</div><p style="color:var(--text3)">${items.filter(i=>i.type==='idea').length===0?'Aucune idée.<br>Appuie sur "Nouvelle idée" et parle.':'Aucune idée ici.'}</p></div>`;return;}
+  // Regrouper par domaine fonctionnel
+  const byDomain={};
+  ideas.forEach(i=>{const d=i.funcDomain||'Sans domaine';if(!byDomain[d])byDomain[d]=[];byDomain[d].push(i);});
+  let h='';
+  Object.keys(byDomain).sort().forEach(d=>{
+    h+=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>${esc(d)} <span style="opacity:0.5;font-size:9px;">(${byDomain[d].length})</span></div>`;
+    byDomain[d].forEach(i=>h+=ideaCard(i));
+  });
+  list.innerHTML=h;
+}
+function ideaCard(item){
+  const proj=item.project&&item.project!=='Autre'?`<span class="badge b-dom">${esc(item.project)}</span>`:'';
+  const subj=item.subject?`<span class="badge b-func">${esc(item.subject)}</span>`:'';
+  const tags=(item.tags||[]).map(t=>`<span class="badge b-tag">${esc(t)}</span>`).join('');
+  const drv=item.driveSync?'<span class="badge b-drive" style="font-size:9px;">Drive ✓</span>':'';
+  return`<div class="icard idea-t" id="card-${item.id}">
+    <div class="icard-top">
+      <div class="icard-body">
+        <div class="icard-title">${esc(item.title)}</div>
+        ${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}
+        <div class="icard-badges">${proj}${subj}${tags}${drv}</div>
+        <div class="icard-original">${esc(item.original)}</div>
+      </div>
+      <div class="icard-actions"><button class="ibtn" onclick="openActionMenu(${item.id})" style="font-size:18px;color:var(--text2);">···</button></div>
+    </div>
+  </div>`;
+}
+
+// ── IDÉES : RECHERCHE ─────────────────────────────────────
+function filterIdeas(){
+  const q=$('ideaSearchIn').value.trim().toLowerCase();
+  const info=$('ideaSInfo');
+  if(!q){info.classList.remove('show');$('btnIdeaSmart').style.display='none';renderIdeas();return;}
+  $('btnIdeaSmart').style.display='block';
+  const res=items.filter(i=>i.type==='idea'&&!i.done).filter(i=>{
+    const blob=((i.title||'')+' '+(i.summary||'')+' '+(i.original||'')+' '+(i.funcDomain||'')+' '+(i.subject||'')+' '+(i.project||'')+' '+(i.tags||[]).join(' ')).toLowerCase();
+    return q.split(' ').filter(Boolean).every(w=>blob.includes(w));
+  });
+  info.textContent=res.length?`${res.length} idée${res.length>1?'s':''}`:' Aucun résultat';
+  info.classList.add('show');
+  renderIdeas(res);
+}
+async function ideaSmartSearch(){
+  const q=$('ideaSearchIn').value.trim();
+  if(!q){toast('Entre une recherche d\'abord');return;}
+  const k=apiKey();if(!k){toast('Clé API manquante');return;}
+  $('btnIdeaSmart').textContent='Recherche…';$('btnIdeaSmart').disabled=true;
+  const ideas=items.filter(i=>i.type==='idea'&&!i.done);
+  const corpus=ideas.map((i,idx)=>`[${idx}] ${i.title} ${i.summary} ${i.funcDomain||''} ${i.subject||''} ${(i.tags||[]).join(' ')}`).join('\n');
+  const sys=`Tu es un moteur de recherche sémantique sur les idées de Régis.
+Réponds UNIQUEMENT en JSON : {"indices":[0,2,5]}
+Si aucune idée ne correspond, réponds {"indices":[]}.`;
+  try{
+    const r=await callAI(k,sys,`Recherche: "${q}"\n\nIdées:\n${corpus}`,200);
+    const p=JSON.parse(r);
+    const results=(p.indices||[]).map(i=>ideas[i]).filter(Boolean);
+    $('ideaSInfo').textContent=results.length?`${results.length} résultat${results.length>1?'s':''} (IA)`:'Aucun résultat (IA)';
+    $('ideaSInfo').classList.add('show');
+    renderIdeas(results);
+  }catch(e){toast('Erreur IA : '+e.message.slice(0,40));}
+  finally{$('btnIdeaSmart').textContent='Recherche intelligente (IA)';$('btnIdeaSmart').disabled=false;}
 }
 
 // ── EDIT CAPTURE ──────────────────────────────────────────
@@ -1043,9 +1414,29 @@ function showPicker(item){
   $('ppickerBtns').innerHTML=(S.cats||[]).map(c=>`<button class="ppicker-item" onclick="pickProject('${esc(c)}')">${esc(c)}</button>`).join('');
   $('ppicker').classList.add('open');
 }
-function pickProject(c){if(!pending)return;pending.project=c;$('ppicker').classList.remove('open');finalize(pending);pending=null;}
-function skipPicker(){$('ppicker').classList.remove('open');if(pending){finalize(pending);pending=null;}}
-async function finalize(item){items.unshift(item);await saveAll();renderAll();toast(item.type==='idea'?'💡 Idée capturée':'✅ Tâche ajoutée');}
+function pickProject(c){
+  if(!pending)return;
+  pending.project=c;
+  $('ppicker').classList.remove('open');
+  const needsDomain=!pending.funcDomain&&pending.type==='idea';
+  if(needsDomain){showDomainPicker(pending,pending.funcDomain||'',[]);pending=null;}
+  else{finalize(pending);pending=null;}
+}
+function skipPicker(){
+  $('ppicker').classList.remove('open');
+  if(pending){
+    const needsDomain=!pending.funcDomain&&pending.type==='idea';
+    if(needsDomain){showDomainPicker(pending,'',[]);pending=null;}
+    else{finalize(pending);pending=null;}
+  }
+}
+async function finalize(item){
+  items.unshift(item);
+  await saveAll();
+  renderAll();
+  if(curTab==='idea')renderIdeas();
+  toast(item.type==='idea'?'Idée capturée ✓':'Tâche ajoutée ✓');
+}
 
 // ── RENDER CAPTURES ───────────────────────────────────────
 function setFilter(f,el){
@@ -1058,7 +1449,7 @@ function setFilter(f,el){
   $('printTitle').textContent=`Captura — ${labels[f]||f}`;
   renderItems();
 }
-function renderAll(){renderDomSel();renderDomFilters();renderItems();updateStats();}
+function renderAll(){renderDomSel();renderDomFilters();renderItems();updateStats();if(curTab==='idea')renderIdeas();}
 function renderItems(){
   const list=$('itemsList');
   let f=[...items];
@@ -1114,10 +1505,11 @@ function icard(item){
   const tB=item.type==='idea'?'<span class="badge b-idea">Idée</span>':(isDone?'<span class="badge b-drive">Terminé</span>':'<span class="badge b-todo">À faire</span>');
   const uB=u&&!isDone?'<span class="badge b-urg">Urgent</span>':'';
   const dB=item.project&&item.project!=='Autre'?`<span class="badge b-dom">${esc(item.project)}</span>`:'';
+  const fdB=item.funcDomain?`<span class="badge b-func">${esc(item.funcDomain)}</span>`:'';
   const tags=(item.tags||[]).map(t=>`<span class="badge b-tag">${esc(t)}</span>`).join('');
   const date=item.date?`<span class="badge b-date">📅 ${fmtDate(item.date)}</span>`:'';
   const drv=item.driveSync?'<span class="badge b-drive">Drive ✓</span>':'';
-  return`<div class="icard ${cls}" id="card-${item.id}"><div class="icard-top"><div class="icard-body"><div class="icard-title">${esc(item.title)}</div>${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}<div class="icard-badges">${tB}${uB}${dB}${tags}${date}${drv}</div><div class="icard-original">${esc(item.original)}</div></div><div class="icard-actions"><button class="ibtn" onclick="openActionMenu(${item.id})" title="Actions" style="font-size:18px;color:var(--text2);">···</button></div></div></div>`;
+  return`<div class="icard ${cls}" id="card-${item.id}"><div class="icard-top"><div class="icard-body"><div class="icard-title">${esc(item.title)}</div>${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}<div class="icard-badges">${tB}${uB}${dB}${fdB}${tags}${date}${drv}</div><div class="icard-original">${esc(item.original)}</div></div><div class="icard-actions"><button class="ibtn" onclick="openActionMenu(${item.id})" title="Actions" style="font-size:18px;color:var(--text2);">···</button></div></div></div>`;
 }
 function delItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toast('Supprimé');}
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
@@ -1249,6 +1641,7 @@ $('dateIn').addEventListener('change',function(){$('remRow').style.display=this.
 $('liveZone').addEventListener('mouseup',checkSel);
 $('liveZone').addEventListener('touchend',()=>setTimeout(checkSel,100));
 $('liveZone').addEventListener('input',()=>{capTxt=$('liveZone').innerText||'';});
+$('iLiveZone').addEventListener('input',()=>{ideaTxt=$('iLiveZone').innerText||'';});
 
 // ── INIT ──────────────────────────────────────────────────
 const DEFAULT_GLOSS = [
@@ -1289,6 +1682,7 @@ const ss = ls.get('cap_s') || ls.get('cap_settings');
 if(ss && typeof ss==='object') S={...S,...ss};
 if(!S.cats?.length) S.cats=[...DCATS];
 if(!S.corrections) S.corrections=[];
+if(!S.funcDomains) S.funcDomains=[];
 // Merge default glossary with existing — no duplicates
 if(!S.gloss || S.gloss.length===0){
   S.gloss = DEFAULT_GLOSS;
