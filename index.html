@@ -347,7 +347,11 @@ select option{background:var(--surface2);}
   <div class="search-box">
     <div class="search-inner">
       <input type="text" class="sinput" id="searchIn" placeholder="Rechercher dans le journal…" oninput="searchJournal()" onkeyup="searchJournal()">
-      <button class="smic" id="sMicBtn" onclick="toggleSMic()">🔍</button>
+      <button class="smic" id="sMicBtn" onclick="toggleSMic()" title="Recherche vocale">🔍</button>
+    </div>
+    <div class="slive" id="sLive" style="display:none;font-size:13px;color:var(--purple);margin-top:8px;padding:6px 10px;background:var(--purple-dim);border-radius:var(--radius-xs);">🎙️ <span id="sLiveTxt">Je t'écoute…</span></div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn-smart-search" id="btnSmartSearch" onclick="smartSearch()" style="flex:1;background:var(--purple-dim);color:var(--purple);border:0.5px solid var(--purple);border-radius:var(--radius-xs);padding:7px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:none;">🧠 Recherche intelligente (IA)</button>
     </div>
     <div class="sinfo" id="sInfo"></div>
   </div>
@@ -623,11 +627,39 @@ function setJLive(text,listening,interim){
 function toggleSMic(){
   if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
   if(recSrc){sMic.stop();return;}
-  sMic=new(window.SpeechRecognition||window.webkitSpeechRecognition)();sMic.lang='fr-CH';sMic.continuous=false;sMic.interimResults=false;
-  sMic.onstart=()=>{recSrc=true;$('sMicBtn').className='smic listening';$('sMicBtn').textContent='⏹️';};
-  sMic.onresult=e=>{$('searchIn').value=e.results[0][0].transcript;searchJournal();};
-  sMic.onend=()=>{recSrc=false;$('sMicBtn').className='smic';$('sMicBtn').textContent='🔍';};
-  sMic.onerror=()=>{recSrc=false;$('sMicBtn').className='smic';$('sMicBtn').textContent='🔍';};
+  sMic=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
+  sMic.lang='fr-CH';sMic.continuous=true;sMic.interimResults=true;
+  sMic.onstart=()=>{
+    recSrc=true;
+    $('sMicBtn').className='smic listening';$('sMicBtn').textContent='⏹️';
+    $('sLive').style.display='block';$('sLiveTxt').textContent='Je t\'écoute…';
+    $('searchIn').value='';
+  };
+  sMic.onresult=e=>{
+    let final='',interim='';
+    for(let i=0;i<e.results.length;i++){
+      if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';
+      else interim+=e.results[i][0].transcript;
+    }
+    const txt=(final+interim).trim();
+    $('sLiveTxt').textContent=txt||'Je t\'écoute…';
+    if(final.trim()){
+      $('searchIn').value=final.trim();
+      searchJournal();
+      $('btnSmartSearch').style.display='block';
+    }
+  };
+  sMic.onend=()=>{
+    recSrc=false;$('sMicBtn').className='smic';$('sMicBtn').textContent='🔍';
+    $('sLive').style.display='none';
+    const q=$('searchIn').value.trim();
+    if(q)searchJournal();
+  };
+  sMic.onerror=e=>{
+    recSrc=false;$('sMicBtn').className='smic';$('sMicBtn').textContent='🔍';
+    $('sLive').style.display='none';
+    if(e.error!=='no-speech')toast('Micro recherche : '+e.error);
+  };
   sMic.start();
 }
 
@@ -715,11 +747,35 @@ async function saveEdit(id){
   await saveAll();renderItems();toast('Modifié ✓');
 }
 
+// ── SMART SEARCH (IA) ────────────────────────────────────
+async function smartSearch(){
+  const q=$('searchIn').value.trim();
+  if(!q){toast('Entre une recherche d\'abord');return;}
+  const k=apiKey();if(!k){toast('Clé API manquante');return;}
+  $('btnSmartSearch').textContent='🧠 Recherche…';$('btnSmartSearch').disabled=true;
+  const corpus=journal.map((e,i)=>`[${i}] ${e.summary} ${(e.persons||[]).join(' ')} ${(e.keywords||[]).join(' ')}`).join('\n');
+  const sys=`Tu es un moteur de recherche sémantique. L'utilisateur cherche dans son journal personnel.
+Réponds UNIQUEMENT avec un JSON : {"indices":[0,2,5]} — la liste des indices des entrées pertinentes.
+Si aucune entrée ne correspond, réponds {"indices":[]}.`;
+  try{
+    const r=await callAI(k,sys,`Recherche: "${q}"\n\nJournal:\n${corpus}`,200);
+    const p=JSON.parse(r);
+    const results=(p.indices||[]).map(i=>journal[i]).filter(Boolean);
+    const info=$('sInfo');
+    info.textContent=results.length?`🧠 ${results.length} résultat${results.length>1?'s':''} (IA)`:'🧠 Aucun résultat';
+    info.classList.add('show');
+    renderJournal(results,true);
+  }catch(e){toast('Erreur recherche IA : '+e.message.slice(0,40));}
+  finally{$('btnSmartSearch').textContent='🧠 Recherche intelligente (IA)';$('btnSmartSearch').disabled=false;}
+}
+
 // ── SEARCH JOURNAL ────────────────────────────────────────
 function searchJournal(){
   const q=$('searchIn').value.trim().toLowerCase();
   const info=$('sInfo');
-  if(!q){info.classList.remove('show');renderJournal(journal);return;}
+  const smartBtn=$('btnSmartSearch');
+  if(!q){info.classList.remove('show');smartBtn.style.display='none';renderJournal(journal);return;}
+  smartBtn.style.display='block';
   const res=journal.filter(e=>{
     const blob=(e.summary+' '+e.original+' '+(e.persons||[]).join(' ')+(e.places||[]).join(' ')+(e.keywords||[]).join(' ')).toLowerCase();
     return q.split(' ').filter(Boolean).every(w=>blob.includes(w));
