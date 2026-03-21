@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura Final v14</title>
+    <title>Captura 2026 - Fix Final</title>
     <style>
         :root { --blue: #007aff; --bg: #f2f2f7; --green: #32d74b; --red: #ff453a; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -19,14 +19,14 @@
 <body>
 
 <div class="card">
-    <h3>Captura Live</h3>
+    <h3>Captura Live v16</h3>
     <input type="password" id="apiKey" placeholder="Clé API Gemini">
     <button id="mic-btn">🎙️</button>
     <div id="display-zone">
         <div id="live-text">Prêt pour l'essai final...</div>
         <div id="ai-output"></div>
     </div>
-    <div id="debug-console">> Console prête. On corrige le nom du modèle.</div>
+    <div id="debug-console">> Console prête. Tentative de connexion stable.</div>
 </div>
 
 <script>
@@ -45,80 +45,70 @@
     }
 
     const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let rec = null;
+    let rec = new Recognition();
+    rec.lang = 'fr-CH';
+    rec.interimResults = true;
+    rec.continuous = false;
     let currentText = "";
 
-    if (!Recognition) {
-        log("ERREUR : Utilisez Safari", "#ff453a");
-    } else {
-        rec = new Recognition();
-        rec.lang = 'fr-CH';
-        rec.interimResults = true;
-        rec.continuous = false;
-
-        btn.onclick = () => {
-            if (btn.classList.contains('active')) {
-                rec.stop();
-            } else {
-                const key = apiInput.value.trim();
-                if (!key) return alert("Clé API manquante");
-                localStorage.setItem('gemini_key', key);
-                currentText = "";
-                aiOutput.style.display = "none";
-                btn.classList.add('active');
-                log("Action : Micro ON");
-                rec.start();
-            }
-        };
-
-        rec.onresult = (event) => {
-            let transcript = "";
-            for (let i = 0; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
-            }
-            currentText = transcript;
-            liveText.innerHTML = `<strong>Dictée :</strong> ${currentText}`;
-            log("Capture : OK");
-        };
-
-        rec.onend = () => {
-            btn.classList.remove('active');
-            log("Système : Micro éteint.");
-            if (currentText.length > 2) {
-                callGemini(currentText);
-            }
-        };
-
-        async function callGemini(text) {
+    btn.onclick = () => {
+        if (btn.classList.contains('active')) {
+            rec.stop();
+        } else {
             const key = apiInput.value.trim();
-            // CORRECTION ICI : "gemini-1.5-flash" au lieu de "gemini-1.5-flash-latest"
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+            if (!key) return alert("Clé API manquante");
+            localStorage.setItem('gemini_key', key);
+            currentText = "";
+            aiOutput.style.display = "none";
+            btn.classList.add('active');
+            log("Micro : ON");
+            rec.start();
+        }
+    };
 
-            log("Envoi à Google (Modèle : 1.5-flash)...");
+    rec.onresult = (event) => {
+        let transcript = "";
+        for (let i = 0; i < event.results.length; i++) { transcript += event.results[i][0].transcript; }
+        currentText = transcript;
+        liveText.innerHTML = `<strong>Dictée :</strong> ${currentText}`;
+    };
 
+    rec.onend = () => {
+        btn.classList.remove('active');
+        log("Système : Envoi...");
+        if (currentText.length > 2) tryModels(currentText);
+    };
+
+    async function tryModels(text) {
+        const key = apiInput.value.trim();
+        // Liste des noms de modèles par ordre de probabilité de succès en 2026
+        const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+        
+        for (const modelName of models) {
+            log(`Essai du modèle : ${modelName}...`);
+            const url = `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${key}`;
+            
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: "Analyse cette dictée courte et donne TYPE (Action/Idée), RÉSUMÉ (1 phrase), ACTION : " + text }] }]
-                    })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: "Analyse : " + text }] }] })
                 });
 
-                log(`Réponse HTTP : ${response.status}`);
-                const data = await response.json();
-
-                if (data.error) throw new Error(data.error.message);
-
-                const result = data.candidates[0].content.parts[0].text;
-                aiOutput.innerText = result;
-                aiOutput.style.display = "block";
-                log("SUCCÈS : Analyse reçue ! ✅");
-
+                if (response.status === 200) {
+                    const data = await response.json();
+                    aiOutput.innerText = data.candidates[0].content.parts[0].text;
+                    aiOutput.style.display = "block";
+                    log(`SUCCÈS avec ${modelName} ! ✅`);
+                    return; // On s'arrête dès que ça marche
+                } else {
+                    log(`Échec ${modelName} (Code ${response.status})`, "#ff9500");
+                }
             } catch (e) {
-                log("ERREUR : " + e.message, "#ff453a");
+                log(`Erreur réseau sur ${modelName}`, "#ff453a");
             }
         }
+        log("ERREUR : Aucun modèle n'a répondu.", "#ff453a");
     }
 </script>
 </body>
