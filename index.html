@@ -403,8 +403,8 @@ select option{background:var(--surface2);}
 
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="sTot">0</div><div class="stat-lbl">Total</div></div>
-    <div class="stat-card"><div class="stat-num" id="sIdeas">0</div><div class="stat-lbl">Idées</div></div>
     <div class="stat-card"><div class="stat-num" id="sTodos">0</div><div class="stat-lbl">À faire</div></div>
+    <div class="stat-card"><div class="stat-num" id="sDone">0</div><div class="stat-lbl">Terminé</div></div>
   </div>
 
   <div class="topbar no-print">
@@ -415,7 +415,6 @@ select option{background:var(--surface2);}
   <div class="filters-scroll no-print">
     <div class="filters-row" id="filtersRow">
       <button class="fpill a-all" onclick="setFilter('all',this)">Tout</button>
-      <button class="fpill" onclick="setFilter('idea',this)">Idées</button>
       <button class="fpill" onclick="setFilter('todo',this)">À faire</button>
       <button class="fpill" onclick="setFilter('urgent',this)">Urgent</button>
       <button class="fpill" onclick="setFilter('done',this)">Terminé</button>
@@ -784,7 +783,20 @@ async function syncDown(){
       if(merged.length!==journal.length){journal=merged;needReSave=true;}
       else journal=merged;
     }
-    if(rs&&typeof rs==='object'){S={...S,...rs};}
+    if(rs&&typeof rs==='object'){
+      S={...S,...rs};
+      // Toujours fusionner le glossaire par défaut — même si Drive a un gloss vide
+      if(!S.gloss||S.gloss.length===0){
+        S.gloss=[...DEFAULT_GLOSS];
+        needReSave=true;
+      } else {
+        const existing=new Set(S.gloss.map(g=>g.term.toLowerCase()));
+        const added=DEFAULT_GLOSS.filter(g=>!existing.has(g.term.toLowerCase()));
+        if(added.length){S.gloss.push(...added);needReSave=true;}
+      }
+      if(!S.corrections)S.corrections=[];
+      if(!S.funcDomains)S.funcDomains=[];
+    }
 
     saveLocal();
     renderAll();
@@ -793,7 +805,7 @@ async function syncDown(){
     // Si la fusion a apporté de nouvelles données, re-sauvegarder Drive
     // pour que l'autre appareil les voie aussi
     if(needReSave){
-      await Promise.all([dWrite(FI,items),dWrite(FJ,journal)]);
+      await Promise.all([dWrite(FI,items),dWrite(FJ,journal),dWrite(FS,S)]);
       toast('Synchronisé ✓');
     }
     driveUI('connected');
@@ -1459,17 +1471,14 @@ function renderItems(){
     let h=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>Terminé (${f.length})</div>`;
     f.forEach(i=>h+=icard(i));list.innerHTML=h;return;
   }
-  // Exclude done items from all other views
-  f=f.filter(i=>!i.done);
-  if(curFilter==='idea')f=f.filter(i=>i.type==='idea');
-  else if(curFilter==='todo')f=f.filter(i=>i.type==='todo');
+  // Exclure les idées et les tâches terminées de la vue Capturer
+  f=f.filter(i=>!i.done&&i.type!=='idea');
+  if(curFilter==='todo'){}
   else if(curFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
   else if(curFilter!=='all')f=f.filter(i=>i.project===curFilter);
-  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">💡</div><p>${items.filter(i=>!i.done).length===0?'Aucune capture.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
-  const todos=f.filter(i=>i.type==='todo'),ideas=f.filter(i=>i.type==='idea');
-  let h='';
-  if(todos.length&&curFilter!=='idea'){h+=`<div class="sec-head"><span class="sec-dot dot-todo"></span>À faire (${todos.length})</div>`;todos.forEach(i=>h+=icard(i));}
-  if(ideas.length&&curFilter!=='todo'){h+=`<div class="sec-head"><span class="sec-dot dot-idea"></span>Idées (${ideas.length})</div>`;ideas.forEach(i=>h+=icard(i));}
+  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">💡</div><p>${items.filter(i=>!i.done&&i.type!=='idea').length===0?'Aucune tâche.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
+  let h=`<div class="sec-head"><span class="sec-dot dot-todo"></span>À faire (${f.length})</div>`;
+  f.forEach(i=>h+=icard(i));
   list.innerHTML=h;
 }
 
@@ -1515,7 +1524,12 @@ function delItem(id){items=items.filter(i=>i.id!==id);saveAll();renderAll();toas
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-');return`${day}.${m}.${y}`;}
 function fmtDateFull(d){try{return new Date(d+'T12:00:00').toLocaleDateString('fr-CH',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}catch{return d;}}
 function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}}
-function updateStats(){$('sTot').textContent=items.length;$('sIdeas').textContent=items.filter(i=>i.type==='idea').length;$('sTodos').textContent=items.filter(i=>i.type==='todo').length;}
+function updateStats(){
+  const todos=items.filter(i=>i.type==='todo');
+  $('sTot').textContent=items.length;
+  $('sTodos').textContent=todos.filter(i=>!i.done).length;
+  $('sDone').textContent=todos.filter(i=>i.done).length;
+}
 function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
 function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
 
