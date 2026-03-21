@@ -3,46 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Captura v21 - Final Fix</title>
+    <title>Captura - Méthode SDK Officielle</title>
     <style>
-        :root { --blue: #007aff; --bg: #f2f2f7; }
+        :root { --blue: #007aff; --bg: #f2f2f7; --green: #32d74b; }
         body { font-family: -apple-system, system-ui; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 14px; box-sizing: border-box; }
-        #mic-btn { width: 85px; height: 85px; border-radius: 50%; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 32px; cursor: pointer; margin-bottom: 20px; transition: 0.2s; }
+        .card { background: #fff; width: 100%; max-width: 400px; padding: 25px; border-radius: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); text-align: center; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; border: 1px solid #d1d1d6; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 14px; }
+        #mic-btn { width: 85px; height: 85px; border-radius: 50%; border: none; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 32px; cursor: pointer; margin-bottom: 20px; }
         #mic-btn.active { background: #ff453a; color: #fff; transform: scale(1.1); }
-        #display-zone { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; border: 1px solid #e5e5ea; min-height: 100px; }
-        #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); white-space: pre-wrap; display: none; }
-        #debug { margin-top: 20px; padding: 10px; background: #000; color: #32d74b; border-radius: 10px; font-family: monospace; font-size: 10px; text-align: left; max-height: 100px; overflow-y: auto; width: 100%; box-sizing: border-box; }
+        #display-zone { text-align: left; background: #f9f9f9; padding: 18px; border-radius: 16px; border: 1px solid #e5e5ea; min-height: 100px; font-size: 16px; }
+        #ai-output { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--blue); white-space: pre-wrap; display: none; color: #1c1c1e; }
+        #debug-console { margin-top: 20px; padding: 12px; background: #000; color: var(--green); border-radius: 12px; font-family: monospace; font-size: 10px; text-align: left; max-height: 120px; overflow-y: auto; width: 100%; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Captura Live</h2>
-    <input type="password" id="apiKey" placeholder="Votre clé API Gemini">
+    <h2 style="margin-top:0;">Captura Live</h2>
+    <input type="password" id="apiKey" placeholder="Coller votre clé API ici">
     <button id="mic-btn">🎙️</button>
     <div id="display-zone">
         <div id="live-text">Prêt...</div>
         <div id="ai-output"></div>
     </div>
-    <div id="debug">> En attente du démarrage...</div>
+    <div id="debug-console">> Utilisation du SDK Google AI...</div>
 </div>
 
+<!-- CHARGEMENT DU SDK OFFICIEL GOOGLE -->
+<script type="importmap">
+  {
+    "imports": {
+      "@google/generative-ai": "https://esm.run/@google/generative-ai"
+    }
+  }
+</script>
+
 <script type="module">
-    // IMPORTATION DU SDK OFFICIEL (Version Mars 2026)
-    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+    import { GoogleGenerativeAI } from "@google/generative-ai";
 
     const btn = document.getElementById('mic-btn');
-    const debug = document.getElementById('debug');
+    const debug = document.getElementById('debug-console');
     const liveText = document.getElementById('live-text');
     const aiOutput = document.getElementById('ai-output');
     const apiInput = document.getElementById('apiKey');
 
     apiInput.value = localStorage.getItem('gemini_key') || '';
 
-    function log(msg) {
-        debug.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+    function log(msg, color = "#32d74b") {
+        debug.innerHTML += `<div style="color:${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
         debug.scrollTop = debug.scrollHeight;
     }
 
@@ -50,54 +58,62 @@
     let rec = new Recognition();
     rec.lang = 'fr-CH';
     rec.interimResults = true;
-    let currentText = "";
+    let finalTranscript = "";
 
     btn.onclick = async () => {
         if (btn.classList.contains('active')) {
             rec.stop();
         } else {
-            const key = apiInput.value.trim();
-            if (!key) return alert("Clé manquante");
-            localStorage.setItem('gemini_key', key);
-            aiOutput.style.display = "none";
-            btn.classList.add('active');
-            log("Micro ON");
-            rec.start();
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                const key = apiInput.value.trim();
+                if (!key) return alert("Clé manquante");
+                localStorage.setItem('gemini_key', key);
+                
+                finalTranscript = "";
+                aiOutput.style.display = "none";
+                btn.classList.add('active');
+                log("Micro ON");
+                rec.start();
+            } catch (err) { log("Erreur Micro : " + err.message, "#ff453a"); }
         }
     };
 
     rec.onresult = (e) => {
-        currentText = Array.from(e.results).map(r => r[0].transcript).join('');
-        liveText.innerHTML = `<strong>Dictée :</strong> ${currentText}`;
+        let current = "";
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+            current += e.results[i][0].transcript;
+        }
+        finalTranscript = current;
+        liveText.innerHTML = `<strong>Dictée :</strong> ${finalTranscript}`;
     };
 
     rec.onend = () => {
         btn.classList.remove('active');
         log("Micro OFF");
-        if (currentText.length > 3) processWithIA(currentText);
+        if (finalTranscript.length > 3) callGeminiSDK(finalTranscript);
     };
 
-    async function processWithIA(text) {
+    async function callGeminiSDK(text) {
         const key = apiInput.value.trim();
-        log("Initialisation SDK Google...");
-        
+        log("Initialisation Google AI...");
+
         try {
-            // Utilisation de la méthode SDK (Incontournable en 2026)
             const genAI = new GoogleGenerativeAI(key);
+            // Le SDK gère lui-même la recherche du modèle sans erreur 404
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-            log("Envoi au modèle...");
-            const result = await model.generateContent("Fais un résumé court (Type, Résumé, Action) de cette dictée : " + text);
+            log("Envoi via SDK...");
+            const result = await model.generateContent("Analyse cette dictée : " + text);
             const response = await result.response;
             const output = response.text();
 
             aiOutput.innerText = output;
             aiOutput.style.display = "block";
-            log("Succès ! ✅");
+            log("RÉUSSITE ! ✅");
 
-        } catch (e) {
-            log("Erreur SDK : " + e.message);
-            console.error(e);
+        } catch (err) {
+            log("ERREUR SDK : " + err.message, "#ff453a");
         }
     }
 </script>
