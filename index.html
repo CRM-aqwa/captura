@@ -640,6 +640,13 @@ select option{background:#f5f2ee;color:var(--text);}
   </div>
 
   <!-- Filtres projet -->
+  <div class="topbar no-print" style="margin-bottom:8px;">
+    <div class="topbar-title" id="ideaFilterLabel">Toutes les idées</div>
+    <button class="btn-export" onclick="exportIdeas()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exporter
+    </button>
+  </div>
   <div class="idea-filters" id="ideaFilters"></div>
 
   <!-- Liste des idées -->
@@ -1586,7 +1593,79 @@ function setIdeaFilter(f,el){
   ideaFilter=f;
   document.querySelectorAll('.idfpill').forEach(p=>p.classList.remove('active','active-proj'));
   if(f==='all')el.classList.add('active-proj');else el.classList.add(f.startsWith('d:')?'active':'active-proj');
+  const label=f==='all'?'Toutes les idées':f.startsWith('d:')?f.slice(2):f;
+  if($('ideaFilterLabel'))$('ideaFilterLabel').textContent=label;
   renderIdeas();
+}
+
+function exportIdeas(){
+  // Récupérer les idées visibles selon le filtre actif
+  let ideas=items.filter(i=>i.type==='idea'&&!i.done);
+  if(ideaFilter!=='all'){
+    if(ideaFilter.startsWith('d:'))ideas=ideas.filter(i=>i.funcDomain===ideaFilter.slice(2));
+    else ideas=ideas.filter(i=>i.project===ideaFilter);
+  }
+  if(!ideas.length){toast('Aucune idée à exporter');return;}
+
+  const label=ideaFilter==='all'?'Toutes les idées':ideaFilter.startsWith('d:')?ideaFilter.slice(2):ideaFilter;
+  const date=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
+
+  // Grouper par domaine
+  const byDomain={};
+  ideas.forEach(i=>{const d=i.funcDomain||'Sans domaine';if(!byDomain[d])byDomain[d]=[];byDomain[d].push(i);});
+
+  const domainBlocks=Object.keys(byDomain).sort().map(d=>{
+    const cards=byDomain[d].map(i=>`
+      <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:8px;border-left:3px solid #30D158;box-shadow:0 1px 4px rgba(0,0,0,0.07);">
+        <div style="font-weight:700;font-size:15px;color:#1a1714;margin-bottom:${i.summary?'4px':'0'};">${esc(i.title)}</div>
+        ${i.summary?`<div style="font-size:13px;color:#8a7e70;margin-bottom:6px;line-height:1.4;">${esc(i.summary)}</div>`:''}
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${i.project&&i.project!=='Autre'?`<span style="font-size:11px;color:#6b6050;background:#f0ede8;padding:3px 9px;border-radius:99px;">${esc(i.project)}</span>`:''}
+          ${i.subject?`<span style="font-size:11px;color:#18883a;background:#edfff3;padding:3px 9px;border-radius:99px;">${esc(i.subject)}</span>`:''}
+          ${(i.tags||[]).map(t=>`<span style="font-size:11px;color:#8040c0;background:#f5eeff;padding:3px 9px;border-radius:99px;">${esc(t)}</span>`).join('')}
+        </div>
+      </div>`).join('');
+    return`
+      <div style="margin-bottom:28px;">
+        <div style="background:#edfff3;border-radius:10px;padding:11px 16px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:16px;">💡</span>
+          <span style="font-weight:700;font-size:14px;color:#18883a;">${esc(d)}</span>
+          <span style="margin-left:auto;font-size:12px;font-weight:700;color:#18883a;">${byDomain[d].length}</span>
+        </div>
+        ${cards}
+      </div>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Captura — ${esc(label)}</title></head>
+<body style="font-family:-apple-system,'Segoe UI',sans-serif;background:#f5f2ee;margin:0;padding:0;">
+<div style="max-width:560px;margin:0 auto;padding:20px 16px 40px;">
+
+  <div style="text-align:center;padding:20px 0 24px;">
+    <div style="font-size:26px;font-weight:300;color:#1a1714;margin-bottom:6px;">Cap<span style="color:#FF6B35;">tura</span></div>
+    <div style="font-size:15px;font-weight:600;color:#1a1714;margin-bottom:2px;">${esc(label)}</div>
+    <div style="font-size:13px;color:#8a7e70;">${ideas.length} idée${ideas.length>1?'s':''} · ${date}</div>
+  </div>
+
+  ${domainBlocks}
+
+  <div style="text-align:center;margin-top:12px;font-size:11px;color:#c0b8ae;">
+    Exporté depuis Captura · ${date}
+  </div>
+</div>
+</body></html>`;
+
+  const win=window.open('','_blank');
+  if(win){win.document.write(html);win.document.close();}
+  else{
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=`captura_idees_${new Date().toISOString().split('T')[0]}.html`;
+    a.click();URL.revokeObjectURL(url);
+  }
+  toast(`${ideas.length} idée${ideas.length>1?'s':''} exportée${ideas.length>1?'s':''} ✓`);
 }
 function renderIdeas(overrideList){
   renderIdeaFilters();
