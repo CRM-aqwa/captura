@@ -387,13 +387,13 @@ select option{background:#f5f2ee;color:var(--text);}
     position:fixed;top:0;left:0;width:260px;height:100vh;
     flex-direction:column;align-items:flex-start;justify-content:flex-start;
     border-bottom:none;border-right:0.5px solid rgba(185,175,160,0.25);
-    padding:24px 16px 16px;
+    padding:20px 14px 14px;
     background:rgba(245,242,238,0.92);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
     overflow-y:auto;z-index:100;gap:0;
   }
-  .logo{font-size:24px;margin-bottom:4px;}
-  .header-right{flex-direction:column;align-items:flex-start;gap:6px;width:100%;margin-top:auto;padding-top:16px;border-top:0.5px solid rgba(185,175,160,0.2);}
-  .drive-pill{font-size:11px;padding:6px 12px;}
+  .logo{font-size:22px;margin-bottom:0;}
+  .header-right{display:none;}
+  .drive-pill{font-size:11px;padding:6px 10px;}
 
   /* ── NAVIGATION gauche ── */
   .bottom-nav{
@@ -554,7 +554,16 @@ select option{background:#f5f2ee;color:var(--text);}
 <body>
 
 <header class="header">
-  <div class="logo">Cap<span>tura</span></div>
+  <!-- Logo + Drive + Réglages — toujours en haut -->
+  <div style="width:100%;">
+    <div class="logo" style="margin-bottom:10px;">Cap<span>tura</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <button class="drive-pill disconnected" id="driveBtn" onclick="toggleDriveAuth()" style="flex:1;">
+        <span class="drive-dot"></span><span id="driveTxt">Drive</span>
+      </button>
+      <button class="btn-icon-sm" onclick="openSettings()" title="Réglages" style="background:rgba(255,255,255,0.5);border:0.5px solid rgba(185,175,160,0.3);border-radius:8px;width:34px;height:34px;">⚙️</button>
+    </div>
+  </div>
 
   <!-- Micro + stats dans la sidebar (desktop uniquement) -->
   <div class="sidebar-capture">
@@ -563,8 +572,8 @@ select option{background:#f5f2ee;color:var(--text);}
       <div class="mic-wrap"><button class="mic-btn" id="micBtnDesk" onclick="toggleMic()">
         <div class="mic-bars"><span></span><span></span><span></span><span></span><span></span></div>
       </button></div>
-      <div class="live-zone empty" id="liveZoneDesk" style="min-height:50px;font-size:13px;" onclick="syncDeskZone()">Clique sur le micro…</div>
-      <button class="btn-primary" onclick="processCapture()" style="margin-top:10px;padding:10px;">
+      <div class="live-zone empty" id="liveZoneDesk" style="min-height:44px;font-size:13px;" onclick="syncDeskZone()">Clique sur le micro…</div>
+      <button class="btn-primary" onclick="processCapture()" style="margin-top:8px;padding:9px;font-size:13px;">
         <div class="spinner" id="spinnerDesk"></div>
         <span>Analyser</span>
       </button>
@@ -574,13 +583,6 @@ select option{background:#f5f2ee;color:var(--text);}
       <div class="sidebar-stat"><span class="sn" id="dsIdeas">0</span><span class="sl">Idées</span></div>
       <div class="sidebar-stat"><span class="sn" id="dsTodos">0</span><span class="sl">À faire</span></div>
     </div>
-  </div>
-
-  <div class="header-right">
-    <button class="drive-pill disconnected" id="driveBtn" onclick="toggleDriveAuth()">
-      <span class="drive-dot"></span><span id="driveTxt">Drive</span>
-    </button>
-    <button class="btn-icon-sm" onclick="openSettings()" title="Réglages">⚙️</button>
   </div>
 </header>
 
