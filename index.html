@@ -1123,18 +1123,25 @@ async function processCapture(){
   if(!raw||['Appuie sur le micro et parle…','Je t\'écoute…'].includes(raw)){toast('Rien à analyser');return;}
   const k=apiKey();if(!k){toast('Configure ta clé API dans Réglages');openSettings();return;}
   const text=applyCorrs(raw);
-  const dom=$('domSel').value,date=$('dateIn').value,rem=$('remSel').value;
+  const dom=$('domSel').value,manualDate=$('dateIn').value,rem=$('remSel').value;
   setLoad(true,'analyseBtn','spinner','analyseTxt','Analyser');
   const cats=S.cats||DCATS;
   const existingDomains=(S.funcDomains||[]).join(',');
+  // Donner la date et le jour d'aujourd'hui à l'IA pour résoudre "demain", "lundi", etc.
+  const now=new Date();
+  const todayISO=now.toISOString().split('T')[0];
+  const joursSemaine=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const todayLabel=joursSemaine[now.getDay()];
   const sys=`Tu es l'assistant de classification de Régis, entrepreneur en Suisse.
+Aujourd'hui : ${todayISO} (${todayLabel}).
 Réponds UNIQUEMENT en JSON valide sans markdown.
-{"type":"idea"|"todo","title":"max 8 mots","summary":"1-2 phrases","project":"parmi:${cats.join(',')} ou Autre si incertain","funcDomain":"domaine fonctionnel parmi:${existingDomains||'(vide)'} ou NOUVEAU_DOMAINE si rien ne convient — ex: Marketing, Produit, Opérations, Finance, RH, Commercial, Technique, Communication","confidence":"high"|"low","priority":"normal"|"urgent","tags":["t1","t2"] max 3}
-Règles: idea=idée/inspiration, todo=tâche/action concrète. urgent=si dit ou date<7j. N'attribue projet que si CLAIREMENT mentionné sinon Autre. confidence=low si tu hésites sur project ou funcDomain. dom forcé:${dom||'auto'}${glossPrompt()}`;
+{"type":"idea"|"todo","title":"max 8 mots","summary":"1-2 phrases","project":"parmi:${cats.join(',')} ou Autre si incertain","funcDomain":"domaine fonctionnel parmi:${existingDomains||'(vide)'} ou NOUVEAU_DOMAINE — ex: Marketing, Produit, Opérations, Finance, RH, Commercial, Technique, Communication","confidence":"high"|"low","priority":"normal"|"urgent","tags":["t1","t2"] max 3,"date":"YYYY-MM-DD si une date est mentionnée (résous 'demain', 'lundi prochain', etc. par rapport à aujourd'hui) sinon null","time":"HH:MM si une heure est mentionnée (ex: '17h' → '17:00', 'midi' → '12:00') sinon null"}
+Règles: idea=idée/inspiration, todo=tâche/action concrète. urgent=si dit ou délai<7j. N'attribue projet que si CLAIREMENT mentionné sinon Autre. confidence=low si tu hésites. dom forcé:${dom||'auto'}${glossPrompt()}`;
   try{
-    const r=await callAI(k,sys,text,450);
+    const r=await callAI(k,sys,text,480);
     const p=JSON.parse(r);
-    const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:p.type||'todo',title:p.title||raw.slice(0,60),summary:p.summary||'',project:dom||p.project||'',funcDomain:p.funcDomain||'',priority:p.priority||'normal',tags:p.tags||[],date:date||'',reminder:date?rem:'',driveSync:!!token,createdAt:new Date().toISOString()};
+    const resolvedDate=manualDate||p.date||'';
+    const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:p.type||'todo',title:p.title||raw.slice(0,60),summary:p.summary||'',project:dom||p.project||'',funcDomain:p.funcDomain||'',priority:p.priority||'normal',tags:p.tags||[],date:resolvedDate,time:p.time||'',reminder:resolvedDate?rem:'',driveSync:!!token,createdAt:new Date().toISOString()};
     capTxt='';z.contentEditable='false';z.classList.remove('editable');setLive('',false,'');
     $('editHint').classList.remove('show');$('domSel').value='';$('dateIn').value='';$('remRow').style.display='none';hideCorrBar();
     const unclearProject=!dom&&(!p.project||['Autre','autre',''].includes(p.project));
@@ -1741,7 +1748,7 @@ function openActionMenu(id){
   const item=items.find(i=>i.id===id);if(!item)return;
   $('actionMenuTitle').textContent=item.title.slice(0,40)+(item.title.length>40?'…':'');
   $('actionDoneBtn').style.display=(item.type==='todo'&&!item.done)?'flex':'none';
-  $('actionCalBtn').style.display=(item.date&&token)?'flex':'none';
+  $('actionCalBtn').style.display=((item.date||item.time)&&token)?'flex':'none';
   $('actionMenu').classList.add('open');
 }
 function closeActionMenu(){$('actionMenu').classList.remove('open');}
@@ -1768,14 +1775,30 @@ async function actionAddCalendar(){
 }
 
 async function createCalendarEvent(item){
-  const[y,m,d]=item.date.split('-');
-  const start={date:item.date};
-  const end={date:`${y}-${String(Number(m)).padStart(2,'0')}-${String(Number(d)+1).padStart(2,'0')}`};
+  let startObj,endObj;
+  if(item.time){
+    // Événement avec heure précise — durée 1h par défaut
+    const startDT=`${item.date}T${item.time}:00`;
+    const [h,m]=item.time.split(':').map(Number);
+    const endH=String(h+1).padStart(2,'0');
+    const endDT=`${item.date}T${endH}:${String(m).padStart(2,'0')}:00`;
+    startObj={dateTime:startDT,timeZone:'Europe/Zurich'};
+    endObj={dateTime:endDT,timeZone:'Europe/Zurich'};
+  } else {
+    // Événement journée entière
+    const[y,mo,d]=item.date.split('-');
+    const nextDay=new Date(Number(y),Number(mo)-1,Number(d)+1);
+    const nextISO=nextDay.toISOString().split('T')[0];
+    startObj={date:item.date};
+    endObj={date:nextISO};
+  }
+  const reminderMin=item.reminder?Number(item.reminder)*24*60:null;
   const body={
     summary:item.title,
-    description:item.summary+(item.original?'\n\n🎙️ Texte original : '+item.original:''),
-    start,end,
-    reminders:item.reminder?{useDefault:false,overrides:[{method:'email',minutes:Number(item.reminder)*24*60},{method:'popup',minutes:Number(item.reminder)*24*60}]}:{useDefault:true}
+    description:(item.summary||'')+(item.original?'\n\n🎙️ Dicté : '+item.original:''),
+    start:startObj,
+    end:endObj,
+    reminders:reminderMin?{useDefault:false,overrides:[{method:'email',minutes:reminderMin},{method:'popup',minutes:30}]}:{useDefault:true}
   };
   const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
     method:'POST',
@@ -1807,7 +1830,7 @@ function icard(item){
   const dB=item.project&&item.project!=='Autre'?`<span class="badge b-dom">${esc(item.project)}</span>`:'';
   const fdB=item.funcDomain?`<span class="badge b-func">${esc(item.funcDomain)}</span>`:'';
   const tags=(item.tags||[]).map(t=>`<span class="badge b-tag">${esc(t)}</span>`).join('');
-  const date=item.date?`<span class="badge b-date">📅 ${fmtDate(item.date)}</span>`:'';
+  const date=(item.date||item.time)?`<span class="badge b-date">📅 ${item.date?fmtDate(item.date):''}${item.time?' '+item.time:''}</span>`:'';
   const drv=item.driveSync?'<span class="badge b-drive">Drive ✓</span>':'';
   const cal=item.calendarSync?'<span class="badge b-cal">📅 Calendar</span>':'';
   return`<div class="icard ${cls}" id="card-${item.id}"><div class="icard-left-bar"></div><div class="icard-top" style="padding-left:10px;"><div class="icard-body"><div class="icard-title">${esc(item.title)}</div>${item.summary?`<div class="icard-summary">${esc(item.summary)}</div>`:''}<div class="icard-badges">${tB}${uB}${dB}${fdB}${tags}${date}${drv}${cal}</div><div class="icard-original">${esc(item.original)}</div></div><div class="icard-actions"><button class="ibtn" onclick="openActionMenu(${item.id})" title="Actions" style="font-size:18px;color:var(--text2);">···</button></div></div></div>`;
