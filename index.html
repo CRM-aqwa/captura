@@ -2282,45 +2282,109 @@ function searchCaptures(){
 // ── RÉCAPITULATIF EMAIL HEBDOMADAIRE ──────────────────────
 function generateWeeklyRecap(){
   const now=new Date();
-  const weekStart=new Date(now);weekStart.setDate(now.getDate()-now.getDay()+1);
-  const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+6);
-  const weekStartISO=weekStart.toISOString().split('T')[0];
-  const weekEndISO=weekEnd.toISOString().split('T')[0];
+  const monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));
+  const sunday=new Date(monday);sunday.setDate(monday.getDate()+6);
+  const mondayISO=monday.toISOString().split('T')[0];
+  const sundayISO=sunday.toISOString().split('T')[0];
   const todayISO=now.toISOString().split('T')[0];
 
-  // Tâches de la semaine (avec date)
-  const weekTasks=items.filter(i=>!i.done&&i.type!=='idea'&&i.date&&i.date>=weekStartISO&&i.date<=weekEndISO)
+  const weekTasks=items.filter(i=>!i.done&&i.type!=='idea'&&i.date&&i.date>=mondayISO&&i.date<=sundayISO)
+    .sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||''));
+  const overdue=items.filter(i=>!i.done&&i.type!=='idea'&&i.date&&i.date<todayISO)
     .sort((a,b)=>a.date.localeCompare(b.date));
-  // Tâches urgentes sans date
-  const urgentNow=items.filter(i=>!i.done&&i.type!=='idea'&&i.priority==='urgent'&&!i.date);
-  // Tâches en retard (date passée)
-  const overdue=items.filter(i=>!i.done&&i.type!=='idea'&&i.date&&i.date<todayISO);
+  const urgentNoDate=items.filter(i=>!i.done&&i.type!=='idea'&&i.priority==='urgent'&&!i.date);
+  const totalTasks=items.filter(i=>!i.done&&i.type!=='idea').length;
+  const totalIdeas=items.filter(i=>i.type==='idea'&&!i.done).length;
 
-  const formatItem=i=>`• ${i.title}${i.date?' ('+fmtDate(i.date)+(i.time?' '+i.time:'')+')':''}${i.project&&i.project!=='Autre'?' ['+i.project+']':''}`;
+  const itemRow=(i,color='#1a1714')=>`
+    <tr>
+      <td style="padding:10px 16px;border-bottom:0.5px solid #ede8e0;vertical-align:top;">
+        <div style="font-weight:600;font-size:14px;color:${color};margin-bottom:2px;">${esc(i.title)}</div>
+        ${i.summary?`<div style="font-size:12px;color:#8a7e70;margin-bottom:4px;">${esc(i.summary)}</div>`:''}
+        <div style="font-size:11px;color:#b0a496;">
+          ${i.date?`📅 ${fmtDate(i.date)}${i.time?' à '+i.time:''} &nbsp;`:''}
+          ${i.project&&i.project!=='Autre'?`<span style="background:#f0ede8;padding:2px 7px;border-radius:99px;">${esc(i.project)}</span>`:''}
+          ${(i.tags||[]).slice(0,2).map(t=>`<span style="background:#f0ede8;padding:2px 7px;border-radius:99px;">${esc(t)}</span>`).join(' ')}
+        </div>
+      </td>
+    </tr>`;
 
-  let body=`RÉCAPITULATIF CAPTURA — Semaine du ${fmtDate(weekStartISO)} au ${fmtDate(weekEndISO)}\n\n`;
+  const section=(title,icon,color,bgColor,rows)=>rows.length===0?'':` 
+    <div style="margin-bottom:24px;">
+      <div style="background:${bgColor};border-radius:10px 10px 0 0;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">${icon}</span>
+        <span style="font-weight:700;font-size:13px;color:${color};text-transform:uppercase;letter-spacing:0.8px;">${title}</span>
+        <span style="margin-left:auto;font-size:12px;font-weight:600;color:${color};opacity:0.7;">${rows.length}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#fff;border-radius:0 0 10px 10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        ${rows.map(i=>itemRow(i,color)).join('')}
+      </table>
+    </div>`;
 
-  if(overdue.length){
-    body+=`⚠️ EN RETARD (${overdue.length})\n${overdue.map(formatItem).join('\n')}\n\n`;
+  const html=`<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<title>Récapitulatif Captura</title></head>
+<body style="font-family:-apple-system,'Segoe UI',sans-serif;background:#f5f2ee;margin:0;padding:24px;">
+<div style="max-width:560px;margin:0 auto;">
+
+  <div style="text-align:center;margin-bottom:28px;">
+    <div style="font-size:28px;font-weight:300;color:#1a1714;letter-spacing:-0.5px;margin-bottom:4px;">Cap<span style="color:#FF6B35;">tura</span></div>
+    <div style="font-size:14px;color:#8a7e70;">Semaine du ${fmtDate(mondayISO)} au ${fmtDate(sundayISO)}</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px;">
+    <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="font-size:26px;font-weight:300;color:#1a1714;">${totalTasks}</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#b0a496;margin-top:2px;">Tâches</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="font-size:26px;font-weight:300;color:#FF6B35;">${overdue.length}</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#b0a496;margin-top:2px;">En retard</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      <div style="font-size:26px;font-weight:300;color:#007AFF;">${totalIdeas}</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:#b0a496;margin-top:2px;">Idées</div>
+    </div>
+  </div>
+
+  ${section('En retard','⚠️','#cc2200','#fff0ee',overdue)}
+  ${section('Cette semaine','📅','#0060cc','#eef4ff',weekTasks)}
+  ${section('Urgent sans date','🔴','#cc2200','#fff0ee',urgentNoDate)}
+
+  ${(overdue.length+weekTasks.length+urgentNoDate.length)===0?`
+  <div style="text-align:center;padding:40px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <div style="font-size:32px;margin-bottom:8px;">✓</div>
+    <div style="font-size:16px;font-weight:600;color:#1a1714;">Tout est à jour !</div>
+    <div style="font-size:13px;color:#8a7e70;margin-top:4px;">Aucune tâche urgente cette semaine.</div>
+  </div>`:''}
+
+  <div style="text-align:center;margin-top:28px;font-size:11px;color:#b0a496;">
+    Généré par Captura · ${now.toLocaleDateString('fr-CH')} à ${now.toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'})}
+  </div>
+</div>
+</body></html>`;
+
+  // Télécharger comme fichier HTML lisible
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`captura_recap_${mondayISO}.html`;
+  a.click();URL.revokeObjectURL(url);
+
+  // Aussi ouvrir mailto si email configuré
+  if(S.email){
+    const subject=encodeURIComponent(`Captura — Semaine du ${fmtDate(mondayISO)}`);
+    const body=encodeURIComponent(
+      `Bonjour,\n\nVoici le récapitulatif Captura pour la semaine du ${fmtDate(mondayISO)} au ${fmtDate(sundayISO)}.\n\n`+
+      (overdue.length?`⚠️ EN RETARD (${overdue.length})\n${overdue.map(i=>`• ${i.title}${i.date?' — '+fmtDate(i.date):''}`).join('\n')}\n\n`:'')+
+      (weekTasks.length?`📅 CETTE SEMAINE (${weekTasks.length})\n${weekTasks.map(i=>`• ${i.title}${i.date?' — '+fmtDate(i.date)+(i.time?' à '+i.time:''):''}`).join('\n')}\n\n`:'')+
+      (urgentNoDate.length?`🔴 URGENT (${urgentNoDate.length})\n${urgentNoDate.map(i=>`• ${i.title}`).join('\n')}\n\n`:'')+
+      `📊 ${totalTasks} tâche${totalTasks>1?'s':''} en cours · ${totalIdeas} idée${totalIdeas>1?'s':''}\n\nCaptura`
+    );
+    window.open(`mailto:${S.email}?subject=${subject}&body=${body}`,'_blank');
   }
-  if(weekTasks.length){
-    body+=`📅 CETTE SEMAINE (${weekTasks.length})\n${weekTasks.map(formatItem).join('\n')}\n\n`;
-  }
-  if(urgentNow.length){
-    body+=`🔴 URGENT SANS DATE (${urgentNow.length})\n${urgentNow.map(formatItem).join('\n')}\n\n`;
-  }
-  const total=items.filter(i=>!i.done&&i.type!=='idea').length;
-  const ideas=items.filter(i=>i.type==='idea'&&!i.done).length;
-  body+=`📊 TOTAL : ${total} tâche${total>1?'s':''} en cours · ${ideas} idée${ideas>1?'s':''}\n`;
-  body+=`\nGénéré par Captura le ${now.toLocaleDateString('fr-CH')} à ${now.toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'})}`;
-
-  // Ouvrir le client mail avec le récap
-  const email=S.email||'';
-  const subject=encodeURIComponent(`Captura — Semaine du ${fmtDate(weekStartISO)}`);
-  const bodyEnc=encodeURIComponent(body);
-  const mailLink=`mailto:${email}?subject=${subject}&body=${bodyEnc}`;
-  window.open(mailLink,'_blank');
-  toast('Récapitulatif ouvert dans ton client mail ✓');
+  toast('Récapitulatif généré ✓');
 }
 
 // Vérifier chaque lundi si récap programmé
