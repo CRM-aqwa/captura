@@ -2565,7 +2565,6 @@ function showExportPanel(html, title, subtitle){
   const existing=document.getElementById('exportPanel');
   if(existing)existing.remove();
 
-  // Stocker le HTML pour le partage
   const _html=html;
   const _title=title;
 
@@ -2580,7 +2579,7 @@ function showExportPanel(html, title, subtitle){
         <div style="font-size:11px;color:#8a7e70;">${esc(subtitle)}</div>
       </div>
       <button id="shareBtn" style="background:linear-gradient(160deg,#FF8040,#FF5010);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap;">
-        ⬆️ Partager
+        ⬆️ Exporter PDF
       </button>
     </div>
     <div id="exportContent" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:20px;">
@@ -2588,38 +2587,22 @@ function showExportPanel(html, title, subtitle){
     </div>`;
   document.body.appendChild(panel);
 
-  // Bouton partager — envoie le fichier HTML complet avec mise en page
-  document.getElementById('shareBtn').addEventListener('click', async function(){
-    try{
-      const blob=new Blob([_html],{type:'text/html;charset=utf-8'});
-      const fileName=(_title.toLowerCase().replace(/[^a-z0-9]+/g,'-'))+'.html';
-      const file=new File([blob],fileName,{type:'text/html'});
-
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        // Partage de fichier — iOS ouvre le menu natif avec toutes les apps
-        await navigator.share({files:[file],title:_title});
-      } else if(navigator.share){
-        // Fallback : partage via blob URL
-        const url=URL.createObjectURL(blob);
-        await navigator.share({title:_title,url:url});
-        setTimeout(()=>URL.revokeObjectURL(url),5000);
-      } else {
-        // Desktop : téléchargement direct
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url;a.download=fileName;a.click();
-        URL.revokeObjectURL(url);
-      }
-    }catch(e){
-      if(e.name!=='AbortError'){
-        // Dernier recours : téléchargement
-        const blob=new Blob([_html],{type:'text/html;charset=utf-8'});
-        const url=URL.createObjectURL(blob);
-        const a=document.createElement('a');
-        a.href=url;a.download=_title+'.html';a.click();
-        URL.revokeObjectURL(url);
-      }
-    }
+  // Bouton export PDF — ouvre une iframe cachée et lance l'impression
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    // Créer une iframe invisible avec le HTML complet
+    const iframe=document.createElement('iframe');
+    iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:800px;height:600px;border:none;';
+    document.body.appendChild(iframe);
+    iframe.contentDocument.open();
+    iframe.contentDocument.write(_html);
+    iframe.contentDocument.close();
+    // Lancer l'impression depuis l'iframe — iOS propose "Enregistrer en PDF" + partage
+    iframe.onload=function(){
+      setTimeout(function(){
+        iframe.contentWindow.print();
+        setTimeout(function(){document.body.removeChild(iframe);},2000);
+      },300);
+    };
   });
 }
 function printPage(){
