@@ -375,7 +375,68 @@ select option{background:#f5f2ee;color:var(--text);}
 .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(26,23,20,0.88);color:#f5f2ee;border:0.5px solid rgba(255,255,255,0.15);padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:400;transition:transform .25s ease;white-space:nowrap;box-shadow:0 4px 18px rgba(0,0,0,0.2);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
-@media(max-width:480px){.page{padding:1rem .75rem 1.5rem;}.mic-btn{width:64px;height:64px;font-size:26px;}}
+/* ══════════════════════════════════════════════
+   LAYOUT DESKTOP — 2 colonnes (≥900px)
+══════════════════════════════════════════════ */
+@media(min-width:900px){
+
+  /* Corps principal */
+  body{padding-bottom:0;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+  /* Header desktop — plus compact */
+  .header{position:fixed;top:0;left:0;width:300px;height:100vh;flex-direction:column;align-items:flex-start;justify-content:flex-start;border-bottom:none;border-right:0.5px solid rgba(185,175,160,0.25);padding:28px 20px 20px;background:rgba(245,242,238,0.85);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);overflow-y:auto;z-index:100;gap:0;}
+  .logo{font-size:26px;margin-bottom:6px;}
+  .header-right{flex-direction:column;align-items:flex-start;gap:8px;width:100%;margin-top:auto;padding-top:20px;border-top:0.5px solid rgba(185,175,160,0.2);}
+
+  /* Boutons Drive + Settings en bas de colonne gauche */
+  .drive-pill{font-size:12px;padding:7px 14px;}
+
+  /* Navigation gauche */
+  .bottom-nav{position:fixed;left:0;top:auto;bottom:0;width:300px;height:auto;flex-direction:column;align-items:stretch;border-top:0.5px solid rgba(185,175,160,0.2);border-right:0.5px solid rgba(185,175,160,0.25);padding:12px 12px calc(12px + env(safe-area-inset-bottom));background:rgba(245,242,238,0.85);backdrop-filter:blur(30px);gap:4px;}
+  .nav-btn{flex-direction:row;justify-content:flex-start;gap:12px;max-width:100%;padding:11px 14px;border-radius:12px;text-align:left;}
+  .nav-btn:hover{background:rgba(255,255,255,0.5);}
+  .nav-btn.active{background:rgba(255,255,255,0.65);box-shadow:0 2px 8px rgba(0,0,0,0.07);}
+  .nav-label{font-size:14px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--text2);}
+  .nav-btn.active .nav-label{color:var(--text);}
+  .nav-icon{width:28px;height:28px;flex-shrink:0;}
+
+  /* Zone de contenu principale — décalée de 300px */
+  .page{display:none;margin-left:300px;max-width:none;padding:28px 32px;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .page.active{display:block;}
+
+  /* Mic section desktop — plus compacte, intégrée dans la sidebar */
+  .header .mic-section-desktop{display:block;}
+
+  /* Stats en ligne */
+  .stats-row{grid-template-columns:repeat(3,1fr);}
+
+  /* Cards plus larges */
+  .icard,.jcard{max-width:100%;}
+
+  /* Filtres */
+  .filters-scroll{margin-bottom:1.25rem;}
+
+  /* Topbar */
+  .topbar{margin-bottom:1.25rem;}
+
+  /* Cacher le header mobile sur desktop */
+  .header-mobile-only{display:none;}
+}
+
+/* Micro + capture dans la sidebar desktop */
+.sidebar-capture{display:none;}
+@media(min-width:900px){
+  .sidebar-capture{display:block;margin:20px 0;}
+  .sidebar-capture .mic-section{margin-bottom:0;}
+  .sidebar-capture .section-label{text-align:left;}
+  .sidebar-capture .mic-wrap{justify-content:flex-start;}
+  /* Stats compactes dans sidebar */
+  .sidebar-stats{display:flex;gap:8px;margin:16px 0;}
+  .sidebar-stat{flex:1;background:rgba(255,255,255,0.45);border-radius:10px;padding:10px 8px;text-align:center;border:0.5px solid rgba(185,175,160,0.3);}
+  .sidebar-stat .sn{font-size:20px;font-weight:300;color:var(--text);display:block;}
+  .sidebar-stat .sl{font-size:9px;text-transform:uppercase;letter-spacing:0.7px;color:var(--text3);}
+}
+
 
 .cap-search-box{background:var(--glass-bg);border-top:var(--glass-border-top);border-left:var(--glass-border-left);border-right:var(--glass-border-right);border-bottom:var(--glass-border-bottom);box-shadow:var(--glass-shadow);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-radius:var(--radius);padding:.9rem 1rem;margin-bottom:1rem;position:relative;overflow:hidden;}
 .cap-search-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,0.88) 35%,rgba(255,255,255,1) 50%,rgba(255,255,255,0.88) 65%,transparent 95%);}
@@ -451,6 +512,27 @@ select option{background:#f5f2ee;color:var(--text);}
 
 <header class="header">
   <div class="logo">Cap<span>tura</span></div>
+
+  <!-- Micro + stats dans la sidebar (desktop uniquement) -->
+  <div class="sidebar-capture">
+    <div class="mic-section" style="padding:1rem;">
+      <div class="section-label">Nouvelle capture</div>
+      <div class="mic-wrap"><button class="mic-btn" id="micBtnDesk" onclick="toggleMic()">
+        <div class="mic-bars"><span></span><span></span><span></span><span></span><span></span></div>
+      </button></div>
+      <div class="live-zone empty" id="liveZoneDesk" style="min-height:50px;font-size:13px;" onclick="syncDeskZone()">Clique sur le micro…</div>
+      <button class="btn-primary" onclick="processCapture()" style="margin-top:10px;padding:10px;">
+        <div class="spinner" id="spinnerDesk"></div>
+        <span>Analyser</span>
+      </button>
+    </div>
+    <div class="sidebar-stats">
+      <div class="sidebar-stat"><span class="sn" id="dsTot">0</span><span class="sl">Total</span></div>
+      <div class="sidebar-stat"><span class="sn" id="dsIdeas">0</span><span class="sl">Idées</span></div>
+      <div class="sidebar-stat"><span class="sn" id="dsTodos">0</span><span class="sl">À faire</span></div>
+    </div>
+  </div>
+
   <div class="header-right">
     <button class="drive-pill disconnected" id="driveBtn" onclick="toggleDriveAuth()">
       <span class="drive-dot"></span><span id="driveTxt">Drive</span>
@@ -2193,9 +2275,14 @@ function fmtDateFull(d){try{return new Date(d+'T12:00:00').toLocaleDateString('f
 function fmtTime(iso){try{return new Date(iso).toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'});}catch{return'';}}
 function updateStats(){
   const todos=items.filter(i=>i.type==='todo');
+  const ideas=items.filter(i=>i.type==='idea');
   $('sTot').textContent=items.length;
   $('sTodos').textContent=todos.filter(i=>!i.done).length;
   $('sDone').textContent=todos.filter(i=>i.done).length;
+  // Sync sidebar desktop
+  if($('dsTot'))$('dsTot').textContent=items.length;
+  if($('dsIdeas'))$('dsIdeas').textContent=ideas.filter(i=>!i.done).length;
+  if($('dsTodos'))$('dsTodos').textContent=todos.filter(i=>!i.done).length;
 }
 function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
 function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
