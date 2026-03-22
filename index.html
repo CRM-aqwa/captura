@@ -1215,9 +1215,109 @@ function toggleCapSMic(){
 
 // ── EXPORT CAPTURES (PDF-friendly) ───────────────────────
 function exportCaptures(){
-  $('printTitle').style.display='block';
-  window.print();
-  setTimeout(()=>$('printTitle').style.display='none',500);
+  // Récupérer la liste filtrée visible
+  let f=[...items].filter(i=>!i.done);
+  if(curFilter==='done')f=items.filter(i=>i.done);
+  else if(curFilter==='todo')f=f.filter(i=>i.type==='todo');
+  else if(curFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
+  else if(curFilter!=='all')f=f.filter(i=>i.project===curFilter);
+
+  const title=$('filterLabel').textContent||'Captura';
+  const date=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
+
+  const rows=f.map(i=>{
+    const badges=[
+      i.project&&i.project!=='Autre'?i.project:'',
+      i.funcDomain||'',
+      ...(i.tags||[])
+    ].filter(Boolean).join(' · ');
+    const dateStr=i.date?`  📅 ${fmtDate(i.date)}`:'';
+    const urgStr=i.priority==='urgent'?'  ⚡ Urgent':'';
+    return`<tr>
+      <td style="padding:10px 12px;border-bottom:0.5px solid #e0dbd4;vertical-align:top;">
+        <div style="font-weight:600;font-size:14px;color:#1a1714;margin-bottom:4px;">${esc(i.title)}</div>
+        ${i.summary?`<div style="font-size:12px;color:#6b6358;margin-bottom:4px;">${esc(i.summary)}</div>`:''}
+        <div style="font-size:11px;color:#9a9085;">${esc(badges)}${dateStr}${urgStr}</div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const html=`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Captura — ${esc(title)}</title>
+<style>body{font-family:-apple-system,'Segoe UI',sans-serif;background:#f5f2ee;color:#1a1714;padding:2rem;max-width:700px;margin:0 auto;}
+h1{font-size:22px;font-weight:700;margin-bottom:4px;}
+.meta{font-size:12px;color:#9a9085;margin-bottom:1.5rem;}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+tr:last-child td{border-bottom:none!important;}
+</style></head><body>
+<h1>${esc(title)}</h1>
+<div class="meta">Exporté le ${date} · ${f.length} élément${f.length>1?'s':''}</div>
+<table>${rows}</table>
+</body></html>`;
+
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`captura_export_${new Date().toISOString().split('T')[0]}.html`;
+  a.click();URL.revokeObjectURL(url);
+  toast(`${f.length} élément${f.length>1?'s':''} exporté${f.length>1?'s':''} ✓`);
+}
+
+// ── FUSION DOUBLONS IA ────────────────────────────────────
+async function checkDuplicate(newItem){
+  const k=apiKey();if(!k)return null;
+  const ideas=items.filter(i=>i.type==='idea'&&!i.done&&i.project===newItem.project);
+  if(ideas.length<3)return null;
+  const corpus=ideas.slice(0,30).map((i,idx)=>`[${idx}] ${i.title} — ${i.summary}`).join('\n');
+  const sys=`Tu cherches des doublons ou idées très similaires dans une base de captures.
+Réponds UNIQUEMENT en JSON : {"duplicate":true|false,"index":N|null,"reason":"courte explication"}
+duplicate=true seulement si une idée existante couvre déjà le même sujet de façon substantielle.`;
+  try{
+    const r=await callAI(k,sys,`Nouvelle idée: "${newItem.title} — ${newItem.summary}"\n\nBase existante:\n${corpus}`,150);
+    const p=JSON.parse(r);
+    if(p.duplicate&&p.index!==null)return{item:ideas[p.index],reason:p.reason};
+  }catch(e){console.warn('Duplicate check failed:',e);}
+  return null;
+}
+
+// Modal doublon
+let pendingMergeNew=null,pendingMergeExisting=null;
+function showMergeModal(newItem,existing,reason){
+  pendingMergeNew=newItem;pendingMergeExisting=existing;
+  const box=document.createElement('div');
+  box.id='mergeModal';
+  box.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;';
+  box.innerHTML=`<div style="background:rgba(245,242,238,0.97);border-radius:16px 16px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -6px 32px rgba(0,0,0,0.1);">
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(80,70,58,0.42);text-align:center;margin-bottom:12px;">Idée similaire détectée</div>
+    <div style="background:rgba(255,107,53,0.08);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:rgba(60,52,42,0.7);">${esc(reason)}</div>
+    <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 12px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:600;color:rgba(80,70,58,0.5);margin-bottom:4px;">Idée existante</div>
+      <div style="font-size:14px;font-weight:600;color:#1a1714;">${esc(existing.title)}</div>
+      <div style="font-size:12px;color:rgba(60,52,42,0.6);margin-top:2px;">${esc(existing.summary)}</div>
+    </div>
+    <button onclick="mergeDuplicate()" style="width:100%;background:linear-gradient(160deg,#FF8040,#FF5010);color:#fff;border:none;border-radius:12px;padding:13px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 16px rgba(255,107,53,0.3);">Enrichir l'idée existante</button>
+    <button onclick="keepBoth()" style="width:100%;background:rgba(255,255,255,0.5);border:0.5px solid rgba(0,0,0,0.08);border-radius:12px;padding:13px;font-family:inherit;font-size:15px;cursor:pointer;color:rgba(60,52,42,0.7);">Garder les deux</button>
+  </div>`;
+  document.body.appendChild(box);
+}
+async function mergeDuplicate(){
+  const box=document.getElementById('mergeModal');if(box)box.remove();
+  if(!pendingMergeExisting||!pendingMergeNew)return;
+  const ex=pendingMergeExisting;
+  if(pendingMergeNew.summary&&!ex.summary.includes(pendingMergeNew.summary)){
+    ex.summary=(ex.summary+'\n\n+ '+pendingMergeNew.summary).trim();
+  }
+  ex.tags=[...new Set([...(ex.tags||[]),...(pendingMergeNew.tags||[])])];
+  ex.updatedAt=new Date().toISOString();
+  await saveAll();renderAll();if(curTab==='idea')renderIdeas();
+  toast('Idée enrichie ✓');
+  pendingMergeNew=null;pendingMergeExisting=null;
+}
+async function keepBoth(){
+  const box=document.getElementById('mergeModal');if(box)box.remove();
+  if(pendingMergeNew){await finalize(pendingMergeNew);closeIdeaInput();}
+  pendingMergeNew=null;pendingMergeExisting=null;
 }
 
 // ── EXPORT JOURNAL ────────────────────────────────────────
@@ -1334,8 +1434,15 @@ Règles: N'attribue projet que si CLAIREMENT mentionné sinon Autre. confidence=
       showDomainPicker(item,p.funcDomain,p.proposedDomains||[]);
     } else {
       autoRegisterDomain(item.funcDomain);
-      await finalize(item);
-      closeIdeaInput();
+      // Vérifier doublons avant de sauvegarder
+      const dup=await checkDuplicate(item);
+      if(dup){
+        closeIdeaInput();
+        showMergeModal(item,dup.item,dup.reason);
+      } else {
+        await finalize(item);
+        closeIdeaInput();
+      }
     }
   }catch(e){toast('Erreur : '+e.message.slice(0,60));}
   finally{setLoad(false,'iAnalyseBtn','iSpinner','iAnalyseTxt','Analyser l\'idée');}
@@ -1475,10 +1582,13 @@ function startEdit(id){
   const item=items.find(i=>i.id===id);if(!item)return;
   const card=document.getElementById(`card-${id}`);if(!card)return;
   card.classList.add('editing');
+  const tagsVal=(item.tags||[]).join(', ');
   card.innerHTML=`
-    <div class="msec-title" style="margin-bottom:8px;">Modifier la capture</div>
+    <div class="msec-title" style="margin-bottom:10px;color:var(--text2);">Modifier la capture</div>
     <input class="edit-field" id="et-${id}" value="${esc(item.title)}" placeholder="Titre">
-    <textarea class="edit-field" id="es-${id}" rows="2" placeholder="Résumé">${esc(item.summary)}</textarea>
+    <textarea class="edit-field" id="es-${id}" rows="5" placeholder="Résumé" style="resize:vertical;min-height:100px;">${esc(item.summary)}</textarea>
+    <input class="edit-field" id="etags-${id}" value="${esc(tagsVal)}" placeholder="Tags séparés par des virgules" style="font-size:13px;">
+    <div style="font-size:11px;color:var(--text3);margin:-2px 0 6px;padding-left:2px;">Tags séparés par des virgules</div>
     <div class="edit-actions">
       <button class="btn-edit-cancel" onclick="cancelEdit(${id})">Annuler</button>
       <button class="btn-edit-save" onclick="saveEdit(${id})">Sauvegarder ✓</button>
@@ -1490,7 +1600,9 @@ async function saveEdit(id){
   const item=items.find(i=>i.id===id);if(!item)return;
   item.title=(document.getElementById(`et-${id}`)?.value||'').trim()||item.title;
   item.summary=(document.getElementById(`es-${id}`)?.value||'').trim();
-  await saveAll();renderItems();toast('Modifié ✓');
+  const tagsRaw=(document.getElementById(`etags-${id}`)?.value||'').trim();
+  item.tags=tagsRaw?tagsRaw.split(',').map(t=>t.trim()).filter(Boolean):[];
+  await saveAll();renderItems();if(curTab==='idea')renderIdeas();toast('Modifié ✓');
 }
 
 // ── SMART SEARCH (IA) ────────────────────────────────────
