@@ -309,16 +309,44 @@ select option{background:#f5f2ee;color:var(--text);}
 .btn-data.btn-archive:hover{background:var(--yellow-dim);}
 .elist{display:flex;flex-direction:column;gap:6px;}
 
-/* ── PROJECT PICKER ── */
-.ppicker{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.25);backdrop-filter:blur(10px);z-index:300;align-items:flex-end;justify-content:center;}
-.ppicker.open{display:flex;}
-.ppicker-box{background:rgba(245,242,238,0.96);backdrop-filter:blur(30px);border-radius:var(--radius) var(--radius) 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -6px 32px rgba(0,0,0,0.1);animation:slideUp .22s ease;}
-.ppicker-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;text-align:center;}
-.ppicker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:rgba(255,255,255,0.55);border:0.5px solid rgba(0,0,0,0.08);border-radius:var(--radius-sm);padding:13px 14px;margin-bottom:8px;cursor:pointer;color:var(--text);text-align:left;transition:all 0.12s;}
-.ppicker-item:hover,.ppicker-item:active{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2);}
-.ppicker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:10px;cursor:pointer;color:var(--text3);margin-top:4px;}
-
-/* ── EXPORT PRINT ── */
+/* ── CAL PICKER PREMIUM ── */
+.dpicker{display:none;position:fixed;inset:0;background:rgba(180,172,160,0.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:300;align-items:flex-end;justify-content:center;}
+.dpicker.open{display:flex;}
+.dpicker-box{background:rgba(245,242,238,0.97);backdrop-filter:blur(30px);border-radius:24px 24px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);border-left:0.5px solid rgba(255,255,255,0.6);padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(0,0,0,0.14);animation:slideUp .24s cubic-bezier(0.32,0.72,0,1);}
+.dpicker-title{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:#1a1714;margin-bottom:4px;text-align:center;letter-spacing:-0.3px;}
+.dpicker-subtitle{font-size:13px;color:rgba(80,70,58,0.6);text-align:center;margin-bottom:20px;line-height:1.4;}
+.dpicker-btns{display:flex;flex-direction:column;gap:9px;}
+.dpicker-item{
+  font-family:inherit;font-size:15px;font-weight:500;width:100%;
+  background:linear-gradient(158deg,rgba(255,255,255,0.52),rgba(240,238,234,0.32));
+  border-top:1px solid rgba(255,255,255,0.88);
+  border-left:0.5px solid rgba(255,255,255,0.6);
+  border-right:0.5px solid rgba(185,175,160,0.25);
+  border-bottom:0.5px solid rgba(185,175,160,0.3);
+  border-radius:14px;padding:14px 18px;cursor:pointer;color:#1a1714;
+  text-align:left;transition:all 0.14s;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.8),0 3px 10px rgba(0,0,0,0.07);
+  position:relative;overflow:hidden;
+}
+.dpicker-item::before{content:'';position:absolute;top:0;left:0;right:0;height:1.5px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.8) 50%,transparent);border-radius:14px 14px 0 0;}
+.dpicker-item:active{transform:scale(0.98);}
+.dpicker-item:hover{background:linear-gradient(158deg,rgba(255,255,255,0.72),rgba(245,242,238,0.55));box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.9),0 4px 14px rgba(0,0,0,0.1);}
+.dpicker-item .di-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.dpicker-item .di-text{flex:1;}
+.dpicker-item .di-label{font-size:15px;font-weight:600;color:#1a1714;line-height:1.2;}
+.dpicker-item .di-desc{font-size:12px;color:rgba(80,70,58,0.55);margin-top:1px;}
+/* Couleurs icônes Calendar */
+.dpicker-item.cal-none .di-icon{background:rgba(0,0,0,0.06);}
+.dpicker-item.cal-now .di-icon{background:rgba(255,107,53,0.12);}
+.dpicker-item.cal-1h .di-icon{background:rgba(0,122,255,0.1);}
+.dpicker-item.cal-1d .di-icon{background:rgba(48,209,88,0.1);}
+.dpicker-item.cal-1w .di-icon{background:rgba(191,90,242,0.1);}
+.dpicker-custom{display:flex;gap:8px;margin-top:4px;}
+.dpicker-custom input{flex:1;font-family:inherit;font-size:15px;color:var(--text);background:rgba(255,255,255,0.55);border:0.5px solid rgba(0,0,0,0.1);border-radius:var(--radius-sm);padding:11px 14px;outline:none;}
+.dpicker-custom input:focus{border-color:var(--green);}
+.dpicker-custom button{background:var(--green);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px 18px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.dpicker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:12px;cursor:pointer;color:rgba(80,70,58,0.5);margin-top:2px;letter-spacing:0.1px;} */
 @media print{
   .header,.bottom-nav,.mic-section,.stats-row,.filters-scroll,.corr-bar,.edit-hint,.icard-actions,.jdel,.search-box,.empty,.no-print{display:none!important;}
   body{background:#fff;color:#000;padding:0;}
@@ -384,6 +412,13 @@ select option{background:#f5f2ee;color:var(--text);}
 .b-func{background:rgba(48,209,88,0.12);color:var(--green);}
 
 /* Domain picker (comme ppicker) */
+.ppicker{display:none;position:fixed;inset:0;background:rgba(180,172,160,0.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:300;align-items:flex-end;justify-content:center;}
+.ppicker.open{display:flex;}
+.ppicker-box{background:rgba(245,242,238,0.97);backdrop-filter:blur(30px);border-radius:24px 24px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(0,0,0,0.14);animation:slideUp .22s ease;}
+.ppicker-title{font-family:'DM Serif Display',serif;font-size:18px;font-weight:400;color:#1a1714;margin-bottom:14px;text-align:center;}
+.ppicker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:linear-gradient(158deg,rgba(255,255,255,0.52),rgba(240,238,234,0.32));border-top:1px solid rgba(255,255,255,0.88);border-left:0.5px solid rgba(255,255,255,0.6);border-right:0.5px solid rgba(185,175,160,0.25);border-bottom:0.5px solid rgba(185,175,160,0.3);border-radius:14px;padding:14px 16px;margin-bottom:9px;cursor:pointer;color:#1a1714;text-align:left;transition:all 0.12s;box-shadow:inset 0 1.5px 0 rgba(255,255,255,0.8),0 3px 10px rgba(0,0,0,0.07);}
+.ppicker-item:hover,.ppicker-item:active{background:rgba(0,122,255,0.08);color:#0060cc;border-top-color:rgba(255,255,255,0.9);}
+.ppicker-skip{font-family:inherit;font-size:14px;width:100%;background:none;border:none;padding:12px;cursor:pointer;color:rgba(80,70,58,0.5);margin-top:2px;}
 .dpicker{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);z-index:300;align-items:flex-end;justify-content:center;}
 .dpicker.open{display:flex;}
 .dpicker-box{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;border-top:0.5px solid var(--border2);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:var(--shadow-lg);animation:slideUp .22s ease;}
@@ -1788,14 +1823,29 @@ function showCalendarPicker(item){
   pendingCalItem=item;
   const dateStr=item.date?fmtDate(item.date):'';
   const timeStr=item.time?` à ${item.time}`:'';
-  $('calPickerTitle').textContent='Ajouter à Google Calendar ?';
+  $('calPickerTitle').textContent='Google Calendar';
   $('calPickerSubtitle').textContent=`${item.title}${dateStr?' — '+dateStr:''}${timeStr}`;
   $('calPickerBtns').innerHTML=`
-    <button class="dpicker-item cal-btn" onclick="calPickerSelect(0)">📵 Sans rappel</button>
-    <button class="dpicker-item cal-btn" onclick="calPickerSelect(0,'popup')">🔔 Au moment</button>
-    <button class="dpicker-item cal-btn" onclick="calPickerSelect(60)">⏰ 1 heure avant</button>
-    <button class="dpicker-item cal-btn" onclick="calPickerSelect(1440)">📅 1 jour avant</button>
-    <button class="dpicker-item cal-btn" onclick="calPickerSelect(10080)">📆 1 semaine avant</button>
+    <button class="dpicker-item cal-none" onclick="calPickerSelect(0)">
+      <div class="di-icon">🔕</div>
+      <div class="di-text"><div class="di-label">Sans rappel</div><div class="di-desc">Événement créé, aucune notification</div></div>
+    </button>
+    <button class="dpicker-item cal-now" onclick="calPickerSelect(0,'popup')">
+      <div class="di-icon">🔔</div>
+      <div class="di-text"><div class="di-label">Au moment</div><div class="di-desc">Notification pile à l'heure</div></div>
+    </button>
+    <button class="dpicker-item cal-1h" onclick="calPickerSelect(60)">
+      <div class="di-icon">⏰</div>
+      <div class="di-text"><div class="di-label">1 heure avant</div><div class="di-desc">Rappel 60 minutes en avance</div></div>
+    </button>
+    <button class="dpicker-item cal-1d" onclick="calPickerSelect(1440)">
+      <div class="di-icon">📅</div>
+      <div class="di-text"><div class="di-label">1 jour avant</div><div class="di-desc">Rappel la veille + email</div></div>
+    </button>
+    <button class="dpicker-item cal-1w" onclick="calPickerSelect(10080)">
+      <div class="di-icon">📆</div>
+      <div class="di-text"><div class="di-label">1 semaine avant</div><div class="di-desc">Rappel 7 jours en avance + email</div></div>
+    </button>
   `;
   $('calPicker').classList.add('open');
 }
