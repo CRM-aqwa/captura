@@ -1346,13 +1346,7 @@ tr:last-child td{border-bottom:none!important;}
 <table>${rows}</table>
 </body></html>`;
 
-  const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`captura_export_${new Date().toISOString().split('T')[0]}.html`;
-  a.click();URL.revokeObjectURL(url);
-  toast(`${f.length} élément${f.length>1?'s':''} exporté${f.length>1?'s':''} ✓`);
+  showExportPanel(html, title, f.length+' élément'+(f.length>1?'s':''));
 }
 
 // ── FUSION DOUBLONS IA ────────────────────────────────────
@@ -1664,17 +1658,9 @@ function exportIdeas(){
 </div>
 </body></html>`;
 
-  const win=window.open('','_blank');
-  if(win){win.document.write(html);win.document.close();}
-  else{
-    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download='captura_idees_'+new Date().toISOString().split('T')[0]+'.html';
-    a.click();URL.revokeObjectURL(url);
-  }
-  toast((ideas.length)+' idée'+(ideas.length>1?'s':'')+' exportée'+(ideas.length>1?'s':'')+' ✓');
+  showExportPanel(html, 'Idées — '+label, (ideas.length)+' idée'+(ideas.length>1?'s':''));
 }
+
 function renderIdeas(overrideList){
   renderIdeaFilters();
   const list=$('ideaList');
@@ -2466,17 +2452,7 @@ function generateWeeklyRecap(){
 
   // Ouvrir le récap dans un nouvel onglet directement
   const win=window.open('','_blank');
-  if(win){
-    win.document.write(html);
-    win.document.close();
-  } else {
-    // Fallback : télécharger si popup bloqué
-    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;a.download=`captura_recap_${mondayISO}.html`;a.click();
-    URL.revokeObjectURL(url);
-  }
+  showExportPanel(html, 'Récap semaine du '+fmtDate(mondayISO), overdue.length+weekTasks.length+urgentNoDate.length+' tâche'+(overdue.length+weekTasks.length+urgentNoDate.length>1?'s':''));
   toast('Récapitulatif généré ✓');
 }
 
@@ -2497,7 +2473,39 @@ function checkWeeklyRecap(){
   }
 }
 
-// ── PRINT ─────────────────────────────────────────────────
+// ── PANNEAU EXPORT PLEIN ÉCRAN ────────────────────────────
+function showExportPanel(html, title, subtitle){
+  const existing=document.getElementById('exportPanel');
+  if(existing)existing.remove();
+  const panel=document.createElement('div');
+  panel.id='exportPanel';
+  panel.style.cssText='position:fixed;inset:0;z-index:500;background:#f5f2ee;display:flex;flex-direction:column;';
+  panel.innerHTML=`
+    <div style="background:rgba(245,242,238,0.97);backdrop-filter:blur(20px);border-bottom:0.5px solid rgba(185,175,160,0.3);padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;">
+      <button onclick="document.getElementById('exportPanel').remove()" style="background:rgba(0,0,0,0.07);border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">←</button>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:15px;color:#1a1714;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(title)}</div>
+        <div style="font-size:11px;color:#8a7e70;">${esc(subtitle)}</div>
+      </div>
+      <button onclick="
+        var txt='';
+        var cards=document.querySelectorAll('#exportContent .ecard-title');
+        cards.forEach(function(c){txt+=c.textContent+'\\n';});
+        if(navigator.share){
+          navigator.share({title:'${esc(title)}',text:document.getElementById('exportContent').innerText})
+          .catch(function(){});
+        } else {
+          window.print();
+        }
+      " style="background:linear-gradient(160deg,#FF8040,#FF5010);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;white-space:nowrap;">
+        ⬆️ Partager
+      </button>
+    </div>
+    <div id="exportContent" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+      ${html.replace(/<!DOCTYPE[^>]*>/i,'').replace(/<html[^>]*>/i,'').replace(/<\/html>/i,'').replace(/<head>[\s\S]*?<\/head>/i,'').replace(/<body[^>]*>/i,'').replace(/<\/body>/i,'')}
+    </div>`;
+  document.body.appendChild(panel);
+}
 function printPage(){
   $('printTitle').style.display='block';
   window.print();
