@@ -120,8 +120,17 @@ body::after{
 .mic-btn{width:72px;height:72px;border-radius:50%;border:1px solid rgba(255,130,60,0.28);background:radial-gradient(circle at 42% 32%,rgba(72,74,80,0.94),rgba(18,20,24,1));cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;box-shadow:inset 0 2px 0 rgba(255,255,255,0.18),inset 0 -2px 5px rgba(0,0,0,0.5),0 4px 18px rgba(0,0,0,0.28),0 0 22px rgba(255,107,53,0.32),0 0 8px rgba(255,90,20,0.22);position:relative;overflow:hidden;}
 .mic-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:48%;background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,0.1) 0%,transparent 80%);border-radius:50%;}
 .mic-btn:hover{transform:scale(1.04);}
-.mic-btn.listening{background:radial-gradient(circle at 42% 32%,rgba(180,40,20,0.92),rgba(120,10,0,1));border-color:rgba(255,80,50,0.45);animation:micPulse 1.4s infinite;}
-.mic-btn.searching{background:radial-gradient(circle at 42% 32%,rgba(120,50,180,0.92),rgba(80,20,140,1));border-color:rgba(180,80,240,0.4);animation:micPulse 1.4s infinite;}
+.mic-btn.listening{border-color:rgba(255,80,50,0.55);animation:micPulse 1.4s infinite;}
+.mic-btn.searching{border-color:rgba(180,80,240,0.5);animation:micPulse 1.4s infinite;}
+/* Barres audio animées */
+.mic-bars{display:flex;align-items:center;justify-content:center;gap:3px;height:24px;}
+.mic-bars span{display:block;width:3px;background:rgba(210,195,170,0.7);border-radius:2px;height:8px;transform-origin:bottom;}
+.mic-btn.listening .mic-bars span:nth-child(1){animation:bar 0.6s ease-in-out infinite;}
+.mic-btn.listening .mic-bars span:nth-child(2){animation:bar 0.6s ease-in-out infinite 0.1s;}
+.mic-btn.listening .mic-bars span:nth-child(3){animation:bar 0.6s ease-in-out infinite 0.2s;}
+.mic-btn.listening .mic-bars span:nth-child(4){animation:bar 0.6s ease-in-out infinite 0.15s;}
+.mic-btn.listening .mic-bars span:nth-child(5){animation:bar 0.6s ease-in-out infinite 0.05s;}
+@keyframes bar{0%,100%{height:6px;background:rgba(210,195,170,0.5);}50%{height:22px;background:rgba(255,160,80,0.9);}}
 @keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(255,107,53,0.4),inset 0 2px 0 rgba(255,255,255,0.15),0 4px 18px rgba(0,0,0,0.28);}70%{box-shadow:0 0 0 16px rgba(255,107,53,0),inset 0 2px 0 rgba(255,255,255,0.15),0 4px 18px rgba(0,0,0,0.28);}100%{box-shadow:0 0 0 0 rgba(255,107,53,0),inset 0 2px 0 rgba(255,255,255,0.15),0 4px 18px rgba(0,0,0,0.28);}}
 
 .live-zone{background:rgba(255,255,255,0.28);border-radius:var(--radius-sm);padding:12px 14px;min-height:68px;font-size:15px;color:var(--text);line-height:1.6;border-top:0.5px solid rgba(255,255,255,0.8);border-left:0.5px solid rgba(255,255,255,0.5);border-right:0.5px solid rgba(180,168,152,0.2);border-bottom:0.5px solid rgba(180,168,152,0.25);box-shadow:inset 0 1px 4px rgba(0,0,0,0.05);transition:border-color 0.2s;}
@@ -454,7 +463,9 @@ select option{background:#f5f2ee;color:var(--text);}
 <div class="page active" id="pageCap">
   <div class="mic-section">
     <div class="section-label">Nouvelle capture</div>
-    <div class="mic-wrap"><button class="mic-btn" id="micBtn" onclick="toggleMic()">🎙️</button></div>
+    <div class="mic-wrap"><button class="mic-btn" id="micBtn" onclick="toggleMic()">
+      <div class="mic-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </button></div>
     <div class="live-zone empty" id="liveZone">Appuie sur le micro et parle…</div>
     <div class="edit-hint" id="editHint">✏️ Corrige si besoin — sélectionne un mot pour le mémoriser</div>
     <div class="corr-bar" id="corrBar">
@@ -511,6 +522,7 @@ select option{background:#f5f2ee;color:var(--text);}
   <div class="filters-scroll no-print">
     <div class="filters-row" id="filtersRow">
       <button class="fpill a-all" onclick="setFilter('all',this)">Tout</button>
+      <button class="fpill" onclick="setFilter('week',this)">Cette semaine</button>
       <button class="fpill" onclick="setFilter('todo',this)">À faire</button>
       <button class="fpill" onclick="setFilter('urgent',this)">Urgent</button>
       <button class="fpill" onclick="setFilter('done',this)">Terminé</button>
@@ -527,7 +539,9 @@ select option{background:#f5f2ee;color:var(--text);}
 <div class="page" id="pageJrn">
   <div class="mic-section">
     <div class="section-label">Nouvel événement</div>
-    <div class="mic-wrap"><button class="mic-btn" id="jMicBtn" onclick="toggleJMic()">🎙️</button></div>
+    <div class="mic-wrap"><button class="mic-btn" id="jMicBtn" onclick="toggleJMic()">
+      <div class="mic-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </button></div>
     <div class="live-zone empty" id="jLive">Dicte ce qui s'est passé…</div>
     <div class="date-override">
       <span class="dover-label">Date :</span>
@@ -595,7 +609,9 @@ select option{background:#f5f2ee;color:var(--text);}
       <span class="idea-panel-title">Nouvelle idée</span>
       <button class="idea-panel-close" onclick="closeIdeaInput()">×</button>
     </div>
-    <div class="mic-wrap"><button class="mic-btn" id="iMicBtn" onclick="toggleIMic()">🎙️</button></div>
+    <div class="mic-wrap"><button class="mic-btn" id="iMicBtn" onclick="toggleIMic()">
+      <div class="mic-bars"><span></span><span></span><span></span><span></span><span></span></div>
+    </button></div>
     <div class="live-zone empty" id="iLiveZone">Appuie sur le micro et parle…</div>
     <div class="edit-hint" id="iEditHint">✏️ Corrige si besoin</div>
     <button class="btn-primary" id="iAnalyseBtn" onclick="processIdea()" style="background:var(--green);margin-top:12px;">
@@ -690,6 +706,10 @@ select option{background:#f5f2ee;color:var(--text);}
       <div class="msec-title">Données et sauvegardes</div>
       <div class="hint">Exporte tout en un fichier lisible. Importe une sauvegarde existante. Archive l'année en cours dans Drive.</div>
       <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <button class="btn-data" onclick="generateWeeklyRecap()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Récapitulatif email cette semaine
+        </button>
         <button class="btn-data" onclick="exportAll()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Exporter tout (JSON)
@@ -1092,10 +1112,10 @@ function toggleMic(){
   if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
   if(recCap){mic.stop();return;}
   capTxt='';mic=mkSR('fr-CH');
-  mic.onstart=()=>{recCap=true;$('micBtn').className='mic-btn listening';$('micBtn').textContent='⏹️';setLive('Je t\'écoute…',true);hideCorrBar();$('editHint').classList.remove('show');};
+  mic.onstart=()=>{recCap=true;$('micBtn').className='mic-btn listening';setLive('Je t\'écoute…',true);hideCorrBar();$('editHint').classList.remove('show');};
   mic.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)capTxt+=e.results[i][0].transcript+' ';else it+=e.results[i][0].transcript;}setLive(capTxt.trim(),false,it);};
-  mic.onend=()=>{recCap=false;$('micBtn').className='mic-btn';$('micBtn').textContent='🎙️';capTxt=capTxt.trim();const z=$('liveZone');z.contentEditable='true';z.classList.add('editable');$('editHint').classList.add('show');setLive(capTxt,false,'');};
-  mic.onerror=e=>{recCap=false;$('micBtn').className='mic-btn';$('micBtn').textContent='🎙️';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  mic.onend=()=>{recCap=false;$('micBtn').className='mic-btn';capTxt=capTxt.trim();const z=$('liveZone');z.contentEditable='true';z.classList.add('editable');$('editHint').classList.add('show');setLive(capTxt,false,'');};
+  mic.onerror=e=>{recCap=false;$('micBtn').className='mic-btn';if(e.error!=='no-speech')toast('Micro : '+e.error);};
   mic.start();
 }
 function setLive(text,listening,interim){
@@ -1111,10 +1131,10 @@ function toggleJMic(){
   if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
   if(recJrn){jMic.stop();return;}
   jrnTxt='';jMic=mkSR('fr-CH');
-  jMic.onstart=()=>{recJrn=true;$('jMicBtn').className='mic-btn listening';$('jMicBtn').textContent='⏹️';setJLive('Je t\'écoute…',true);};
+  jMic.onstart=()=>{recJrn=true;$('jMicBtn').className='mic-btn listening';setJLive('Je t\'écoute…',true);};
   jMic.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)jrnTxt+=e.results[i][0].transcript+' ';else it+=e.results[i][0].transcript;}setJLive(jrnTxt.trim(),false,it);};
-  jMic.onend=()=>{recJrn=false;$('jMicBtn').className='mic-btn';$('jMicBtn').textContent='🎙️';jrnTxt=jrnTxt.trim();const z=$('jLive');z.contentEditable='true';z.classList.add('editable');setJLive(jrnTxt,false,'');};
-  jMic.onerror=e=>{recJrn=false;$('jMicBtn').className='mic-btn';$('jMicBtn').textContent='🎙️';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  jMic.onend=()=>{recJrn=false;$('jMicBtn').className='mic-btn';jrnTxt=jrnTxt.trim();const z=$('jLive');z.contentEditable='true';z.classList.add('editable');setJLive(jrnTxt,false,'');};
+  jMic.onerror=e=>{recJrn=false;$('jMicBtn').className='mic-btn';if(e.error!=='no-speech')toast('Micro : '+e.error);};
   jMic.start();
 }
 function setJLive(text,listening,interim){
@@ -1441,10 +1461,10 @@ function toggleIMic(){
   if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){toast('Micro non dispo');return;}
   if(recIdea){iMic.stop();return;}
   ideaTxt='';iMic=mkSR('fr-CH');
-  iMic.onstart=()=>{recIdea=true;$('iMicBtn').className='mic-btn listening';$('iMicBtn').textContent='⏹️';setILive('Je t\'écoute…',true);};
+  iMic.onstart=()=>{recIdea=true;$('iMicBtn').className='mic-btn listening';setILive('Je t\'écoute…',true);};
   iMic.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)ideaTxt+=e.results[i][0].transcript+' ';else it+=e.results[i][0].transcript;}setILive(ideaTxt.trim(),false,it);};
-  iMic.onend=()=>{recIdea=false;$('iMicBtn').className='mic-btn';$('iMicBtn').textContent='🎙️';ideaTxt=ideaTxt.trim();const z=$('iLiveZone');z.contentEditable='true';z.classList.add('editable');$('iEditHint').classList.add('show');setILive(ideaTxt,false,'');};
-  iMic.onerror=e=>{recIdea=false;$('iMicBtn').className='mic-btn';$('iMicBtn').textContent='🎙️';if(e.error!=='no-speech')toast('Micro : '+e.error);};
+  iMic.onend=()=>{recIdea=false;$('iMicBtn').className='mic-btn';ideaTxt=ideaTxt.trim();const z=$('iLiveZone');z.contentEditable='true';z.classList.add('editable');$('iEditHint').classList.add('show');setILive(ideaTxt,false,'');};
+  iMic.onerror=e=>{recIdea=false;$('iMicBtn').className='mic-btn';if(e.error!=='no-speech')toast('Micro : '+e.error);};
   iMic.start();
 }
 function setILive(text,listening,interim){
@@ -1748,16 +1768,91 @@ function pickProject(c){
   $('ppicker').classList.remove('open');
   const needsDomain=!pending.funcDomain&&pending.type==='idea';
   if(needsDomain){showDomainPicker(pending,pending.funcDomain||'',[]);pending=null;}
-  else{finalize(pending);pending=null;}
+  else{finalizeOrCalendar(pending);pending=null;}
 }
 function skipPicker(){
   $('ppicker').classList.remove('open');
   if(pending){
     const needsDomain=!pending.funcDomain&&pending.type==='idea';
     if(needsDomain){showDomainPicker(pending,'',[]);pending=null;}
-    else{finalize(pending);pending=null;}
+    else{finalizeOrCalendar(pending);pending=null;}
   }
 }
+
+// ── ÉCRAN DE CONFIRMATION UNIQUE ─────────────────────────
+let pendingConfirmItem=null;
+
+function showConfirmScreen(item){
+  pendingConfirmItem=item;
+  const existing=document.getElementById('confirmScreen');
+  if(existing)existing.remove();
+  const dateStr=item.date?fmtDate(item.date):'';
+  const timeStr=item.time?` à ${item.time}`:'';
+  const hasDate=!!(item.date||item.time);
+  const proj=item.project&&item.project!=='Autre'?item.project:'—';
+  const domain=item.funcDomain||'—';
+  const tags=(item.tags||[]).join(', ')||'—';
+  const screen=document.createElement('div');
+  screen.id='confirmScreen';
+  screen.style.cssText='position:fixed;inset:0;z-index:350;background:rgba(180,172,160,0.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;align-items:flex-end;justify-content:center;';
+  screen.innerHTML=`
+  <div style="background:rgba(245,242,238,0.98);border-radius:24px 24px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(0,0,0,0.14);animation:slideUp .24s cubic-bezier(0.32,0.72,0,1);max-height:92vh;overflow-y:auto;">
+    <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#1a1714;margin-bottom:4px;text-align:center;">${esc(item.title)}</div>
+    <div style="font-size:13px;color:rgba(80,70,58,0.6);text-align:center;margin-bottom:18px;">${esc(item.summary)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">
+      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 12px;border:0.5px solid rgba(185,175,160,0.3);">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(80,70,58,0.42);margin-bottom:3px;">Projet</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1714;">${esc(proj)}</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 12px;border:0.5px solid rgba(185,175,160,0.3);">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(80,70,58,0.42);margin-bottom:3px;">Domaine</div>
+        <div style="font-size:14px;font-weight:600;color:#1a1714;">${esc(domain)}</div>
+      </div>
+      ${hasDate?`<div style="background:rgba(0,122,255,0.06);border-radius:10px;padding:10px 12px;border:0.5px solid rgba(0,122,255,0.15);">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(0,98,204,0.6);margin-bottom:3px;">Date</div>
+        <div style="font-size:14px;font-weight:600;color:#0060cc;">${esc(dateStr)}${timeStr?'<br><span style="font-size:12px;">'+esc(timeStr)+'</span>':''}</div>
+      </div>`:''}
+      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 12px;border:0.5px solid rgba(185,175,160,0.3);">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(80,70,58,0.42);margin-bottom:3px;">Tags</div>
+        <div style="font-size:13px;color:#1a1714;">${esc(tags)}</div>
+      </div>
+    </div>
+    ${hasDate&&token?`
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:rgba(80,70,58,0.42);margin-bottom:10px;">Google Calendar</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+      <button onclick="confirmAndSave(null)" style="font-family:inherit;background:rgba(255,255,255,0.5);border:0.5px solid rgba(185,175,160,0.3);border-radius:12px;padding:12px 8px;cursor:pointer;"><div style="font-size:20px;margin-bottom:3px;">🚫</div><div style="font-size:12px;font-weight:600;color:#1a1714;">Pas d'agenda</div></button>
+      <button onclick="confirmAndSave(0,'none')" style="font-family:inherit;background:rgba(255,255,255,0.5);border:0.5px solid rgba(185,175,160,0.3);border-radius:12px;padding:12px 8px;cursor:pointer;"><div style="font-size:20px;margin-bottom:3px;">🔕</div><div style="font-size:12px;font-weight:600;color:#1a1714;">Sans rappel</div></button>
+      <button onclick="confirmAndSave(0,'popup')" style="font-family:inherit;background:rgba(255,107,53,0.07);border:0.5px solid rgba(255,107,53,0.2);border-radius:12px;padding:12px 8px;cursor:pointer;"><div style="font-size:20px;margin-bottom:3px;">🔔</div><div style="font-size:12px;font-weight:600;color:#cc4400;">Au moment</div></button>
+      <button onclick="confirmAndSave(60)" style="font-family:inherit;background:rgba(0,122,255,0.07);border:0.5px solid rgba(0,122,255,0.18);border-radius:12px;padding:12px 8px;cursor:pointer;"><div style="font-size:20px;margin-bottom:3px;">⏰</div><div style="font-size:12px;font-weight:600;color:#0060cc;">1h avant</div></button>
+      <button onclick="confirmAndSave(1440)" style="font-family:inherit;background:rgba(24,136,58,0.07);border:0.5px solid rgba(24,136,58,0.18);border-radius:12px;padding:12px 8px;cursor:pointer;"><div style="font-size:20px;margin-bottom:3px;">📅</div><div style="font-size:12px;font-weight:600;color:#1a6e35;">1 jour avant</div></button>
+      <button onclick="confirmAndSave(10080)" style="font-family:inherit;background:rgba(136,40,184,0.07);border:0.5px solid rgba(136,40,184,0.18);border-radius:12px;padding:12px 8px;cursor:pointer;"><div style="font-size:20px;margin-bottom:3px;">📆</div><div style="font-size:12px;font-weight:600;color:#6a1a9a;">1 sem. avant</div></button>
+    </div>`:`
+    <button onclick="confirmAndSave(null)" style="width:100%;font-family:inherit;background:linear-gradient(160deg,#FF8040,#FF5010);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(255,107,53,0.32);margin-bottom:10px;">Confirmer</button>`}
+    <button onclick="document.getElementById('confirmScreen').remove();pendingConfirmItem=null;" style="width:100%;font-family:inherit;background:none;border:none;padding:10px;cursor:pointer;color:rgba(80,70,58,0.5);font-size:14px;">Annuler</button>
+  </div>`;
+  document.body.appendChild(screen);
+}
+
+async function confirmAndSave(minutesBefore,calType){
+  const screen=document.getElementById('confirmScreen');if(screen)screen.remove();
+  const item=pendingConfirmItem;pendingConfirmItem=null;
+  if(!item)return;
+  await finalize(item);
+  if(minutesBefore!==null&&calType!=='none'&&token&&(item.date||item.time)){
+    try{
+      await createCalendarEventWithReminder(item,minutesBefore||0,calType||'popup');
+      item.calendarSync=true;
+      await saveAll();renderAll();
+      toast('Ajouté à Google Calendar ✓');
+    }catch(e){toast('Calendar : '+e.message.slice(0,50));}
+  }
+}
+
+// Point d'entrée unique — tout passe par l'écran de confirmation
+function finalizeOrCalendar(item){
+  showConfirmScreen(item);
+}
+
 async function finalize(item){
   items.unshift(item);
   await saveAll();
@@ -1770,29 +1865,48 @@ async function finalize(item){
 function setFilter(f,el){
   curFilter=f;
   document.querySelectorAll('.fpill').forEach(p=>p.className='fpill');
-  const cls={all:'a-all',idea:'a-idea',todo:'a-todo',urgent:'a-urgent'};
+  const cls={all:'a-all',idea:'a-idea',todo:'a-todo',urgent:'a-urgent',week:'a-todo'};
   el.classList.add(cls[f]||'a-dom');
-  const labels={all:'Toutes les captures',idea:'Idées',todo:'À faire',urgent:'Urgent'};
+  const labels={all:'Toutes les captures',idea:'Idées',todo:'À faire',urgent:'Urgent',week:'Cette semaine'};
   $('filterLabel').textContent=labels[f]||f;
   $('printTitle').textContent=`Captura — ${labels[f]||f}`;
   renderItems();
 }
 function renderAll(){renderDomSel();renderDomFilters();renderItems();updateStats();if(curTab==='idea')renderIdeas();}
-function renderItems(){
+function renderItems(overrideList){
   const list=$('itemsList');
-  let f=[...items];
-  if(curFilter==='done'){
-    f=f.filter(i=>i.done);
-    if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">✓</div><p>Aucune tâche terminée.</p></div>`;return;}
-    let h=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>Terminé (${f.length})</div>`;
-    f.forEach(i=>h+=icard(i));list.innerHTML=h;return;
+  let f=overrideList?[...overrideList]:[...items];
+  if(!overrideList){
+    if(curFilter==='done'){
+      f=f.filter(i=>i.done);
+      if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">✓</div><p>Aucune tâche terminée.</p></div>`;return;}
+      let h=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>Terminé (${f.length})</div>`;
+      f.forEach(i=>h+=icard(i));list.innerHTML=h;return;
+    }
+    f=f.filter(i=>!i.done&&i.type!=='idea');
+    if(curFilter==='week'){
+      const now=new Date();
+      const weekEnd=new Date(now);weekEnd.setDate(now.getDate()+(6-now.getDay()+1));
+      const weekEndISO=weekEnd.toISOString().split('T')[0];
+      const todayISO=now.toISOString().split('T')[0];
+      f=f.filter(i=>i.date&&i.date>=todayISO&&i.date<=weekEndISO);
+      f.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||''));
+      if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon" style="opacity:0.2;font-size:36px;">📅</div><p style="color:var(--text3)">Aucune tâche cette semaine.</p></div>`;return;}
+      // Grouper par date
+      const byDate={};
+      f.forEach(i=>{if(!byDate[i.date])byDate[i.date]=[];byDate[i.date].push(i);});
+      let h='';
+      Object.keys(byDate).sort().forEach(d=>{
+        h+=`<div class="sec-head"><span class="sec-dot dot-todo"></span>${fmtDateFull(d)}</div>`;
+        byDate[d].forEach(i=>h+=icard(i));
+      });
+      list.innerHTML=h;return;
+    }
+    if(curFilter==='todo'){}
+    else if(curFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
+    else if(curFilter!=='all')f=f.filter(i=>i.project===curFilter);
   }
-  // Exclure les idées et les tâches terminées de la vue Capturer
-  f=f.filter(i=>!i.done&&i.type!=='idea');
-  if(curFilter==='todo'){}
-  else if(curFilter==='urgent')f=f.filter(i=>i.priority==='urgent');
-  else if(curFilter!=='all')f=f.filter(i=>i.project===curFilter);
-  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">💡</div><p>${items.filter(i=>!i.done&&i.type!=='idea').length===0?'Aucune tâche.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
+  if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon" style="opacity:0.2;font-size:36px;">💡</div><p style="color:var(--text3)">${items.filter(i=>!i.done&&i.type!=='idea').length===0?'Aucune tâche.<br>Appuie sur le micro et parle.':'Aucun élément ici.'}</p></div>`;return;}
   let h=`<div class="sec-head"><span class="sec-dot dot-todo"></span>À faire (${f.length})</div>`;
   f.forEach(i=>h+=icard(i));
   list.innerHTML=h;
@@ -2112,12 +2226,118 @@ function checkAutoArchive(){
 
 async function saveAll(){
   saveLocal();
-  if(!token)return;
+  if(!token){
+    // Mettre en file d'attente pour sync ultérieure
+    ls.setStr('cap_pending_sync','1');
+    setSyncInfo('Non connecté — en attente de sync');
+    return;
+  }
   syncing=true;driveUI('syncing');
   try{
     await Promise.all([dWrite(FI,items),dWrite(FJ,journal),dWrite(FS,S)]);
-  }catch(e){toast('Drive : '+e.message);}
-  finally{syncing=false;driveUI('connected');}
+    ls.setStr('cap_pending_sync','');
+    driveUI('connected');
+  }catch(e){
+    // Token expiré → refresh automatique
+    if(e.message&&(e.message.includes('401')||e.message.includes('Token'))){
+      token=null;ls.setStr('cap_t','');
+      ls.setStr('cap_pending_sync','1');
+      driveUI('disconnected');
+      setSyncInfo('Session expirée — reconnecte Drive pour sync');
+      if(tclient)setTimeout(()=>tclient.requestAccessToken({prompt:''}),1500);
+    } else {
+      ls.setStr('cap_pending_sync','1');
+      toast('Drive indisponible — sauvegardé localement');
+      driveUI('disconnected');
+    }
+  }finally{syncing=false;}
+}
+
+// Retry automatique quand la connexion revient
+function setupOfflineRetry(){
+  window.addEventListener('online',async()=>{
+    if(ls.str('cap_pending_sync')==='1'&&token){
+      toast('Connexion rétablie — sync en cours…');
+      await saveAll();
+    }
+  });
+}
+
+// ── RECHERCHE DANS LES TÂCHES ─────────────────────────────
+function searchCaptures(){
+  const q=($('capSearchIn')?.value||'').trim().toLowerCase();
+  const info=$('capSInfo');
+  if(!q){
+    if(info)info.classList.remove('show');
+    renderItems();return;
+  }
+  const res=items.filter(i=>!i.done&&i.type!=='idea').filter(i=>{
+    const blob=((i.title||'')+' '+(i.summary||'')+' '+(i.original||'')+' '+(i.project||'')+' '+(i.tags||[]).join(' ')).toLowerCase();
+    return q.split(' ').filter(Boolean).every(w=>blob.includes(w));
+  });
+  if(info){info.textContent=res.length?`${res.length} résultat${res.length>1?'s':''}`:' Aucun résultat';info.classList.add('show');}
+  renderItems(res);
+}
+
+// ── RÉCAPITULATIF EMAIL HEBDOMADAIRE ──────────────────────
+function generateWeeklyRecap(){
+  const now=new Date();
+  const weekStart=new Date(now);weekStart.setDate(now.getDate()-now.getDay()+1);
+  const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+6);
+  const weekStartISO=weekStart.toISOString().split('T')[0];
+  const weekEndISO=weekEnd.toISOString().split('T')[0];
+  const todayISO=now.toISOString().split('T')[0];
+
+  // Tâches de la semaine (avec date)
+  const weekTasks=items.filter(i=>!i.done&&i.type!=='idea'&&i.date&&i.date>=weekStartISO&&i.date<=weekEndISO)
+    .sort((a,b)=>a.date.localeCompare(b.date));
+  // Tâches urgentes sans date
+  const urgentNow=items.filter(i=>!i.done&&i.type!=='idea'&&i.priority==='urgent'&&!i.date);
+  // Tâches en retard (date passée)
+  const overdue=items.filter(i=>!i.done&&i.type!=='idea'&&i.date&&i.date<todayISO);
+
+  const formatItem=i=>`• ${i.title}${i.date?' ('+fmtDate(i.date)+(i.time?' '+i.time:'')+')':''}${i.project&&i.project!=='Autre'?' ['+i.project+']':''}`;
+
+  let body=`RÉCAPITULATIF CAPTURA — Semaine du ${fmtDate(weekStartISO)} au ${fmtDate(weekEndISO)}\n\n`;
+
+  if(overdue.length){
+    body+=`⚠️ EN RETARD (${overdue.length})\n${overdue.map(formatItem).join('\n')}\n\n`;
+  }
+  if(weekTasks.length){
+    body+=`📅 CETTE SEMAINE (${weekTasks.length})\n${weekTasks.map(formatItem).join('\n')}\n\n`;
+  }
+  if(urgentNow.length){
+    body+=`🔴 URGENT SANS DATE (${urgentNow.length})\n${urgentNow.map(formatItem).join('\n')}\n\n`;
+  }
+  const total=items.filter(i=>!i.done&&i.type!=='idea').length;
+  const ideas=items.filter(i=>i.type==='idea'&&!i.done).length;
+  body+=`📊 TOTAL : ${total} tâche${total>1?'s':''} en cours · ${ideas} idée${ideas>1?'s':''}\n`;
+  body+=`\nGénéré par Captura le ${now.toLocaleDateString('fr-CH')} à ${now.toLocaleTimeString('fr-CH',{hour:'2-digit',minute:'2-digit'})}`;
+
+  // Ouvrir le client mail avec le récap
+  const email=S.email||'';
+  const subject=encodeURIComponent(`Captura — Semaine du ${fmtDate(weekStartISO)}`);
+  const bodyEnc=encodeURIComponent(body);
+  const mailLink=`mailto:${email}?subject=${subject}&body=${bodyEnc}`;
+  window.open(mailLink,'_blank');
+  toast('Récapitulatif ouvert dans ton client mail ✓');
+}
+
+// Vérifier chaque lundi si récap programmé
+function checkWeeklyRecap(){
+  const now=new Date();
+  if(now.getDay()===1){// Lundi
+    const lastRecap=ls.str('cap_last_recap');
+    const todayISO=now.toISOString().split('T')[0];
+    if(lastRecap!==todayISO&&S.email){
+      ls.setStr('cap_last_recap',todayISO);
+      setTimeout(()=>{
+        if(confirm('📬 Envoyer le récapitulatif hebdomadaire Captura ?')){
+          generateWeeklyRecap();
+        }
+      },3000);
+    }
+  }
 }
 
 // ── PRINT ─────────────────────────────────────────────────
@@ -2189,8 +2409,18 @@ saveLocal();
 renderAll();
 const archLbl=$('archiveYearLbl');if(archLbl)archLbl.textContent=new Date().getFullYear();
 checkAutoArchive();
+setupOfflineRetry();
+checkWeeklyRecap();
 window.addEventListener('load',()=>setTimeout(initAuth,600));
 if(!apiKey())setTimeout(()=>toast('Configure ta clé API dans Réglages ⚙️'),1000);
+
+// Prévenir la perte de données en cours de dictée
+window.addEventListener('beforeunload',e=>{
+  if(recCap||recJrn||recIdea){
+    e.preventDefault();
+    e.returnValue='';
+  }
+});
 </script>
 </body>
 </html>
