@@ -392,6 +392,10 @@ select option{background:#f5f2ee;color:var(--text);}
 .dpicker-btns{display:flex;flex-direction:column;gap:8px;}
 .dpicker-item{font-family:inherit;font-size:16px;font-weight:500;width:100%;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;color:var(--text);text-align:left;transition:all 0.12s;}
 .dpicker-item:hover{background:var(--green-dim);color:var(--green);border-color:var(--green);}
+.dpicker-item.cal-btn{text-align:center;font-size:15px;background:rgba(0,122,255,0.06);border-color:rgba(0,122,255,0.15);}
+.dpicker-item.cal-btn:hover{background:var(--accent2-dim);color:var(--accent2);border-color:var(--accent2);}
+.dpicker-item.cal-no{text-align:center;font-size:14px;background:rgba(0,0,0,0.03);}
+.dpicker-item.cal-no:hover{background:rgba(0,0,0,0.06);color:var(--text);border-color:rgba(0,0,0,0.15);}
 .dpicker-custom{display:flex;gap:8px;margin-top:4px;}
 .dpicker-custom input{flex:1;font-family:inherit;font-size:15px;color:var(--text);background:var(--surface2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:11px 14px;outline:none;}
 .dpicker-custom input:focus{border-color:var(--green);}
@@ -731,6 +735,16 @@ select option{background:#f5f2ee;color:var(--text);}
       <button onclick="pickDomainCustom()">✓</button>
     </div>
     <button class="dpicker-skip" onclick="skipDomainPicker()">Sans domaine</button>
+  </div>
+</div>
+
+<!-- CALENDAR PICKER -->
+<div class="dpicker" id="calPicker">
+  <div class="dpicker-box">
+    <div class="dpicker-title" id="calPickerTitle">Ajouter à Google Calendar ?</div>
+    <div class="dpicker-subtitle" id="calPickerSubtitle"></div>
+    <div class="dpicker-btns" id="calPickerBtns"></div>
+    <button class="dpicker-skip" onclick="calPickerNoAgenda()">Pas d'agenda</button>
   </div>
 </div>
 
@@ -1145,9 +1159,17 @@ Règles: idea=idée/inspiration, todo=tâche/action concrète. urgent=si dit ou 
     capTxt='';z.contentEditable='false';z.classList.remove('editable');setLive('',false,'');
     $('editHint').classList.remove('show');$('domSel').value='';$('dateIn').value='';$('remRow').style.display='none';hideCorrBar();
     const unclearProject=!dom&&(!p.project||['Autre','autre',''].includes(p.project));
-    if(unclearProject)showPicker(item);
-    else if(p.confidence==='low'&&!item.funcDomain)showDomainPicker(item,p.funcDomain,[]);
-    else{autoRegisterDomain(item.funcDomain);await finalize(item);}
+    if(unclearProject){showPicker(item);}
+    else if(p.confidence==='low'&&!item.funcDomain){showDomainPicker(item,p.funcDomain,[]);}
+    else{
+      autoRegisterDomain(item.funcDomain);
+      // Si date/heure détectée ET Drive connecté → proposer Calendar
+      if((item.date||item.time)&&token){
+        showCalendarPicker(item);
+      } else {
+        await finalize(item);
+      }
+    }
   }catch(e){toast('Erreur : '+e.message.slice(0,60));}
   finally{setLoad(false,'analyseBtn','spinner','analyseTxt','Analyser');}
 }
@@ -1759,13 +1781,106 @@ function actionDone(){
   saveAll();renderAll();toast('Tâche terminée ✓');
 }
 
-// ── GOOGLE CALENDAR ───────────────────────────────────────
+// ── CALENDAR PICKER ──────────────────────────────────────
+let pendingCalItem=null;
+
+function showCalendarPicker(item){
+  pendingCalItem=item;
+  const dateStr=item.date?fmtDate(item.date):'';
+  const timeStr=item.time?` à ${item.time}`:'';
+  $('calPickerTitle').textContent='Ajouter à Google Calendar ?';
+  $('calPickerSubtitle').textContent=`${item.title}${dateStr?' — '+dateStr:''}${timeStr}`;
+  $('calPickerBtns').innerHTML=`
+    <button class="dpicker-item cal-btn" onclick="calPickerSelect(0)">📵 Sans rappel</button>
+    <button class="dpicker-item cal-btn" onclick="calPickerSelect(0,'popup')">🔔 Au moment</button>
+    <button class="dpicker-item cal-btn" onclick="calPickerSelect(60)">⏰ 1 heure avant</button>
+    <button class="dpicker-item cal-btn" onclick="calPickerSelect(1440)">📅 1 jour avant</button>
+    <button class="dpicker-item cal-btn" onclick="calPickerSelect(10080)">📆 1 semaine avant</button>
+  `;
+  $('calPicker').classList.add('open');
+}
+
+async function calPickerSelect(minutesBefore, type){
+  $('calPicker').classList.remove('open');
+  const item=pendingCalItem;pendingCalItem=null;
+  if(!item)return;
+  // Définir le rappel sur l'item
+  if(minutesBefore>0||type==='popup'){
+    item.calReminder=minutesBefore;
+    item.calReminderType=type||'both';
+  }
+  await finalize(item);
+  // Créer l'événement Calendar
+  if(token){
+    try{
+      await createCalendarEventWithReminder(item,minutesBefore,type);
+      item.calendarSync=true;
+      await saveAll();renderAll();
+      toast('Ajouté à Google Calendar ✓');
+    }catch(e){
+      toast('Calendar : '+e.message.slice(0,50));
+    }
+  } else {
+    toast('Pavé sauvegardé — connecte Drive pour Calendar');
+  }
+}
+
+function calPickerNoAgenda(){
+  $('calPicker').classList.remove('open');
+  const item=pendingCalItem;pendingCalItem=null;
+  if(item)finalize(item);
+}
+
+async function createCalendarEventWithReminder(item,minutesBefore,type){
+  let startObj,endObj;
+  if(item.time){
+    const startDT=`${item.date}T${item.time}:00`;
+    const[h,m]=item.time.split(':').map(Number);
+    const endH=String(h+1).padStart(2,'0');
+    const endDT=`${item.date}T${endH}:${String(m).padStart(2,'0')}:00`;
+    startObj={dateTime:startDT,timeZone:'Europe/Zurich'};
+    endObj={dateTime:endDT,timeZone:'Europe/Zurich'};
+  } else {
+    const[y,mo,d]=item.date.split('-');
+    const nextDay=new Date(Number(y),Number(mo)-1,Number(d)+1);
+    const nextISO=nextDay.toISOString().split('T')[0];
+    startObj={date:item.date};
+    endObj={date:nextISO};
+  }
+  let reminders;
+  if(minutesBefore===0&&!type){
+    reminders={useDefault:false,overrides:[]};
+  } else if(type==='popup'&&minutesBefore===0){
+    reminders={useDefault:false,overrides:[{method:'popup',minutes:0}]};
+  } else {
+    const overrides=[{method:'popup',minutes:minutesBefore}];
+    if(minutesBefore>=1440)overrides.push({method:'email',minutes:minutesBefore});
+    reminders={useDefault:false,overrides};
+  }
+  const body={
+    summary:item.title,
+    description:(item.summary||'')+(item.original?'\n\n🎙️ Dicté : '+item.original:''),
+    start:startObj,end:endObj,reminders
+  };
+  const r=await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok){
+    const e=await r.json();
+    if(r.status===401){token=null;ls.setStr('cap_t','');driveUI('disconnected');throw new Error('Token expiré — reconnecte Drive');}
+    throw new Error(e.error?.message||'Erreur Calendar');
+  }
+  return await r.json();
+}
+
 async function actionAddCalendar(){
   const id=activeItemId;closeActionMenu();
-  const item=items.find(i=>i.id===id);if(!item||!item.date)return;
+  const item=items.find(i=>i.id===id);if(!item||((!item.date)&&(!item.time)))return;
   if(!token){toast('Connecte Drive d\'abord');return;}
   try{
-    await createCalendarEvent(item);
+    await createCalendarEventWithReminder(item,0,'popup');
     item.calendarSync=true;
     await saveAll();renderAll();
     toast('Ajouté à Google Calendar ✓');
