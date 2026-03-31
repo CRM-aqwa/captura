@@ -668,7 +668,7 @@ select option{background:#f5f2ee;color:var(--text);}
   </button>
   <button class="nav-btn" id="navTodo" onclick="switchTab('todo')">
     <span class="nav-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg></span>
-    <span class="nav-label">Tâches</span>
+    <span class="nav-label">To Do</span>
   </button>
  
   <button class="nav-btn" id="navJrn" onclick="switchTab('jrn')">
@@ -1547,6 +1547,7 @@ function todoLine(item,todayISO){
       <div class="todo-title">${esc(item.title)}</div>
       <div class="todo-meta">${dateStr}${projStr}</div>
     </div>
+    ${item.original&&item.original!==item.title?`<button class="ibtn" onclick="event.stopPropagation();showOriginal(${item.id})" title="Texte original dicté" style="font-size:15px;flex-shrink:0;">🎙️</button>`:''​}
     <button class="ibtn" onclick="event.stopPropagation();openActionMenu(${item.id})" style="font-size:16px;color:var(--text3);flex-shrink:0;">···</button>
     ${expandHtml}
   </div>`;
@@ -1585,6 +1586,25 @@ async function saveQuickTodo(){
 function checkAutoArchive(){const now=new Date();const lastArchive=ls.str('cap_last_archive');const thisYear=now.getFullYear();if(now.getMonth()===0&&now.getDate()<=7&&lastArchive!==String(thisYear)){ls.setStr('cap_last_archive',String(thisYear));setTimeout(()=>archiveYear(true),3000);}}
 function setupOfflineRetry(){window.addEventListener('online',async()=>{if(ls.str('cap_pending_sync')==='1'&&token){toast('Connexion rétablie — sync en cours…');await saveAll();}});}
 function checkWeeklyRecap(){const now=new Date();if(now.getDay()===1){const lastRecap=ls.str('cap_last_recap');const todayISO=now.toISOString().split('T')[0];if(lastRecap!==todayISO&&S.email){ls.setStr('cap_last_recap',todayISO);setTimeout(()=>{if(confirm('📬 Envoyer le récapitulatif hebdomadaire Captura ?'))generateWeeklyRecap();},3000);}}}
+
+function showOriginal(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  const existing=document.getElementById('originalPopup');if(existing)existing.remove();
+  const overlay=document.createElement('div');
+  overlay.id='originalPopup';
+  overlay.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.35);backdrop-filter:blur(8px);display:flex;align-items:flex-end;justify-content:center;';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  overlay.innerHTML=`<div style="background:rgba(245,242,238,0.98);border-radius:20px 20px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.25rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -6px 32px rgba(0,0,0,0.12);animation:slideUp .2s ease;">
+    <div style="width:36px;height:4px;background:rgba(0,0,0,0.15);border-radius:99px;margin:0 auto 1rem;"></div>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(80,70,58,0.42);margin-bottom:8px;">🎙️ Texte original dicté</div>
+    <div style="font-size:15px;color:#1a1714;line-height:1.6;background:rgba(255,255,255,0.5);border-radius:12px;padding:14px 16px;border:0.5px solid rgba(185,175,160,0.3);font-style:italic;">${esc(item.original||item.title)}</div>
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(80,70,58,0.42);margin:14px 0 8px;">Titre traité par l'IA</div>
+    <div style="font-size:15px;font-weight:600;color:#1a1714;background:rgba(255,255,255,0.5);border-radius:12px;padding:14px 16px;border:0.5px solid rgba(185,175,160,0.3);">${esc(item.title)}</div>
+    <button onclick="document.getElementById('originalPopup').remove()" style="width:100%;margin-top:14px;font-family:inherit;background:none;border:none;padding:12px;cursor:pointer;color:rgba(80,70,58,0.5);font-size:14px;">Fermer</button>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
 // ── INIT ──────────────────────────────────────────────────
 items = ls.get('cap_i') || ls.get('cap_items') || [];
 journal = ls.get('cap_j') || ls.get('cap_journal') || [];
