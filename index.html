@@ -1033,10 +1033,15 @@ function toggleCapSMic(){
 
 // ── PROCESS CAPTURE ───────────────────────────────────────
 async function processCapture(){
-  // Arrêter le micro s'il tourne encore
-  if(recCap&&mic){mic.stop();recCap=false;$('micBtn').className='mic-btn';if($('micBtnDesk'))$('micBtnDesk').className='mic-btn';}
+  // Arrêter et détruire le micro s'il tourne encore
+  if(mic){try{mic.onresult=null;mic.onerror=null;mic.onend=null;mic.stop();}catch(e){} mic=null;}
+  recCap=false;
+  $('micBtn').className='mic-btn';
+  if($('micBtnDesk'))$('micBtnDesk').className='mic-btn';
+  // Récupérer le texte édité manuellement si dispo
   const z=$('liveZone');
-  const raw=(z.innerText||capTxt||'').trim();
+  capTxt=(z.innerText||capTxt||'').trim();
+  const raw=capTxt;
   if(!raw||['Appuie sur le micro et parle…','Je t\'écoute…'].includes(raw)){toast('Rien à analyser');return;}
   const k=apiKey();if(!k){toast('Configure ta clé API dans Réglages');openSettings();return;}
   const text=applyCorrs(raw);
@@ -1065,9 +1070,12 @@ Règles: idea=idée, todo=tâche concrète. urgent=si dit ou délai<7j.${glossPr
 
 // ── PROCESS JOURNAL ───────────────────────────────────────
 async function processJournal(){
-  if(recJrn&&jMic){jMic.stop();recJrn=false;$('jMicBtn').className='mic-btn';}
+  if(jMic){try{jMic.onresult=null;jMic.onerror=null;jMic.onend=null;jMic.stop();}catch(e){} jMic=null;}
+  recJrn=false;
+  $('jMicBtn').className='mic-btn';
   const z=$('jLive');
-  const raw=(z.innerText||jrnTxt||'').trim();
+  jrnTxt=(z.innerText||jrnTxt||'').trim();
+  const raw=jrnTxt;
   if(!raw||['Dicte ce qui s\'est passé…','Je t\'écoute…'].includes(raw)){toast('Rien à enregistrer');return;}
   const k=apiKey();if(!k){toast('Configure ta clé API dans Réglages');openSettings();return;}
   const text=applyCorrs(raw);const ovDate=$('jDate').value;
@@ -1196,8 +1204,12 @@ function toggleISMic(){
 }
 
 async function processIdea(){
-  if(recIdea&&iMic){iMic.stop();recIdea=false;$('iMicBtn').className='mic-btn';}
-  const z=$('iLiveZone');const raw=(z.innerText||ideaTxt||'').trim();
+  if(iMic){try{iMic.onresult=null;iMic.onerror=null;iMic.onend=null;iMic.stop();}catch(e){} iMic=null;}
+  recIdea=false;
+  $('iMicBtn').className='mic-btn';
+  const z=$('iLiveZone');
+  ideaTxt=(z.innerText||ideaTxt||'').trim();
+  const raw=ideaTxt;
   if(!raw||['Appuie sur le micro et parle…','Je t\'écoute…'].includes(raw)){toast('Rien à analyser');return;}
   const k=apiKey();if(!k){toast('Configure ta clé API');openSettings();return;}
   const text=applyCorrs(raw);
