@@ -446,6 +446,14 @@ select option{background:#f5f2ee;color:var(--text);}
   .sidebar-stat .sn{font-size:18px;font-weight:300;color:var(--text);display:block;}
   .sidebar-stat .sl{font-size:9px;text-transform:uppercase;letter-spacing:0.7px;color:var(--text3);}
 }
+
+/* ── UNDO TOAST ── */
+.undo-toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%) translateY(20px);opacity:0;background:rgba(26,23,20,0.92);color:#f5f2ee;border:0.5px solid rgba(255,255,255,0.15);border-radius:14px;padding:10px 14px 10px 16px;font-size:14px;font-weight:500;z-index:450;transition:transform .25s ease,opacity .25s ease;pointer-events:none;display:flex;align-items:center;gap:12px;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.25);}
+.undo-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all;}
+.undo-btn{background:rgba(255,255,255,0.18);border:0.5px solid rgba(255,255,255,0.3);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;transition:background 0.12s;}
+.undo-btn:hover{background:rgba(255,255,255,0.3);}
+.undo-bar{width:60px;height:3px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden;position:relative;}
+.undo-bar-fill{height:100%;background:rgba(255,255,255,0.6);border-radius:99px;width:100%;transition:width linear;}
 </style>
 </head>
 <body>
@@ -786,6 +794,13 @@ select option{background:#f5f2ee;color:var(--text);}
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="undo-toast" id="undoToast">
+  <span id="undoMsg">Tâche terminée</span>
+  <div class="undo-bar"><div class="undo-bar-fill" id="undoBarFill"></div></div>
+  <button class="undo-btn" onclick="undoAction()">Annuler</button>
+</div>
+
 
 <script>
 const GID='505442840775-agomh45sdj2m68dv8d11gaaggt1qsv5b.apps.googleusercontent.com';
@@ -1561,10 +1576,20 @@ function toggleTodoExpand(id,e){
 
 function toggleTodoDone(id){
   const it=items.find(i=>i.id===id);if(!it)return;
-  if(it.done){it.done=false;delete it.doneAt;}
-  else{it.done=true;it.doneAt=new Date().toISOString();}
-  saveAll();renderAll();renderTodo();
-  toast(it.done?'Tâche terminée ✓':'Tâche réouverte');
+  if(it.done){
+    // Réouverture directe — pas besoin d'undo
+    it.done=false;delete it.doneAt;
+    saveAll();renderAll();renderTodo();
+    toast('Tâche réouverte');
+  } else {
+    // Marquer terminé avec undo 10s
+    it.done=true;it.doneAt=new Date().toISOString();
+    saveAll();renderAll();renderTodo();
+    showUndoToast('Tâche marquée terminée', ()=>{
+      it.done=false;delete it.doneAt;
+      saveAll();renderAll();renderTodo();
+    });
+  }
 }
 
 function openQuickTodo(){
@@ -1603,6 +1628,57 @@ function showOriginal(id){
     <button onclick="document.getElementById('originalPopup').remove()" style="width:100%;margin-top:14px;font-family:inherit;background:none;border:none;padding:12px;cursor:pointer;color:rgba(80,70,58,0.5);font-size:14px;">Fermer</button>
   </div>`;
   document.body.appendChild(overlay);
+}
+
+
+// ── UNDO SYSTÈME ─────────────────────────────────────────
+let undoTimer=null, undoBarTimer=null, undoPending=null;
+const UNDO_DELAY=10000; // 10 secondes
+
+function showUndoToast(msg, undoFn){
+  // Annuler tout undo précédent en cours
+  clearUndoToast(true);
+
+  undoPending=undoFn;
+  const toast=$('undoToast');
+  const fill=$('undoBarFill');
+  const msgEl=$('undoMsg');
+
+  msgEl.textContent=msg;
+  fill.style.transition='none';
+  fill.style.width='100%';
+  toast.classList.add('show');
+
+  // Lancer la barre de décompte
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      fill.style.transition=`width ${UNDO_DELAY}ms linear`;
+      fill.style.width='0%';
+    });
+  });
+
+  undoTimer=setTimeout(()=>{
+    clearUndoToast(false);
+  }, UNDO_DELAY);
+}
+
+function clearUndoToast(cancel){
+  clearTimeout(undoTimer);
+  undoTimer=null;
+  const toast=$('undoToast');
+  toast.classList.remove('show');
+  if(cancel && undoPending){
+    // On annule avant d'exécuter — ne rien faire
+  }
+  undoPending=null;
+}
+
+function undoAction(){
+  if(!undoPending)return;
+  const fn=undoPending;
+  clearUndoToast(true);
+  fn();
+  toast('Action annulée ✓');
 }
 
 // ── INIT ──────────────────────────────────────────────────
