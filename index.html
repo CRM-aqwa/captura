@@ -1562,7 +1562,7 @@ function todoLine(item,todayISO){
       <div class="todo-title">${esc(item.title)}</div>
       <div class="todo-meta">${dateStr}${projStr}</div>
     </div>
-    ${item.original&&item.original!==item.title?`<button class="ibtn" onclick="event.stopPropagation();showOriginal(${item.id})" title="Texte original dicté" style="font-size:15px;flex-shrink:0;">🎙️</button>`:''​}
+    ${item.original&&item.original!==item.title?'<button class="ibtn" onclick="event.stopPropagation();showOriginal('+item.id+')" style="font-size:15px;flex-shrink:0;">🎙️</button>':''}
     <button class="ibtn" onclick="event.stopPropagation();openActionMenu(${item.id})" style="font-size:16px;color:var(--text3);flex-shrink:0;">···</button>
     ${expandHtml}
   </div>`;
