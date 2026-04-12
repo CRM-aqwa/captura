@@ -1307,6 +1307,12 @@ function showMergeProposal(newItem,existingItem,aiResult,unclearProject){
     <button onclick="document.getElementById('mergeScreen').remove();closeIdeaInput();" style="width:100%;font-family:inherit;background:none;border:none;padding:10px;cursor:pointer;color:rgba(80,70,58,0.4);font-size:13px;">Annuler</button>
   </div>`;
   // Bouton fusion : appel IA pour fusionner
+  screen.querySelector('#mergeKeepBtn').onclick=()=>{
+    document.getElementById('mergeScreen').remove();
+    if(unclearProject)showPicker(newItem);
+    else if(aiResult&&aiResult.confidence==='low')showDomainPicker(newItem,aiResult.funcDomain,aiResult.proposedDomains||[]);
+    else{autoRegisterDomain(newItem.funcDomain);finalize(newItem);closeIdeaInput();}
+  };
   screen.querySelector('#mergeFusionBtn').onclick=async()=>{
     screen.querySelector('#mergeFusionBtn').textContent='Fusion en cours…';
     const k=apiKey();
