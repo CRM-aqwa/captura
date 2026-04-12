@@ -866,14 +866,19 @@ function promptDriveConnect(){
   const overlay=document.createElement('div');
   overlay.id='drivePrompt';
   overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.35);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  overlay.innerHTML=`<div style="background:rgba(245,242,238,0.98);border-radius:20px;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.18);">
-    <div style="font-size:36px;margin-bottom:12px;">☁️</div>
-    <div style="font-family:'DM Serif Display',serif;font-size:20px;color:#1a1714;margin-bottom:8px;">Connecter Google Drive</div>
-    <div style="font-size:13px;color:rgba(80,70,58,0.6);line-height:1.5;margin-bottom:20px;">Captura n'est pas connecté à Drive. Tes données ne sont pas synchronisées.</div>
-    <button onclick="document.getElementById('drivePrompt').remove();toggleDriveAuth();" style="width:100%;font-family:inherit;background:linear-gradient(160deg,#18883a,#0f5c27);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 14px rgba(24,136,58,0.3);">Connecter Drive ✓</button>
-    <button onclick="document.getElementById('drivePrompt').remove();" style="width:100%;font-family:inherit;background:none;border:none;padding:10px;cursor:pointer;color:rgba(80,70,58,0.45);font-size:13px;">Continuer sans Drive</button>
-  </div>`;
-  document.body.appendChild(overlay);
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(245,242,238,0.98);border-radius:20px;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.18);';
+  box.innerHTML='<div style="font-size:36px;margin-bottom:12px;">☁️</div><div style="font-family:DM Serif Display,serif;font-size:20px;color:#1a1714;margin-bottom:8px;">Connecter Google Drive</div><div style="font-size:13px;color:rgba(80,70,58,0.6);line-height:1.5;margin-bottom:20px;">Captura n'est pas connecté à Drive. Tes données ne sont pas synchronisées.</div>';
+  const btnConnect=document.createElement('button');
+  btnConnect.textContent='Connecter Drive ✓';
+  btnConnect.style.cssText='width:100%;font-family:inherit;background:linear-gradient(160deg,#18883a,#0f5c27);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 14px rgba(24,136,58,0.3);display:block;';
+  btnConnect.onclick=()=>{overlay.remove();toggleDriveAuth();};
+  const btnSkip=document.createElement('button');
+  btnSkip.textContent='Continuer sans Drive';
+  btnSkip.style.cssText='width:100%;font-family:inherit;background:none;border:none;padding:10px;cursor:pointer;color:rgba(80,70,58,0.45);font-size:13px;';
+  btnSkip.onclick=()=>overlay.remove();
+  box.appendChild(btnConnect);box.appendChild(btnSkip);
+  overlay.appendChild(box);document.body.appendChild(overlay);
 }
 function toggleDriveAuth(){
   if(token){token=null;ls.setStr('cap_t','');fids={};driveUI('disconnected');toast('Drive déconnecté');}
@@ -1264,11 +1269,9 @@ ${glossPrompt()}`;
     const item={id:Date.now(),original:raw,corrected:text!==raw?text:null,type:'idea',title:p.title||raw.slice(0,60),summary:p.summary||'',project:p.project||'',funcDomain:p.funcDomain||'',subject:p.subject||'',priority:'normal',tags:p.tags||[],driveSync:!!token,createdAt:new Date().toISOString()};
     ideaTxt='';z.contentEditable='false';z.classList.remove('editable');setILive('',false,'');$('iEditHint').classList.remove('show');
     const unclearProject=!item.project||['Autre','autre',''].includes(item.project);
-    // Vérifier idées similaires avant de finaliser
     const similar=findSimilarIdea(item);
-    if(similar){
-      showMergeProposal(item,similar,p,unclearProject);
-    } else if(unclearProject)showPicker(item);
+    if(similar){showMergeProposal(item,similar,p,unclearProject);}
+    else if(unclearProject)showPicker(item);
     else if(p.confidence==='low')showDomainPicker(item,p.funcDomain,p.proposedDomains||[]);
     else{autoRegisterDomain(item.funcDomain);await finalize(item);closeIdeaInput();}
   }catch(e){toast('Erreur : '+e.message.slice(0,60));}
@@ -1276,7 +1279,7 @@ ${glossPrompt()}`;
 
 function findSimilarIdea(newItem){
   const existing=items.filter(i=>i.type==='idea'&&!i.done);
-  const newWords=(newItem.title+' '+(newItem.summary||'')).toLowerCase().split(/\s+/).filter(w=>w.length>4);
+  const newWords=(newItem.title+' '+(newItem.summary||'')).toLowerCase().split(' ').filter(w=>w.length>4);
   for(const idea of existing){
     const ideaText=(idea.title+' '+(idea.summary||'')).toLowerCase();
     const matches=newWords.filter(w=>ideaText.includes(w));
@@ -1286,52 +1289,59 @@ function findSimilarIdea(newItem){
 }
 
 function showMergeProposal(newItem,existingItem,aiResult,unclearProject){
-  const existing=document.getElementById('mergeScreen');if(existing)existing.remove();
-  const screen=document.createElement('div');screen.id='mergeScreen';
-  screen.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(180,172,160,0.5);backdrop-filter:blur(14px);display:flex;align-items:flex-end;justify-content:center;';
-  screen.innerHTML=`<div style="background:rgba(245,242,238,0.98);border-radius:24px 24px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(0,0,0,0.14);max-height:88vh;overflow-y:auto;">
-    <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#1a1714;margin-bottom:6px;text-align:center;">💡 Idée similaire détectée</div>
-    <div style="font-size:12px;color:rgba(80,70,58,0.5);text-align:center;margin-bottom:16px;">Cette idée ressemble à une idée existante.</div>
-    <div style="background:rgba(255,255,255,0.5);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:0.5px solid rgba(185,175,160,0.3);">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(80,70,58,0.42);margin-bottom:4px;">Idée existante</div>
-      <div style="font-size:14px;font-weight:600;color:#1a1714;">${esc(existingItem.title)}</div>
-      <div style="font-size:12px;color:rgba(60,52,42,0.6);margin-top:3px;">${esc(existingItem.summary||'')}</div>
-    </div>
-    <div style="background:rgba(0,122,255,0.05);border-radius:12px;padding:12px 14px;margin-bottom:16px;border:0.5px solid rgba(0,122,255,0.15);">
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(0,98,204,0.5);margin-bottom:4px;">Nouvelle idée</div>
-      <div style="font-size:14px;font-weight:600;color:#1a1714;">${esc(newItem.title)}</div>
-      <div style="font-size:12px;color:rgba(60,52,42,0.6);margin-top:3px;">${esc(newItem.summary||'')}</div>
-    </div>
-    <button id="mergeFusionBtn" style="width:100%;font-family:inherit;background:var(--green);color:#fff;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;">Fusionner les deux idées</button>
-    <button onclick="document.getElementById('mergeScreen').remove();${unclearProject?'showPicker(newItem)':aiResult&&aiResult.confidence==='low'?'showDomainPicker(newItem,aiResult.funcDomain,aiResult.proposedDomains||[])':'autoRegisterDomain(newItem.funcDomain);finalize(newItem);closeIdeaInput();'}" style="width:100%;font-family:inherit;background:rgba(255,255,255,0.5);border:0.5px solid rgba(185,175,160,0.3);border-radius:14px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;color:rgba(60,52,42,0.7);margin-bottom:8px;">Garder comme nouvelle idée</button>
-    <button onclick="document.getElementById('mergeScreen').remove();closeIdeaInput();" style="width:100%;font-family:inherit;background:none;border:none;padding:10px;cursor:pointer;color:rgba(80,70,58,0.4);font-size:13px;">Annuler</button>
-  </div>`;
-  // Bouton fusion : appel IA pour fusionner
-  screen.querySelector('#mergeKeepBtn').onclick=()=>{
-    document.getElementById('mergeScreen').remove();
-    if(unclearProject)showPicker(newItem);
-    else if(aiResult&&aiResult.confidence==='low')showDomainPicker(newItem,aiResult.funcDomain,aiResult.proposedDomains||[]);
-    else{autoRegisterDomain(newItem.funcDomain);finalize(newItem);closeIdeaInput();}
-  };
-  screen.querySelector('#mergeFusionBtn').onclick=async()=>{
-    screen.querySelector('#mergeFusionBtn').textContent='Fusion en cours…';
+  const overlay=document.createElement('div');
+  overlay.id='mergeScreen';
+  overlay.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(180,172,160,0.5);backdrop-filter:blur(14px);display:flex;align-items:flex-end;justify-content:center;';
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(245,242,238,0.98);border-radius:24px 24px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(0,0,0,0.14);max-height:88vh;overflow-y:auto;';
+  const title=document.createElement('div');
+  title.style.cssText='font-family:DM Serif Display,serif;font-size:18px;color:#1a1714;margin-bottom:6px;text-align:center;';
+  title.textContent='Idée similaire détectée';
+  const sub=document.createElement('div');
+  sub.style.cssText='font-size:12px;color:rgba(80,70,58,0.5);text-align:center;margin-bottom:16px;';
+  sub.textContent='Cette idée ressemble à une idée existante.';
+  const cardOld=document.createElement('div');
+  cardOld.style.cssText='background:rgba(255,255,255,0.5);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:0.5px solid rgba(185,175,160,0.3);';
+  cardOld.innerHTML='<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(80,70,58,0.42);margin-bottom:4px;">Idée existante</div><div style="font-size:14px;font-weight:600;color:#1a1714;">'+esc(existingItem.title)+'</div><div style="font-size:12px;color:rgba(60,52,42,0.6);margin-top:3px;">'+esc(existingItem.summary||'')+'</div>';
+  const cardNew=document.createElement('div');
+  cardNew.style.cssText='background:rgba(0,122,255,0.05);border-radius:12px;padding:12px 14px;margin-bottom:16px;border:0.5px solid rgba(0,122,255,0.15);';
+  cardNew.innerHTML='<div style="font-size:10px;text-transform:uppercase;letter-spacing:0.8px;color:rgba(0,98,204,0.5);margin-bottom:4px;">Nouvelle idée</div><div style="font-size:14px;font-weight:600;color:#1a1714;">'+esc(newItem.title)+'</div><div style="font-size:12px;color:rgba(60,52,42,0.6);margin-top:3px;">'+esc(newItem.summary||'')+'</div>';
+  const btnMerge=document.createElement('button');
+  btnMerge.textContent='Fusionner les deux idées';
+  btnMerge.style.cssText='width:100%;font-family:inherit;background:#18883a;color:#fff;border:none;border-radius:14px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;display:block;';
+  btnMerge.onclick=async()=>{
+    btnMerge.textContent='Fusion en cours…';
     const k=apiKey();
     if(!k){toast('Clé API manquante');return;}
-    const sys='Tu es un assistant qui fusionne deux idées en une seule. Réponds UNIQUEMENT en JSON valide sans markdown. {"title":"titre fusionné max 8 mots","summary":"synthèse des deux idées en 2-3 phrases"}';
-    const prompt='Idée 1 : '+existingItem.title+' — '+existingItem.summary+'
-Idée 2 : '+newItem.title+' — '+newItem.summary;
+    const sysMsg='Tu es un assistant qui fusionne deux idées en une seule. Réponds UNIQUEMENT en JSON valide sans markdown. Format: {"title":"titre max 8 mots","summary":"synthèse 2-3 phrases"}';
+    const promptMsg='Idée 1 : '+existingItem.title+' : '+existingItem.summary+' | Idée 2 : '+newItem.title+' : '+newItem.summary;
     try{
-      const r=await callAI(k,sys,prompt,300);
-      const p=JSON.parse(r);
-      existingItem.title=p.title||existingItem.title;
-      existingItem.summary=p.summary||existingItem.summary;
+      const r=await callAI(k,sysMsg,promptMsg,300);
+      const parsed=JSON.parse(r);
+      existingItem.title=parsed.title||existingItem.title;
+      existingItem.summary=parsed.summary||existingItem.summary;
       existingItem.tags=[...new Set([...(existingItem.tags||[]),...(newItem.tags||[])])];
-      document.getElementById('mergeScreen').remove();
+      overlay.remove();
       await saveAll();renderAll();renderIdeas();closeIdeaInput();
       toast('Idées fusionnées ✓');
     }catch(e){toast('Erreur fusion : '+e.message.slice(0,40));}
   };
-  document.body.appendChild(screen);
+  const btnKeep=document.createElement('button');
+  btnKeep.textContent='Garder comme nouvelle idée';
+  btnKeep.style.cssText='width:100%;font-family:inherit;background:rgba(255,255,255,0.5);border:0.5px solid rgba(185,175,160,0.3);border-radius:14px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;color:rgba(60,52,42,0.7);margin-bottom:8px;display:block;';
+  btnKeep.onclick=()=>{
+    overlay.remove();
+    if(unclearProject)showPicker(newItem);
+    else if(aiResult&&aiResult.confidence==='low')showDomainPicker(newItem,aiResult.funcDomain,aiResult.proposedDomains||[]);
+    else{autoRegisterDomain(newItem.funcDomain);finalize(newItem);closeIdeaInput();}
+  };
+  const btnCancel=document.createElement('button');
+  btnCancel.textContent='Annuler';
+  btnCancel.style.cssText='width:100%;font-family:inherit;background:none;border:none;padding:10px;cursor:pointer;color:rgba(80,70,58,0.4);font-size:13px;';
+  btnCancel.onclick=()=>{overlay.remove();closeIdeaInput();};
+  box.appendChild(title);box.appendChild(sub);box.appendChild(cardOld);box.appendChild(cardNew);
+  box.appendChild(btnMerge);box.appendChild(btnKeep);box.appendChild(btnCancel);
+  overlay.appendChild(box);document.body.appendChild(overlay);
 }
 
 function filterIdeas(){
@@ -1571,53 +1581,47 @@ function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<butt
 function exportCaptures(){const f=items.filter(i=>!i.done&&i.type!=='idea');const blob=new Blob([JSON.stringify({items:f,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_captures_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);toast('Export téléchargé ✓');}
 function exportIdeas(){
   const f=items.filter(i=>i.type==='idea'&&!i.done);
-  const existing=document.getElementById('exportIdeaBox');if(existing)existing.remove();
-  const overlay=document.createElement('div');overlay.id='exportIdeaBox';
+  const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  overlay.innerHTML=`<div style="background:rgba(245,242,238,0.98);border-radius:18px;padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.16);">
-    <div style="font-family:'DM Serif Display',serif;font-size:18px;color:#1a1714;margin-bottom:6px;">Exporter les idées</div>
-    <div style="font-size:12px;color:rgba(80,70,58,0.5);margin-bottom:18px;">${f.length} idée${f.length>1?'s':''}</div>
-    <button id="expPdfBtn" style="width:100%;font-family:inherit;background:var(--accent2);color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;">📄 Exporter en texte lisible</button>
-    <button id="expJsonBtn" style="width:100%;font-family:inherit;background:rgba(255,255,255,0.6);border:0.5px solid rgba(185,175,160,0.3);border-radius:12px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;color:rgba(60,52,42,0.7);margin-bottom:8px;">{ } Exporter en JSON</button>
-    <button onclick="document.getElementById('exportIdeaBox').remove();" style="width:100%;font-family:inherit;background:none;border:none;padding:8px;cursor:pointer;color:rgba(80,70,58,0.4);font-size:13px;">Annuler</button>
-  </div>`;
-  overlay.querySelector('#expPdfBtn').onclick=()=>{
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(245,242,238,0.98);border-radius:18px;padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.16);';
+  box.innerHTML='<div style="font-family:DM Serif Display,serif;font-size:18px;color:#1a1714;margin-bottom:6px;">Exporter les idées</div><div style="font-size:12px;color:rgba(80,70,58,0.5);margin-bottom:18px;">'+f.length+' idée'+(f.length>1?'s':'')+'</div>';
+  const btnTxt=document.createElement('button');
+  btnTxt.textContent='📄 Exporter en texte lisible';
+  btnTxt.style.cssText='width:100%;font-family:inherit;background:#007AFF;color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;display:block;';
+  btnTxt.onclick=()=>{
     overlay.remove();
-    // Export texte lisible HTML → impression/PDF
     const byDomain={};f.forEach(i=>{const d=i.funcDomain||'Sans domaine';if(!byDomain[d])byDomain[d]=[];byDomain[d].push(i);});
     const dateStr=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
-    let html=`<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Idées Captura — ${dateStr}</title><style>
-      body{font-family:-apple-system,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1714;background:#fff;}
-      h1{font-size:24px;margin-bottom:4px;}
-      .meta{font-size:13px;color:#888;margin-bottom:32px;}
-      h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#999;margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid #eee;}
-      .idea{margin-bottom:18px;padding:14px 16px;border-radius:10px;background:#f9f8f6;border:1px solid #ece9e4;}
-      .idea-title{font-size:16px;font-weight:600;margin-bottom:4px;}
-      .idea-summary{font-size:13px;color:#555;line-height:1.5;}
-      .idea-meta{font-size:11px;color:#aaa;margin-top:8px;}
-      @media print{body{margin:20px;}}
-    </style></head><body>
-    <h1>Mes idées Captura</h1><div class="meta">Export du ${dateStr} — ${f.length} idée${f.length>1?'s':''}</div>`;
+    let html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Idées Captura</title><style>body{font-family:-apple-system,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1714;}h1{font-size:24px;margin-bottom:4px;}.meta{font-size:13px;color:#888;margin-bottom:32px;}h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#999;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid #eee;}.idea{margin-bottom:14px;padding:12px 14px;border-radius:8px;background:#f9f8f6;border:1px solid #ece9e4;}.idea-title{font-size:15px;font-weight:600;margin-bottom:3px;}.idea-summary{font-size:13px;color:#555;line-height:1.5;}.idea-meta{font-size:11px;color:#aaa;margin-top:6px;}@media print{body{margin:20px;}}</style></head><body><h1>Mes idées Captura</h1><div class="meta">Export du '+dateStr+' — '+f.length+' idée'+(f.length>1?'s':'')+'</div>';
     Object.keys(byDomain).sort().forEach(d=>{
-      html+=`<h2>${d}</h2>`;
+      html+='<h2>'+d+'</h2>';
       byDomain[d].forEach(i=>{
-        const tags=(i.tags||[]).map(t=>`#${t}`).join(' ');
-        html+=`<div class="idea"><div class="idea-title">${i.title}</div>${i.summary?`<div class="idea-summary">${i.summary}</div>`:''}<div class="idea-meta">${i.project||''}${tags?' · '+tags:''}</div></div>`;
+        const tags=(i.tags||[]).map(t=>'#'+t).join(' ');
+        html+='<div class="idea"><div class="idea-title">'+i.title+'</div>'+(i.summary?'<div class="idea-summary">'+i.summary+'</div>':'')+'<div class="idea-meta">'+(i.project||'')+(tags?' · '+tags:'')+'</div></div>';
       });
     });
-    html+=`</body></html>`;
+    html+='</body></html>';
     const blob=new Blob([html],{type:'text/html;charset=utf-8'});
     const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download=`captura_idees_${new Date().toISOString().split('T')[0]}.html`;a.click();URL.revokeObjectURL(url);
-    toast('Export téléchargé — ouvre le fichier et imprime en PDF ✓');
+    const a=document.createElement('a');a.href=url;a.download='captura_idees_'+new Date().toISOString().split('T')[0]+'.html';a.click();URL.revokeObjectURL(url);
+    toast('Export téléchargé — ouvre et imprime en PDF ✓');
   };
-  overlay.querySelector('#expJsonBtn').onclick=()=>{
+  const btnJson=document.createElement('button');
+  btnJson.textContent='{ } Exporter en JSON';
+  btnJson.style.cssText='width:100%;font-family:inherit;background:rgba(255,255,255,0.6);border:0.5px solid rgba(185,175,160,0.3);border-radius:12px;padding:12px;font-size:14px;cursor:pointer;color:rgba(60,52,42,0.7);margin-bottom:8px;display:block;';
+  btnJson.onclick=()=>{
     overlay.remove();
     const blob=new Blob([JSON.stringify({items:f,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_idees_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='captura_idees_'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(url);
     toast('Export JSON téléchargé ✓');
   };
-  document.body.appendChild(overlay);
+  const btnAnn=document.createElement('button');
+  btnAnn.textContent='Annuler';
+  btnAnn.style.cssText='width:100%;font-family:inherit;background:none;border:none;padding:8px;cursor:pointer;color:rgba(80,70,58,0.4);font-size:13px;';
+  btnAnn.onclick=()=>overlay.remove();
+  box.appendChild(btnTxt);box.appendChild(btnJson);box.appendChild(btnAnn);
+  overlay.appendChild(box);document.body.appendChild(overlay);
 }
 function exportJournal(){const blob=new Blob([journal.map(e=>`${e.date}\n${e.summary}\n`).join('\n---\n\n')],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_journal_${new Date().toISOString().split('T')[0]}.txt`;a.click();URL.revokeObjectURL(url);toast('Journal exporté ✓');}
 function exportAll(){const data={version:2,exportedAt:new Date().toISOString(),items,journal,settings:S};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_backup_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);toast('Export téléchargé ✓');}
@@ -1803,7 +1807,6 @@ function showOriginal(id){
 
 // ── CONFIRMATION SUPPRESSION ─────────────────────────────
 function showUndoToast(msg, undoFn){
-  // Remplacé par une boîte de confirmation à 2 boutons
   showDeleteConfirm(msg, undoFn);
 }
 function clearUndoToast(){}
@@ -1814,16 +1817,24 @@ function showDeleteConfirm(msg, onConfirm){
   const overlay=document.createElement('div');
   overlay.id='deleteConfirmBox';
   overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  overlay.innerHTML=`<div style="background:rgba(245,242,238,0.98);border-radius:18px;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.16);">
-    <div style="font-size:13px;color:rgba(80,70,58,0.6);margin-bottom:18px;line-height:1.5;">${msg}</div>
-    <div style="display:flex;gap:10px;">
-      <button onclick="document.getElementById('deleteConfirmBox').remove();" style="flex:1;font-family:inherit;background:rgba(255,255,255,0.6);border:0.5px solid rgba(185,175,160,0.4);border-radius:12px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;color:rgba(60,52,42,0.7);">Annuler</button>
-      <button onclick="document.getElementById('deleteConfirmBox').remove();(arguments[0])();" style="flex:1;font-family:inherit;background:var(--red);border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;color:#fff;">Supprimer</button>
-    </div>
-  </div>`;
-  // Passer la fonction au bouton Supprimer
-  overlay.querySelector('button:last-child').onclick=()=>{overlay.remove();onConfirm();};
-  document.body.appendChild(overlay);
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(245,242,238,0.98);border-radius:18px;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.16);';
+  const txt=document.createElement('div');
+  txt.style.cssText='font-size:13px;color:rgba(80,70,58,0.6);margin-bottom:18px;line-height:1.5;';
+  txt.textContent=msg;
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:10px;';
+  const btnCancel=document.createElement('button');
+  btnCancel.textContent='Annuler';
+  btnCancel.style.cssText='flex:1;font-family:inherit;background:rgba(255,255,255,0.6);border:0.5px solid rgba(185,175,160,0.4);border-radius:12px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;color:rgba(60,52,42,0.7);';
+  btnCancel.onclick=()=>overlay.remove();
+  const btnOk=document.createElement('button');
+  btnOk.textContent='Supprimer';
+  btnOk.style.cssText='flex:1;font-family:inherit;background:#cc2200;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;color:#fff;';
+  btnOk.onclick=()=>{overlay.remove();onConfirm();};
+  row.appendChild(btnCancel);row.appendChild(btnOk);
+  box.appendChild(txt);box.appendChild(row);
+  overlay.appendChild(box);document.body.appendChild(overlay);
 }
 
 // ── INIT ──────────────────────────────────────────────────
