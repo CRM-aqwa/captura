@@ -884,8 +884,13 @@ function promptDriveConnect(){
   overlay.appendChild(box);document.body.appendChild(overlay);
 }
 function toggleDriveAuth(){
-  if(token){token=null;ls.setStr('cap_t','');fids={};driveUI('disconnected');toast('Drive déconnecté');}
-  else{if(!tclient){toast('Google non chargé');return;}tclient.requestAccessToken({prompt:''});}
+  if(token){token=null;ls.setStr('cap_t','');ls.setStr('cap_t_exp','0');fids={};driveUI('disconnected');toast('Drive déconnecté');}
+  else{
+    if(!tclient){toast('Google non chargé');return;}
+    // Sur Safari iOS en mode PWA, utiliser prompt consent pour éviter le blocage popup
+    const isSafariPWA=navigator.standalone||window.matchMedia('(display-mode: standalone)').matches;
+    tclient.requestAccessToken({prompt: isSafariPWA ? 'consent' : ''});
+  }
 }
 function driveUI(s){
   const b=$('driveBtn'),t=$('driveTxt');b.className='drive-pill '+s;
@@ -1387,6 +1392,8 @@ function renderIdeas(overrideList){
   if(!overrideList){if(ideaFilter==='all'){}else if(ideaFilter.startsWith('d:'))ideas=ideas.filter(i=>i.funcDomain===ideaFilter.slice(2));else ideas=ideas.filter(i=>i.project===ideaFilter);}
   if(!ideas.length){list.innerHTML=`<div class="empty"><div class="empty-icon" style="font-size:36px;opacity:0.15;margin-bottom:12px;">💡</div><p style="color:var(--text3)">Aucune idée.<br>Appuie sur "Nouvelle idée" et parle.</p></div>`;return;}
   const byDomain={};ideas.forEach(i=>{const d=i.funcDomain||'Sans domaine';if(!byDomain[d])byDomain[d]=[];byDomain[d].push(i);});
+  // Trier chaque groupe par date de création décroissante (plus récent en haut)
+  Object.keys(byDomain).forEach(d=>{byDomain[d].sort((a,b)=>b.id-a.id);});
   let h='';Object.keys(byDomain).sort().forEach(d=>{
     h+=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>${esc(d)} <span style="opacity:0.5;font-size:9px;">(${byDomain[d].length})</span></div>`;
     byDomain[d].forEach(i=>{
@@ -1510,7 +1517,59 @@ function openActionMenu(id){
 function closeActionMenu(){$('actionMenu').classList.remove('open');}
 function actionDone(){const id=activeItemId;closeActionMenu();const it=items.find(i=>i.id===id);if(!it)return;it.done=true;it.doneAt=new Date().toISOString();saveAll();renderAll();if(curTab==='todo')renderTodo();toast('Tâche terminée ✓');}
 async function actionAddCalendar(){const id=activeItemId;closeActionMenu();const item=items.find(i=>i.id===id);if(!item||((!item.date)&&(!item.time)))return;if(!token){toast('Connecte Drive d\'abord');return;}try{await createCalendarEventWithReminder(item,0,'popup');item.calendarSync=true;await saveAll();renderAll();toast('Ajouté à Google Calendar ✓');}catch(e){toast('Calendar : '+e.message.slice(0,50));}}
-function actionEdit(){const id=activeItemId;closeActionMenu();setTimeout(()=>startEdit(id),100);}
+function actionEdit(){
+  const id=activeItemId;closeActionMenu();
+  const item=items.find(i=>i.id===id);
+  if(!item)return;
+  if(item.type==='idea'){setTimeout(()=>startEditIdea(id),100);}
+  else{setTimeout(()=>startEdit(id),100);}
+}
+
+function startEditIdea(id){
+  const item=items.find(i=>i.id===id);if(!item)return;
+  const overlay=document.createElement('div');
+  overlay.id='editIdeaOverlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:400;background:rgba(180,172,160,0.5);backdrop-filter:blur(14px);display:flex;align-items:flex-end;justify-content:center;';
+  const box=document.createElement('div');
+  box.style.cssText='background:rgba(245,242,238,0.98);border-radius:24px 24px 0 0;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:600px;box-shadow:0 -8px 40px rgba(0,0,0,0.14);max-height:88vh;overflow-y:auto;';
+  const title=document.createElement('div');
+  title.style.cssText='font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(80,70,58,0.42);margin-bottom:12px;';
+  title.textContent='Modifier cette idée';
+  const fTitle=document.createElement('textarea');
+  fTitle.style.cssText='width:100%;font-family:inherit;font-size:15px;color:#1a1714;background:rgba(255,255,255,0.55);border:0.5px solid rgba(0,0,0,0.1);border-radius:10px;padding:10px 12px;outline:none;margin-bottom:8px;resize:vertical;min-height:60px;';
+  fTitle.value=item.title||'';
+  const fSummary=document.createElement('textarea');
+  fSummary.style.cssText='width:100%;font-family:inherit;font-size:13px;color:#1a1714;background:rgba(255,255,255,0.55);border:0.5px solid rgba(0,0,0,0.1);border-radius:10px;padding:10px 12px;outline:none;margin-bottom:8px;resize:vertical;min-height:80px;';
+  fSummary.placeholder='Résumé…';
+  fSummary.value=item.summary||'';
+  const fTags=document.createElement('input');
+  fTags.type='text';
+  fTags.style.cssText='width:100%;font-family:inherit;font-size:13px;color:#1a1714;background:rgba(255,255,255,0.55);border:0.5px solid rgba(0,0,0,0.1);border-radius:10px;padding:10px 12px;outline:none;margin-bottom:16px;';
+  fTags.placeholder='Tags séparés par des virgules…';
+  fTags.value=(item.tags||[]).join(', ');
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:8px;';
+  const btnCancel=document.createElement('button');
+  btnCancel.textContent='Annuler';
+  btnCancel.style.cssText='flex:1;font-family:inherit;background:rgba(255,255,255,0.5);border:0.5px solid rgba(185,175,160,0.3);border-radius:12px;padding:12px;font-size:14px;cursor:pointer;color:rgba(60,52,42,0.7);';
+  btnCancel.onclick=()=>overlay.remove();
+  const btnSave=document.createElement('button');
+  btnSave.textContent='Sauvegarder ✓';
+  btnSave.style.cssText='flex:2;font-family:inherit;background:#007AFF;color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;';
+  btnSave.onclick=async()=>{
+    item.title=fTitle.value.trim()||item.title;
+    item.summary=fSummary.value.trim();
+    const tagsRaw=fTags.value.trim();
+    item.tags=tagsRaw?tagsRaw.split(',').map(t=>t.trim()).filter(Boolean):[];
+    overlay.remove();
+    await saveAll();renderAll();renderIdeas();
+    toast('Idée modifiée ✓');
+  };
+  row.appendChild(btnCancel);row.appendChild(btnSave);
+  box.appendChild(title);box.appendChild(fTitle);box.appendChild(fSummary);box.appendChild(fTags);box.appendChild(row);
+  overlay.appendChild(box);document.body.appendChild(overlay);
+  setTimeout(()=>fTitle.focus(),100);
+}
 function actionDeleteConfirm(){$('actionMenu').classList.remove('open');$('confirmDel').classList.add('open');}
 function closeConfirmDel(){$('confirmDel').classList.remove('open');$('actionMenu').classList.add('open');}
 function confirmDelete(){$('confirmDel').classList.remove('open');if(!activeItemId)return;items=items.filter(i=>i.id!==activeItemId);saveAll();renderAll();if(curTab==='todo')renderTodo();toast('Supprimé');activeItemId=null;}
@@ -1548,6 +1607,8 @@ function renderAll(){renderDomSel();renderDomFilters();renderItems();updateStats
 function renderItems(overrideList){
   const list=$('itemsList');let f=overrideList?[...overrideList]:[...items];
   if(!overrideList){
+    // Trier par id décroissant (plus récent en haut)
+    f.sort((a,b)=>b.id-a.id);
     if(curFilter==='done'){f=f.filter(i=>i.done);if(!f.length){list.innerHTML=`<div class="empty"><div class="empty-icon">✓</div><p>Aucune tâche terminée.</p></div>`;return;}let h=`<div class="sec-head"><span class="sec-dot" style="background:var(--green)"></span>Terminé (${f.length})</div>`;f.forEach(i=>h+=icard(i));list.innerHTML=h;return;}
     f=f.filter(i=>!i.done&&i.type!=='idea');
     if(curFilter==='week'){const now=new Date();const weekEnd=new Date(now);weekEnd.setDate(now.getDate()+(6-now.getDay()+1));const weekEndISO=weekEnd.toISOString().split('T')[0];const todayISO=now.toISOString().split('T')[0];f=f.filter(i=>i.date&&i.date>=todayISO&&i.date<=weekEndISO).sort((a,b)=>a.date.localeCompare(b.date));if(!f.length){list.innerHTML=`<div class="empty"><p style="color:var(--text3)">Aucune tâche cette semaine.</p></div>`;return;}let h='';const byDate={};f.forEach(i=>{if(!byDate[i.date])byDate[i.date]=[];byDate[i.date].push(i);});Object.keys(byDate).sort().forEach(d=>{h+=`<div class="sec-head"><span class="sec-dot dot-todo"></span>${fmtDateFull(d)}</div>`;byDate[d].forEach(i=>h+=icard(i));});list.innerHTML=h;return;}
