@@ -846,10 +846,20 @@ function initAuth(){
   if(typeof google==='undefined'){setTimeout(initAuth,600);return;}
   tclient=google.accounts.oauth2.initTokenClient({client_id:GID,scope:SCOPES,callback:async r=>{
     if(r.error){toast('Drive : '+r.error);return;}
-    token=r.access_token;ls.setStr('cap_t',token);driveUI('connected');await syncDown();
+    token=r.access_token;
+    ls.setStr('cap_t',token);
+    ls.setStr('cap_t_exp',String(Date.now()+3500*1000));
+    driveUI('connected');await syncDown();
   }});
   const t=ls.str('cap_t');
-  if(t){token=t;driveUI('connected');syncDown();}else driveUI('disconnected');
+  const exp=parseInt(ls.str('cap_t_exp')||'0');
+  if(t&&Date.now()<exp){token=t;driveUI('connected');syncDown();}
+  else if(t){silentRefresh();}
+  else driveUI('disconnected');
+}
+function silentRefresh(){
+  if(!tclient){driveUI('disconnected');return;}
+  tclient.requestAccessToken({prompt:''});
 }
 function toggleDriveAuth(){
   if(token){token=null;ls.setStr('cap_t','');fids={};driveUI('disconnected');toast('Drive déconnecté');}
@@ -862,12 +872,29 @@ function driveUI(s){
   else{t.textContent='Drive';setSyncInfo('Non connecté — local uniquement');}
 }
 function setSyncInfo(m){const e=$('syncInfo');if(e)e.textContent=m;}
-async function dFetch(method,url,body){
+async function dFetch(method,url,body,isRetry){
   const h={'Authorization':'Bearer '+token};let b;
   if(body instanceof FormData)b=body;
   else if(body){h['Content-Type']='application/json';b=JSON.stringify(body);}
   const r=await fetch(url,{method,headers:h,body:b});
-  if(r.status===401){token=null;ls.setStr('cap_t','');driveUI('disconnected');throw new Error('Token expiré');}
+  if(r.status===401){
+    if(!isRetry&&tclient){
+      await new Promise(resolve=>{
+        tclient=google.accounts.oauth2.initTokenClient({client_id:GID,scope:SCOPES,callback:async nr=>{
+          if(!nr.error){
+            token=nr.access_token;
+            ls.setStr('cap_t',token);
+            ls.setStr('cap_t_exp',String(Date.now()+3500*1000));
+            driveUI('connected');
+          }
+          resolve();
+        }});
+        tclient.requestAccessToken({prompt:''});
+      });
+      if(token)return dFetch(method,url,body,true);
+    }
+    token=null;ls.setStr('cap_t','');driveUI('disconnected');throw new Error('Token expiré');
+  }
   return r;
 }
 async function getFid(name){
