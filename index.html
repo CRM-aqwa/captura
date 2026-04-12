@@ -868,7 +868,10 @@ function promptDriveConnect(){
   overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.35);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
   const box=document.createElement('div');
   box.style.cssText='background:rgba(245,242,238,0.98);border-radius:20px;border-top:1.5px solid rgba(255,255,255,0.9);padding:1.75rem 1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.18);';
-  box.innerHTML='<div style="font-size:36px;margin-bottom:12px;">☁️</div><div style="font-family:DM Serif Display,serif;font-size:20px;color:#1a1714;margin-bottom:8px;">Connecter Google Drive</div><div style="font-size:13px;color:rgba(80,70,58,0.6);line-height:1.5;margin-bottom:20px;">Captura n'est pas connecté à Drive. Tes données ne sont pas synchronisées.</div>';
+  const bIcon=document.createElement('div');bIcon.style.cssText='font-size:36px;margin-bottom:12px;';bIcon.textContent='☁️';
+  const bTitle=document.createElement('div');bTitle.style.cssText='font-size:20px;color:#1a1714;margin-bottom:8px;font-weight:600;';bTitle.textContent='Connecter Google Drive';
+  const bSub=document.createElement('div');bSub.style.cssText='font-size:13px;color:rgba(80,70,58,0.6);line-height:1.5;margin-bottom:20px;';bSub.textContent='Captura nest pas connecte a Drive. Tes donnees ne sont pas synchronisees.';
+  box.appendChild(bIcon);box.appendChild(bTitle);box.appendChild(bSub);
   const btnConnect=document.createElement('button');
   btnConnect.textContent='Connecter Drive ✓';
   btnConnect.style.cssText='width:100%;font-family:inherit;background:linear-gradient(160deg,#18883a,#0f5c27);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:10px;box-shadow:0 4px 14px rgba(24,136,58,0.3);display:block;';
@@ -1585,7 +1588,9 @@ function exportIdeas(){
   overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
   const box=document.createElement('div');
   box.style.cssText='background:rgba(245,242,238,0.98);border-radius:18px;padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.16);';
-  box.innerHTML='<div style="font-family:DM Serif Display,serif;font-size:18px;color:#1a1714;margin-bottom:6px;">Exporter les idées</div><div style="font-size:12px;color:rgba(80,70,58,0.5);margin-bottom:18px;">'+f.length+' idée'+(f.length>1?'s':'')+'</div>';
+  const eT=document.createElement('div');eT.style.cssText='font-size:18px;color:#1a1714;margin-bottom:6px;font-weight:600;';eT.textContent='Exporter les id\u00e9es';
+  const eS=document.createElement('div');eS.style.cssText='font-size:12px;color:rgba(80,70,58,0.5);margin-bottom:18px;';eS.textContent=f.length+' id\u00e9e'+(f.length>1?'s':'');
+  box.appendChild(eT);box.appendChild(eS);
   const btnTxt=document.createElement('button');
   btnTxt.textContent='📄 Exporter en texte lisible';
   btnTxt.style.cssText='width:100%;font-family:inherit;background:#007AFF;color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;display:block;';
