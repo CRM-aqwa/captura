@@ -67,7 +67,7 @@ body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 #navJrn.active .nav-icon{color:var(--purple);}
 #navJrn.active .nav-label{color:var(--purple);}
 
-.page{display:none;padding:1.25rem 1rem 1.5rem;max-width:600px;margin:0 auto;}
+.page{display:none;padding:1.25rem 1rem 1.5rem;padding-top:calc(52px + 1.25rem);max-width:600px;margin:0 auto;}
 .page.active{display:block;}
 
 .mic-section{background:var(--glass-bg);border-radius:var(--radius);border-top:var(--glass-border-top);border-left:var(--glass-border-left);border-right:var(--glass-border-right);border-bottom:var(--glass-border-bottom);box-shadow:var(--glass-shadow),inset 0 2px 5px rgba(255,255,255,0.1);backdrop-filter:blur(40px) saturate(160%) brightness(1.04);-webkit-backdrop-filter:blur(40px) saturate(160%) brightness(1.04);padding:1.5rem 1.25rem 1.25rem;margin-bottom:1rem;position:relative;overflow:hidden;}
@@ -1709,54 +1709,58 @@ function updateStats(){
 function renderDomSel(){const s=$('domSel'),p=s.value;s.innerHTML='<option value="">Domaine (auto)</option>'+(S.cats||[]).map(c=>`<option value="${esc(c)}"${c===p?' selected':''}>${esc(c)}</option>`).join('');}
 function renderDomFilters(){$('domFilters').innerHTML=(S.cats||[]).map(c=>`<button class="fpill" onclick="setFilter('${esc(c)}',this)">${esc(c)}</button>`).join('');}
 
-function exportCaptures(){const f=items.filter(i=>!i.done&&i.type!=='idea');const blob=new Blob([JSON.stringify({items:f,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_captures_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);toast('Export téléchargé ✓');}
-function exportIdeas(){
-  const f=items.filter(i=>i.type==='idea'&&!i.done);
-  const overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.3);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1.5rem;';
-  const box=document.createElement('div');
-  box.style.cssText='background:rgba(245,242,238,0.98);border-radius:18px;padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.16);';
-  const eT=document.createElement('div');eT.style.cssText='font-size:18px;color:#1a1714;margin-bottom:6px;font-weight:600;';eT.textContent='Exporter les id\u00e9es';
-  const eS=document.createElement('div');eS.style.cssText='font-size:12px;color:rgba(80,70,58,0.5);margin-bottom:18px;';eS.textContent=f.length+' id\u00e9e'+(f.length>1?'s':'');
-  box.appendChild(eT);box.appendChild(eS);
-  const btnTxt=document.createElement('button');
-  btnTxt.textContent='📄 Exporter en texte lisible';
-  btnTxt.style.cssText='width:100%;font-family:inherit;background:#007AFF;color:#fff;border:none;border-radius:12px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:8px;display:block;';
-  btnTxt.onclick=()=>{
-    overlay.remove();
-    const byDomain={};f.forEach(i=>{const d=i.funcDomain||'Sans domaine';if(!byDomain[d])byDomain[d]=[];byDomain[d].push(i);});
-    const dateStr=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
-    let html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Idées Captura</title><style>body{font-family:-apple-system,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1714;}h1{font-size:24px;margin-bottom:4px;}.meta{font-size:13px;color:#888;margin-bottom:32px;}h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#999;margin:28px 0 10px;padding-bottom:6px;border-bottom:1px solid #eee;}.idea{margin-bottom:14px;padding:12px 14px;border-radius:8px;background:#f9f8f6;border:1px solid #ece9e4;}.idea-title{font-size:15px;font-weight:600;margin-bottom:3px;}.idea-summary{font-size:13px;color:#555;line-height:1.5;}.idea-meta{font-size:11px;color:#aaa;margin-top:6px;}@media print{body{margin:20px;}}</style></head><body><h1>Mes idées Captura</h1><div class="meta">Export du '+dateStr+' — '+f.length+' idée'+(f.length>1?'s':'')+'</div>';
-    Object.keys(byDomain).sort().forEach(d=>{
-      html+='<h2>'+d+'</h2>';
-      byDomain[d].forEach(i=>{
-        const tags=(i.tags||[]).map(t=>'#'+t).join(' ');
-        html+='<div class="idea"><div class="idea-title">'+i.title+'</div>'+(i.summary?'<div class="idea-summary">'+i.summary+'</div>':'')+'<div class="idea-meta">'+(i.project||'')+(tags?' · '+tags:'')+'</div></div>';
-      });
-    });
-    html+='</body></html>';
-    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');a.href=url;a.download='captura_idees_'+new Date().toISOString().split('T')[0]+'.html';a.click();URL.revokeObjectURL(url);
-    toast('Export téléchargé — ouvre et imprime en PDF ✓');
-  };
-  const btnJson=document.createElement('button');
-  btnJson.textContent='{ } Exporter en JSON';
-  btnJson.style.cssText='width:100%;font-family:inherit;background:rgba(255,255,255,0.6);border:0.5px solid rgba(185,175,160,0.3);border-radius:12px;padding:12px;font-size:14px;cursor:pointer;color:rgba(60,52,42,0.7);margin-bottom:8px;display:block;';
-  btnJson.onclick=()=>{
-    overlay.remove();
-    const blob=new Blob([JSON.stringify({items:f,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='captura_idees_'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(url);
-    toast('Export JSON téléchargé ✓');
-  };
-  const btnAnn=document.createElement('button');
-  btnAnn.textContent='Annuler';
-  btnAnn.style.cssText='width:100%;font-family:inherit;background:none;border:none;padding:8px;cursor:pointer;color:rgba(80,70,58,0.4);font-size:13px;';
-  btnAnn.onclick=()=>overlay.remove();
-  box.appendChild(btnTxt);box.appendChild(btnJson);box.appendChild(btnAnn);
-  overlay.appendChild(box);document.body.appendChild(overlay);
+function exportCaptures(){
+  const f=items.filter(i=>!i.done&&i.type!=='idea').sort((a,b)=>b.id-a.id);
+  const dateStr=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
+  let txt=`CAPTURA — Toutes les captures\nExport du ${dateStr}\n${'─'.repeat(40)}\n\n`;
+  f.forEach((i,idx)=>{
+    txt+=`${idx+1}. ${i.title}\n`;
+    if(i.summary)txt+=`   ${i.summary}\n`;
+    if(i.project&&i.project!=='Autre')txt+=`   Projet : ${i.project}\n`;
+    if(i.date)txt+=`   Date : ${fmtDate(i.date)}${i.time?' à '+i.time:''}\n`;
+    if(i.priority==='urgent')txt+=`   ⚡ URGENT\n`;
+    txt+='\n';
+  });
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download=`captura_captures_${new Date().toISOString().split('T')[0]}.txt`;
+  a.click();URL.revokeObjectURL(url);toast('Export téléchargé ✓');
 }
-function exportJournal(){const blob=new Blob([journal.map(e=>`${e.date}\n${e.summary}\n`).join('\n---\n\n')],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_journal_${new Date().toISOString().split('T')[0]}.txt`;a.click();URL.revokeObjectURL(url);toast('Journal exporté ✓');}
+function exportIdeas(){
+  const f=items.filter(i=>i.type==='idea'&&!i.done).sort((a,b)=>b.id-a.id);
+  const dateStr=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
+  let txt=`CAPTURA — Mes idées\nExport du ${dateStr}\n${'─'.repeat(40)}\n\n`;
+  f.forEach((i,idx)=>{
+    txt+=`${idx+1}. ${i.title}\n`;
+    if(i.summary)txt+=`   ${i.summary}\n`;
+    if(i.project&&i.project!=='Autre')txt+=`   Projet : ${i.project}\n`;
+    if(i.funcDomain)txt+=`   Domaine : ${i.funcDomain}\n`;
+    const tags=(i.tags||[]).join(', ');
+    if(tags)txt+=`   Tags : ${tags}\n`;
+    txt+='\n';
+  });
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download=`captura_idees_${new Date().toISOString().split('T')[0]}.txt`;
+  a.click();URL.revokeObjectURL(url);toast('Export téléchargé ✓');
+}
+function exportJournal(){
+  const dateStr=new Date().toLocaleDateString('fr-CH',{day:'numeric',month:'long',year:'numeric'});
+  let txt=`CAPTURA — Journal\nExport du ${dateStr}\n${'─'.repeat(40)}\n\n`;
+  const sorted=[...journal].sort((a,b)=>b.id-a.id);
+  sorted.forEach(e=>{
+    txt+=`${fmtDateFull(e.date)}\n`;
+    txt+=`${e.summary}\n`;
+    if(e.persons&&e.persons.length)txt+=`Personnes : ${e.persons.join(', ')}\n`;
+    if(e.places&&e.places.length)txt+=`Lieux : ${e.places.join(', ')}\n`;
+    if(e.amounts&&e.amounts.length)txt+=`Montants : ${e.amounts.join(', ')}\n`;
+    txt+='\n───\n\n';
+  });
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+  a.download=`captura_journal_${new Date().toISOString().split('T')[0]}.txt`;
+  a.click();URL.revokeObjectURL(url);toast('Journal exporté ✓');
+}
 function exportAll(){const data={version:2,exportedAt:new Date().toISOString(),items,journal,settings:S};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captura_backup_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);toast('Export téléchargé ✓');}
 function importBackup(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=async ev=>{try{const data=JSON.parse(ev.target.result);if(Array.isArray(data.items)){const map={};items.forEach(i=>map[i.id]=i);data.items.forEach(i=>map[i.id]=i);items=Object.values(map).sort((a,b)=>b.id-a.id);}if(Array.isArray(data.journal)){const map={};journal.forEach(e=>map[e.id]=e);data.journal.forEach(e=>map[e.id]=e);journal=Object.values(map).sort((a,b)=>b.id-a.id);}if(data.settings)S={...S,...data.settings};await saveAll();renderAll();toast(`Import réussi — ${items.length} captures, ${journal.length} journal`);}catch(err){toast('Erreur import');}};reader.readAsText(file);e.target.value='';}
 async function archiveYear(isAuto){const now=new Date();const y=isAuto?now.getFullYear()-1:now.getFullYear();const ai=items.filter(i=>new Date(i.createdAt||0).getFullYear()===y);const aj=journal.filter(e=>new Date(e.date||e.createdAt||0).getFullYear()===y);if(!ai.length&&!aj.length){if(!isAuto)toast(`Aucune donnée de ${y}`);return;}if(token){try{await dWrite(`captura_archive_${y}.json`,{year:y,items:ai,journal:aj});}catch(e){}}items=items.filter(i=>new Date(i.createdAt||0).getFullYear()!==y);journal=journal.filter(e=>new Date(e.date||e.createdAt||0).getFullYear()!==y);await saveAll();renderAll();toast(`${ai.length+aj.length} entrées archivées (${y})`);}
